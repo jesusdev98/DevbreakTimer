@@ -1,0 +1,90 @@
+<ng-container
+  *ngIf="{
+    status: (status$ | async),
+    time: (remainingTime$ | async)
+  } as vm">
+  <section
+    class="timer-card"
+    [class.timer-card--idle]="vm.status === 'idle'"
+    [class.timer-card--running]="vm.status === 'running'"
+    [class.timer-card--paused]="vm.status === 'paused'"
+    [class.timer-card--completed]="vm.status === 'completed'">
+    <header class="timer-card__header">
+      <p class="timer-card__eyebrow">DevBreak Timer</p>
+      <h1 class="timer-card__title">Countdown</h1>
+    </header>
+
+    <div class="timer-card__display">
+      <span
+        class="timer-card__time"
+        [class.timer-card__time--running]="vm.status === 'running'"
+        [class.timer-card__time--completed]="vm.status === 'completed'"
+        aria-live="polite">
+        {{ formatTime(vm.time) }}
+      </span>
+
+      <span
+        class="timer-card__status"
+        [class.timer-card__status--idle]="vm.status === 'idle'"
+        [class.timer-card__status--running]="vm.status === 'running'"
+        [class.timer-card__status--paused]="vm.status === 'paused'"
+        [class.timer-card__status--completed]="vm.status === 'completed'">
+        {{ vm.status }}
+      </span>
+    </div>
+
+    <div *ngIf="vm.status === 'idle'" class="timer-hint">
+      Set a duration and press Start
+    </div>
+
+    <div *ngIf="vm.status === 'completed'" class="exercise">
+      {{ currentExercise }}
+    </div>
+
+    <div class="progress">
+      <div class="progress__bar" [style.width.%]="progress"></div>
+    </div>
+
+    <label class="timer-card__field">
+      <span class="timer-card__label">Duration (min)</span>
+      <input
+        class="timer-card__input"
+        type="number"
+        min="1"
+        step="1"
+        inputmode="numeric"
+        placeholder="e.g. 25"
+        [(ngModel)]="durationInMinutes"
+        [disabled]="vm.status === 'running'" />
+    </label>
+
+    <div class="timer-card__actions">
+      <button
+        class="timer-card__button timer-card__button--primary"
+        [class.timer-card__button--muted]="vm.status === 'running'"
+        [class.timer-card__button--resume]="vm.status === 'paused'"
+        type="button"
+        (click)="start()"
+        [disabled]="vm.status === 'running'">
+        {{ vm.status === 'paused' ? 'Resume' : vm.status === 'completed' ? 'Restart' : 'Start' }}
+      </button>
+
+      <button
+        class="timer-card__button timer-card__button--secondary"
+        [class.timer-card__button--paused]="vm.status === 'paused'"
+        type="button"
+        (click)="pause()"
+        [disabled]="vm.status !== 'running'">
+        Pause
+      </button>
+
+      <button
+        class="timer-card__button timer-card__button--ghost"
+        [class.timer-card__button--highlight]="vm.status === 'completed'"
+        type="button"
+        (click)="reset()">
+        Reset
+      </button>
+    </div>
+  </section>
+</ng-container>

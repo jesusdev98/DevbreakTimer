@@ -1,59 +1,60 @@
-# DevbreakTimer
+# DevBreak Timer
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.1.2.
+DevBreak Timer is a small Angular productivity app built around a focused countdown flow: set a duration, start the timer, pause or resume when needed, and get a break prompt when the session ends.
 
-## Development server
+## Screenshot
 
-To start a local development server, run:
+![DevBreak Timer screenshot placeholder](./docs/devbreak-timer-screenshot.png)
 
-```bash
-ng serve
-```
+_Replace this image with an updated app screenshot._
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Features
 
-## Code scaffolding
+- Start, pause, resume, and reset timer flow
+- Reactive state management with RxJS `BehaviorSubject`
+- Local persistence with `localStorage`
+- Clean startup that validates persisted state before using it
+- Dynamic time formatting: `mm:ss` for shorter sessions and `hh:mm:ss` for longer ones
+- Progress bar synced with the remaining time
+- Browser notification on completion
+- Random break exercise suggestion when the timer ends
+- Responsive UI styled with SCSS
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Tech Stack
 
-```bash
-ng generate component component-name
-```
+- Angular 21
+- TypeScript
+- RxJS
+- SCSS
+- Vitest
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+## Run Locally
 
 ```bash
-ng test
+npm install
+npm start
 ```
 
-## Running end-to-end tests
+The app runs by default at `http://localhost:4200/`.
 
-For end-to-end (e2e) testing, run:
+Useful commands:
 
 ```bash
-ng e2e
+npm run build
+npm test
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## Technical Decisions
 
-## Additional Resources
+- The timer logic lives in a dedicated service instead of the component. This keeps countdown behavior, status transitions, and persistence isolated from the UI layer.
+- RxJS `BehaviorSubject` is used for the timer state because the view needs the latest value immediately on subscription and must react to updates over time.
+- Persistence is intentionally conservative. The service reads from `localStorage`, validates the stored shape and values, and falls back to a clean initial state if the data is invalid or stale.
+- The component focuses on presentation concerns such as formatting the time, mapping state to button behavior, and updating the progress bar.
+- Time formatting is handled explicitly to support both short sessions and longer runs without changing the underlying timer model.
+- Completion feedback is split into two UI-facing concerns: a browser notification and a random exercise prompt, which keeps the timer service independent from browser-specific side effects.
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## Future Improvements
+
+- Add configurable presets such as `25 / 5` or custom work-break cycles
+- Bundle and validate the completion sound asset as part of the app
+- Add a small test suite for timer transitions and persistence edge cases
