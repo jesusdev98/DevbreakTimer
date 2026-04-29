@@ -1,60 +1,73 @@
+Actúa como un Senior Frontend Engineer preparando un README para portfolio profesional.
+
+Proyecto: DevBreak Timer (Angular)
+
+Objetivo:
+Crear un README atractivo para reclutadores, claro, visual y profesional.
+NO demasiado largo, pero sí impactante.
+
+Tareas:
+
+1. Reescribir README.md completo con esta estructura:
+
 # DevBreak Timer
 
-DevBreak Timer is a small Angular productivity app built around a focused countdown flow: set a duration, start the timer, pause or resume when needed, and get a break prompt when the session ends.
+## 🚀 Live Demo
+(enlace a GitHub Pages)
 
-## Screenshot
+## 🧠 Overview
+Explicación breve (2-3 líneas):
+- Qué hace la app
+- Para quién está pensada
+- Qué problema resuelve
 
-![DevBreak Timer screenshot placeholder](./docs/devbreak-timer-screenshot.png)
+## ✨ Features
+Lista clara y atractiva:
+- Smart countdown (start / pause / resume / restart)
+- Dynamic time format (mm:ss → hh:mm:ss)
+- Progress bar synced with time
+- Browser notification + sound on completion
+- Random break exercise suggestion
+- Clean state management with RxJS
+- Local persistence (safe + validated)
+- Responsive UI
 
-_Replace this image with an updated app screenshot._
+## 🖼️ Preview
+Insertar imagen:
+assets/screenshot.png
 
-## Features
-
-- Start, pause, resume, and reset timer flow
-- Reactive state management with RxJS `BehaviorSubject`
-- Local persistence with `localStorage`
-- Clean startup that validates persisted state before using it
-- Dynamic time formatting: `mm:ss` for shorter sessions and `hh:mm:ss` for longer ones
-- Progress bar synced with the remaining time
-- Browser notification on completion
-- Random break exercise suggestion when the timer ends
-- Responsive UI styled with SCSS
-
-## Tech Stack
-
-- Angular 21
+## 🛠 Tech Stack
+- Angular
 - TypeScript
 - RxJS
 - SCSS
-- Vitest
 
-## Run Locally
-
-```bash
+## ⚙️ Run locally
+Bloque corto:
 npm install
-npm start
-```
+ng serve
 
-The app runs by default at `http://localhost:4200/`.
+## 🧩 Technical highlights
+Bullets cortos:
+- State isolated in service (clean architecture)
+- BehaviorSubject for reactive UI
+- Defensive localStorage parsing
+- UI separated from business logic
 
-Useful commands:
+## 📈 Future improvements
+Muy breve:
+- Presets (Pomodoro)
+- Settings panel
+- Sound customization
 
-```bash
-npm run build
-npm test
-```
+2. Añadir badges arriba:
+- Angular
+- TypeScript
+- License (MIT opcional)
 
-## Technical Decisions
+3. Mantener tono profesional, no académico
+4. NO escribir párrafos largos
+5. Evitar texto genérico tipo “this project demonstrates…”
 
-- The timer logic lives in a dedicated service instead of the component. This keeps countdown behavior, status transitions, and persistence isolated from the UI layer.
-- RxJS `BehaviorSubject` is used for the timer state because the view needs the latest value immediately on subscription and must react to updates over time.
-- Persistence is intentionally conservative. The service reads from `localStorage`, validates the stored shape and values, and falls back to a clean initial state if the data is invalid or stale.
-- The component focuses on presentation concerns such as formatting the time, mapping state to button behavior, and updating the progress bar.
-- Time formatting is handled explicitly to support both short sessions and longer runs without changing the underlying timer model.
-- Completion feedback is split into two UI-facing concerns: a browser notification and a random exercise prompt, which keeps the timer service independent from browser-specific side effects.
-
-## Future Improvements
-
-- Add configurable presets such as `25 / 5` or custom work-break cycles
-- Bundle and validate the completion sound asset as part of the app
-- Add a small test suite for timer transitions and persistence edge cases
+Output:
+README completo listo para copiar
