@@ -1,68 +1,56 @@
 # DevBreak Timer
 
-![Angular](https://img.shields.io/badge/Angular-21-red)
-![TypeScript](https://img.shields.io/badge/TypeScript-blue)
-![Status](https://img.shields.io/badge/status-live-success)
+Angular productivity timer for focused work sessions, reactive state handling, and polished break feedback.
 
-## 🚀 Live Demo
-👉 https://jesusdev98.github.io/DevbreakTimer/
+## Live Demo
 
----
+https://jesusdev98.github.io/DevbreakTimer/
 
-## 🧠 Overview
-DevBreak Timer is a focused productivity timer built for developers and knowledge workers who want a lightweight way to structure work sessions.
-It handles countdown flow, pause and resume states, and completion feedback in a clean UI that fits short focus blocks and break-based routines.
+## Overview
 
----
+DevBreak Timer is a countdown app built for developers and knowledge workers who want a simple focus tool without extra setup.
+It covers the full session flow, keeps state reactive, and adds a small break ritual when the timer ends.
 
-## ✨ Features
+## Features
 
-- Smart countdown (`start` / `pause` / `resume` / `restart`)
-- Dynamic time formatting (`mm:ss` → `hh:mm:ss`)
+- Smart countdown with `start`, `pause`, `resume`, and `reset`
+- Dynamic time formatting from `mm:ss` to `hh:mm:ss`
 - Progress bar synced with remaining time
-- Browser notifications + sound on completion
-- Random break exercise suggestion
-- Reactive state management with RxJS
+- Browser notification and completion sound
+- Random break exercise suggestion after each session
+- Reactive state management with RxJS `BehaviorSubject`
 - Safe `localStorage` persistence with validation
-- Responsive and polished UI
+- Modern dark UI built with SCSS
 
----
+## Preview
 
-## 🖼️ Preview
+![Running state](public/assets/running.png)
+![Completed state](public/assets/completed.png)
 
-![App Preview](public/assets/screenshot.png)
+## Tech Stack
 
----
-
-## 🛠 Tech Stack
-
-- Angular
+- Angular 21
 - TypeScript
 - RxJS
 - SCSS
 
----
-
-## ⚙️ Run locally
+## Run Locally
 
 ```bash
 npm install
 ng serve
 ```
 
----
+## Technical Highlights
 
-## 🧩 Technical Highlights
+- Timer state isolated in a dedicated service
+- `BehaviorSubject` keeps the UI in sync with the latest value
+- Defensive parsing protects against invalid persisted state
+- Presentation logic stays separate from timer and storage rules
+- Completion effects are triggered at the component layer, not inside the core timer state
 
-- State isolated in a dedicated service for cleaner architecture
-- `BehaviorSubject` keeps the UI reactive and immediately in sync
-- Defensive `localStorage` parsing before restoring persisted state
-- UI concerns separated from timer logic and persistence rules
+## Future Improvements
 
----
-
-## 📈 Future Improvements
-
-- Presets such as Pomodoro cycles
-- Settings panel
-- Sound customization
+- Presets for common focus cycles such as Pomodoro
+- Settings panel for duration and notification preferences
+- Custom sound selection
