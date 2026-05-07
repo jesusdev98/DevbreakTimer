@@ -450,9 +450,9 @@
 }
 
 .quick-presets__button--active {
-  border-color: rgba(251, 191, 36, 0.58);
-  background: rgba(251, 191, 36, 0.18);
-  color: #fef3c7;
+  border-color: var(--preset-active-border);
+  background: var(--preset-active-bg);
+  color: var(--preset-active-text);
 }
 
 .quick-presets__button:disabled {
