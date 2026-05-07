@@ -1,1 +1,330 @@
 /* You can add global styles to this file, and also import other style files */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-width: 0;
+  min-height: 100%;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+body {
+  background: var(--app-bg);
+  color: var(--text-primary);
+  transition: background-color 0.28s ease, color 0.28s ease;
+}
+
+:root,
+:root[data-theme='dark'] {
+  --app-bg:
+    radial-gradient(circle at 50% -12%, rgba(30, 64, 175, 0.22), transparent 38%),
+    radial-gradient(circle at 12% 18%, rgba(251, 191, 36, 0.08), transparent 28%),
+    linear-gradient(145deg, #020617 0%, #07111f 42%, #030712 100%);
+  --card-bg:
+    radial-gradient(circle at top left, rgba(251, 191, 36, 0.18), transparent 32%),
+    radial-gradient(circle at 85% 0%, rgba(59, 130, 246, 0.16), transparent 30%),
+    linear-gradient(160deg, rgba(20, 31, 50, 0.98) 0%, rgba(7, 15, 31, 0.98) 100%);
+  --panel-bg: rgba(8, 17, 34, 0.94);
+  --surface-subtle: rgba(15, 28, 50, 0.68);
+  --surface-control: rgba(6, 16, 33, 0.82);
+  --surface-glass: linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(148, 163, 184, 0.035));
+  --surface-disabled: linear-gradient(135deg, rgba(251, 191, 36, 0.09), rgba(15, 28, 50, 0.58));
+  --border-subtle: rgba(148, 163, 184, 0.26);
+  --border-strong: rgba(203, 213, 225, 0.38);
+  --text-primary: #f9fbff;
+  --text-secondary: #d7e1ee;
+  --text-muted: rgba(203, 213, 225, 0.74);
+  --accent: #fbbf24;
+  --accent-contrast: #111827;
+  --success: #2dd66f;
+  --success-text: #c8fbd8;
+  --info: #60a5fa;
+  --info-text: #e0efff;
+  --start-action: linear-gradient(180deg, #ffd76a, #f2ad18);
+  --pause-action: linear-gradient(180deg, #35e97b, #1fb95c);
+  --action-text: #07111f;
+  --reset-action: linear-gradient(180deg, rgba(96, 165, 250, 0.56), rgba(37, 99, 235, 0.42));
+  --shadow-elevated:
+    0 34px 90px rgba(0, 0, 0, 0.58),
+    0 0 0 1px rgba(255, 255, 255, 0.035);
+  --shadow-running:
+    0 34px 96px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(45, 214, 111, 0.2),
+    0 0 42px rgba(45, 214, 111, 0.2);
+  --shadow-paused:
+    0 34px 90px rgba(0, 0, 0, 0.58),
+    0 0 32px rgba(251, 191, 36, 0.16);
+  --shadow-completed:
+    0 34px 90px rgba(0, 0, 0, 0.58),
+    0 0 38px rgba(96, 165, 250, 0.2);
+  --timer-shadow: 0 12px 34px rgba(0, 0, 0, 0.5), 0 0 30px rgba(96, 165, 250, 0.1);
+  --progress-bg: rgba(15, 23, 42, 0.76);
+  --progress-fill: linear-gradient(90deg, #16a34a, #45e783);
+  --disabled-text: rgba(203, 213, 225, 0.64);
+  --modal-scrim: rgba(1, 6, 18, 0.76);
+}
+
+:root[data-theme='light'] {
+  --app-bg:
+    radial-gradient(circle at 50% -10%, rgba(191, 219, 254, 0.58), transparent 36%),
+    radial-gradient(circle at 10% 18%, rgba(251, 191, 36, 0.18), transparent 26%),
+    linear-gradient(145deg, #eef4fb 0%, #dfe8f3 48%, #f7fafc 100%);
+  --card-bg:
+    radial-gradient(circle at top left, rgba(245, 158, 11, 0.2), transparent 32%),
+    radial-gradient(circle at 85% 0%, rgba(37, 99, 235, 0.12), transparent 28%),
+    linear-gradient(160deg, rgba(255, 255, 255, 0.96), rgba(236, 244, 252, 0.94));
+  --panel-bg: rgba(255, 255, 255, 0.94);
+  --surface-subtle: rgba(255, 255, 255, 0.78);
+  --surface-control: rgba(255, 255, 255, 0.96);
+  --surface-glass: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(226, 237, 248, 0.56));
+  --surface-disabled: linear-gradient(135deg, rgba(180, 83, 9, 0.09), rgba(241, 245, 249, 0.88));
+  --border-subtle: rgba(51, 65, 85, 0.2);
+  --border-strong: rgba(30, 41, 59, 0.32);
+  --text-primary: #08111f;
+  --text-secondary: #243449;
+  --text-muted: rgba(51, 65, 85, 0.78);
+  --accent: #b45309;
+  --accent-contrast: #fffaf0;
+  --success: #15803d;
+  --success-text: #14532d;
+  --info: #1d4ed8;
+  --info-text: #1e3a8a;
+  --start-action: linear-gradient(180deg, #fbbf24, #d97706);
+  --pause-action: linear-gradient(180deg, #22c55e, #15803d);
+  --action-text: #07111f;
+  --reset-action: linear-gradient(180deg, rgba(37, 99, 235, 0.78), rgba(29, 78, 216, 0.62));
+  --shadow-elevated:
+    0 28px 72px rgba(30, 41, 59, 0.22),
+    0 1px 0 rgba(255, 255, 255, 0.78) inset;
+  --shadow-running:
+    0 30px 80px rgba(22, 101, 52, 0.2),
+    0 0 0 1px rgba(21, 128, 61, 0.26);
+  --shadow-paused:
+    0 28px 72px rgba(120, 53, 15, 0.18),
+    0 0 0 1px rgba(180, 83, 9, 0.22);
+  --shadow-completed:
+    0 28px 72px rgba(30, 64, 175, 0.18),
+    0 0 0 1px rgba(29, 78, 216, 0.22);
+  --timer-shadow: 0 10px 28px rgba(30, 41, 59, 0.18), 0 1px 0 rgba(255, 255, 255, 0.74);
+  --progress-bg: rgba(148, 163, 184, 0.42);
+  --progress-fill: linear-gradient(90deg, #15803d, #22c55e);
+  --disabled-text: rgba(51, 65, 85, 0.58);
+  --modal-scrim: rgba(15, 23, 42, 0.42);
+}
+
+.settings-entry {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  background: var(--surface-subtle);
+  color: var(--text-secondary);
+  font-size: 0.76rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+.settings-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.settings-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: var(--modal-scrim);
+  cursor: pointer;
+}
+
+.settings-panel {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 520px);
+  max-height: min(720px, calc(100dvh - 2rem));
+  overflow: auto;
+  padding: 1.15rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 24px;
+  background: var(--panel-bg);
+  box-shadow: var(--shadow-elevated);
+  color: var(--text-primary);
+  backdrop-filter: blur(18px);
+  animation: settings-panel-in 0.24s ease;
+  outline: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.settings-panel__header,
+.settings-panel__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.settings-panel__eyebrow {
+  margin: 0 0 0.25rem;
+  color: var(--accent);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.settings-panel h2,
+.settings-panel h3 {
+  margin: 0;
+}
+
+.settings-panel h2 {
+  font-size: 1.35rem;
+}
+
+.settings-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.settings-section h3 {
+  margin-bottom: 0.7rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.settings-segmented,
+.profile-list,
+.custom-profile {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.settings-segmented {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.settings-segmented__option,
+.profile-option,
+.settings-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+  padding: 0.72rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  background: var(--surface-subtle);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.settings-segmented__option--active,
+.profile-option--active {
+  border-color: color-mix(in srgb, var(--accent) 58%, transparent);
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  color: var(--text-primary);
+}
+
+.profile-option span {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.profile-option small {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.custom-profile {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 0.8rem;
+}
+
+.settings-field {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.settings-field input {
+  min-width: 0;
+  padding: 0.72rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  background: var(--surface-control);
+  color: var(--text-primary);
+  font: inherit;
+}
+
+.settings-panel__actions {
+  margin-top: 1.15rem;
+}
+
+.settings-panel__close,
+.settings-action {
+  border: 0;
+  border-radius: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.settings-panel__close {
+  padding: 0.55rem 0.7rem;
+  background: var(--surface-subtle);
+  color: var(--text-secondary);
+}
+
+.settings-action {
+  min-width: 0;
+  padding: 0.8rem 1rem;
+}
+
+.settings-action--ghost {
+  background: var(--surface-subtle);
+  color: var(--text-secondary);
+}
+
+.settings-action--primary {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+@media (max-width: 520px) {
+  .settings-panel {
+    width: 100%;
+    max-height: calc(100dvh - 1rem);
+    border-radius: 20px;
+  }
+
+  .custom-profile,
+  .settings-panel__actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@keyframes settings-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
