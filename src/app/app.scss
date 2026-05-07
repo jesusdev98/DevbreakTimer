@@ -1,9 +1,28 @@
 :host {
   width: 100%;
   min-height: 100dvh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
   padding: clamp(1rem, 4vw, 2rem);
   overflow-x: hidden;
+}
+
+.app-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(20rem, 28.75rem);
+  align-items: start;
+  gap: clamp(1rem, 3vw, 1.5rem);
+  width: min(100%, 1180px);
+  min-width: 0;
+  margin: 0 auto;
+}
+
+.app-shell__kanban,
+.app-shell__timer {
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
 }

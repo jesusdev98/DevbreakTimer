@@ -1,0 +1,22 @@
+<section class="kanban-column" [attr.aria-label]="title">
+  <header class="kanban-column__header">
+    <h3>{{ title }}</h3>
+    <span class="kanban-column__count" [attr.aria-label]="tasks.length + ' tasks'">
+      {{ tasks.length }}
+    </span>
+  </header>
+
+  <div class="kanban-column__tasks" *ngIf="tasks.length; else emptyColumn">
+    <app-task-card
+      *ngFor="let task of tasks"
+      [task]="task"
+      [canMoveBack]="canMoveBack"
+      [canMoveForward]="canMoveForward"
+      (taskAction)="handleTaskAction(task, $event)">
+    </app-task-card>
+  </div>
+
+  <ng-template #emptyColumn>
+    <div class="kanban-column__empty" aria-hidden="true"></div>
+  </ng-template>
+</section>

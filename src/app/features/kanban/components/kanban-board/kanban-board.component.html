@@ -1,0 +1,17 @@
+<section class="kanban-board" aria-labelledby="kanban-title">
+  <header class="kanban-board__header">
+    <p class="kanban-board__eyebrow">Productivity board</p>
+    <h2 id="kanban-title">Kanban</h2>
+  </header>
+
+  <div class="kanban-board__columns">
+    <app-kanban-column
+      *ngFor="let column of columns"
+      [title]="column.title"
+      [tasks]="tasksFor(column.status)"
+      [canMoveBack]="canMoveBack(column.status)"
+      [canMoveForward]="canMoveForward(column.status)"
+      (taskAction)="handleTaskAction($event)">
+    </app-kanban-column>
+  </div>
+</section>

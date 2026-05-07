@@ -1,0 +1,17 @@
+<article class="task-card">
+  <div class="task-card__content">
+    <h4>{{ task.title }}</h4>
+    <p *ngIf="task.description">{{ task.description }}</p>
+  </div>
+
+  <div class="task-card__actions" aria-label="Task actions">
+    <button type="button" [disabled]="!canMoveBack" (click)="emitAction('moveBack')">
+      Move Back
+    </button>
+    <button type="button" [disabled]="!canMoveForward" (click)="emitAction('moveForward')">
+      Move Forward
+    </button>
+    <button type="button" (click)="emitAction('archive')">Archive</button>
+    <button type="button" (click)="emitAction('delete')">Delete</button>
+  </div>
+</article>
