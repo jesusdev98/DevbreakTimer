@@ -1,0 +1,244 @@
+<div
+  class="settings-modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="settings-title"
+  (keydown)="settingsKeydown.emit($event)">
+  <button
+    class="settings-modal__backdrop"
+    type="button"
+    tabindex="-1"
+    aria-label="Close settings"
+    (click)="closeSettings.emit()"></button>
+
+  <form class="settings-panel" (ngSubmit)="saveSettings.emit()">
+    <header class="settings-panel__header">
+      <div>
+        <p class="settings-panel__eyebrow">Workspace</p>
+        <h2 id="settings-title">Settings</h2>
+      </div>
+      <button
+        #settingsCloseButton
+        class="settings-panel__close"
+        type="button"
+        aria-label="Close settings"
+        (click)="closeSettings.emit()">
+        Close
+      </button>
+    </header>
+
+    <section class="settings-section" aria-labelledby="theme-settings-title">
+      <h3 id="theme-settings-title">Theme</h3>
+      <div class="settings-segmented">
+        <label
+          class="settings-segmented__option"
+          [class.settings-segmented__option--active]="settingsDraft.theme === 'dark'">
+          <input type="radio" name="theme" value="dark" [(ngModel)]="settingsDraft.theme" />
+          Dark
+        </label>
+        <label
+          class="settings-segmented__option"
+          [class.settings-segmented__option--active]="settingsDraft.theme === 'light'">
+          <input type="radio" name="theme" value="light" [(ngModel)]="settingsDraft.theme" />
+          Light
+        </label>
+      </div>
+    </section>
+
+    <section class="settings-section" aria-labelledby="mode-settings-title">
+      <h3 id="mode-settings-title">Workspace Mode</h3>
+      <div class="workspace-mode-grid">
+        <label
+          *ngFor="let mode of workspaceModes"
+          class="workspace-mode-option"
+          [class.workspace-mode-option--active]="settingsDraft.workspaceModeId === mode.id">
+          <input
+            type="radio"
+            name="workspaceMode"
+            [value]="mode.id"
+            [(ngModel)]="settingsDraft.workspaceModeId" />
+          <span>
+            <strong>{{ mode.label }}</strong>
+            <small>{{ mode.description }}</small>
+          </span>
+        </label>
+      </div>
+    </section>
+
+    <section
+      class="settings-section"
+      *ngIf="showWellnessPreferences()"
+      aria-labelledby="wellness-settings-title">
+      <h3 id="wellness-settings-title">Wellness Exercises</h3>
+      <div class="wellness-chip-list" aria-label="Wellness categories">
+        <button
+          *ngFor="let category of wellnessCategoryOptions"
+          type="button"
+          class="wellness-chip"
+          [class.wellness-chip--active]="isWellnessCategorySelected(category.id)"
+          [attr.aria-pressed]="isWellnessCategorySelected(category.id)"
+          (click)="wellnessCategoryToggled.emit(category.id)">
+          {{ category.label }}
+        </button>
+      </div>
+    </section>
+
+    <section class="settings-section" aria-labelledby="profile-settings-title">
+      <h3 id="profile-settings-title">Pomodoro Profile</h3>
+      <label class="settings-field">
+        <span>Profile</span>
+        <select
+          name="pomodoroProfile"
+          [ngModel]="settingsDraft.profileId"
+          (ngModelChange)="profileSelected.emit($event)">
+          <option *ngFor="let profile of pomodoroProfiles" [value]="profile.id">
+            {{ profile.name }} - {{ profile.description }}
+          </option>
+          <option value="custom">Custom - Your durations</option>
+        </select>
+      </label>
+
+      <div class="custom-profile" *ngIf="settingsDraft.profileId === 'custom'">
+        <label class="settings-field">
+          <span>Focus</span>
+          <input
+            type="number"
+            name="focusMinutes"
+            min="1"
+            step="1"
+            [(ngModel)]="settingsDraft.focusMinutes" />
+        </label>
+        <label class="settings-field">
+          <span>Short Break</span>
+          <input
+            type="number"
+            name="shortBreakMinutes"
+            min="1"
+            step="1"
+            [(ngModel)]="settingsDraft.shortBreakMinutes" />
+        </label>
+        <label class="settings-field">
+          <span>Long Break</span>
+          <input
+            type="number"
+            name="longBreakMinutes"
+            min="1"
+            step="1"
+            [(ngModel)]="settingsDraft.longBreakMinutes" />
+        </label>
+        <label class="settings-field">
+          <span>Cycles</span>
+          <input
+            type="number"
+            name="cyclesBeforeLongBreak"
+            min="1"
+            max="12"
+            step="1"
+            [(ngModel)]="settingsDraft.cyclesBeforeLongBreak" />
+        </label>
+      </div>
+    </section>
+
+    <section class="settings-section" aria-labelledby="feedback-settings-title">
+      <h3 id="feedback-settings-title">Feedback</h3>
+      <label class="settings-toggle">
+        <input type="checkbox" name="settingsSound" [(ngModel)]="settingsDraft.soundEnabled" />
+        <span>Sound alerts</span>
+      </label>
+    </section>
+
+    <section class="settings-section" aria-labelledby="wellness-reminder-settings-title">
+      <h3 id="wellness-reminder-settings-title">Wellness Reminders</h3>
+      <label class="settings-toggle">
+        <input
+          type="checkbox"
+          name="wellnessReminderEnabled"
+          [ngModel]="wellnessReminderPreferences.enabled"
+          (ngModelChange)="wellnessRemindersEnabledChanged.emit($event)" />
+        <span>Quiet wellness nudges</span>
+      </label>
+      <div class="wellness-chip-list" aria-label="Reminder types">
+        <button
+          type="button"
+          class="wellness-chip"
+          [class.wellness-chip--active]="wellnessReminderPreferences.hydration"
+          [attr.aria-pressed]="wellnessReminderPreferences.hydration"
+          [disabled]="!wellnessReminderPreferences.enabled"
+          (click)="wellnessReminderTypeEnabledChanged.emit({
+            type: 'hydration',
+            enabled: !wellnessReminderPreferences.hydration
+          })">
+          Hydration
+        </button>
+        <button
+          type="button"
+          class="wellness-chip"
+          [class.wellness-chip--active]="wellnessReminderPreferences.posture"
+          [attr.aria-pressed]="wellnessReminderPreferences.posture"
+          [disabled]="!wellnessReminderPreferences.enabled"
+          (click)="wellnessReminderTypeEnabledChanged.emit({
+            type: 'posture',
+            enabled: !wellnessReminderPreferences.posture
+          })">
+          Posture
+        </button>
+        <button
+          type="button"
+          class="wellness-chip"
+          [class.wellness-chip--active]="wellnessReminderPreferences.sedentary"
+          [attr.aria-pressed]="wellnessReminderPreferences.sedentary"
+          [disabled]="!wellnessReminderPreferences.enabled"
+          (click)="wellnessReminderTypeEnabledChanged.emit({
+            type: 'sedentary',
+            enabled: !wellnessReminderPreferences.sedentary
+          })">
+          Movement
+        </button>
+      </div>
+    </section>
+
+    <section class="settings-section" aria-labelledby="shortcut-settings-title">
+      <div class="settings-section__heading">
+        <h3 id="shortcut-settings-title">Shortcuts</h3>
+        <button class="settings-inline-action" type="button" (click)="resetShortcuts.emit()">
+          Reset defaults
+        </button>
+      </div>
+
+      <div class="shortcut-list">
+        <div class="shortcut-row" *ngFor="let shortcut of shortcuts">
+          <span>{{ shortcut.label }}</span>
+          <button
+            type="button"
+            class="shortcut-key"
+            [class.shortcut-key--recording]="editingShortcutAction === shortcut.action"
+            [attr.aria-label]="'Edit shortcut for ' + shortcut.label"
+            (click)="shortcutCaptureStarted.emit(shortcut.action)"
+            (keydown)="editingShortcutAction === shortcut.action && shortcutCaptured.emit({
+              event: $event,
+              action: shortcut.action
+            })">
+            {{
+              editingShortcutAction === shortcut.action
+                ? 'Press keys'
+                : formatShortcut(shortcut.combo)
+            }}
+          </button>
+        </div>
+      </div>
+
+      <p class="shortcut-error" *ngIf="shortcutValidationMessage">
+        {{ shortcutValidationMessage }}
+      </p>
+    </section>
+
+    <footer class="settings-panel__actions">
+      <button class="settings-action settings-action--ghost" type="button" (click)="closeSettings.emit()">
+        Cancel
+      </button>
+      <button class="settings-action settings-action--primary" type="submit">
+        Apply
+      </button>
+    </footer>
+  </form>
+</div>

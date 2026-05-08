@@ -9,6 +9,11 @@ import {
   TimerSettings,
   TimerStatus,
 } from '../../services/timer.service';
+import { TimerActionToolbarComponent } from '../timer-action-toolbar/timer-action-toolbar.component';
+import { TimerSettingsPanelComponent } from '../timer-settings-panel/timer-settings-panel.component';
+import { WellnessBreakCardComponent } from '../wellness-break-card/wellness-break-card.component';
+import { WellnessInsightsCardComponent } from '../wellness-insights-card/wellness-insights-card.component';
+import { WellnessReminderCardComponent } from '../wellness-reminder-card/wellness-reminder-card.component';
 import { TimerContainerComponent } from './timer-container.component';
 
 class MockTimerService {
@@ -74,7 +79,14 @@ describe('TimerContainerComponent', () => {
     timerService = new MockTimerService();
 
     await TestBed.configureTestingModule({
-      declarations: [TimerContainerComponent],
+      declarations: [
+        TimerContainerComponent,
+        TimerActionToolbarComponent,
+        TimerSettingsPanelComponent,
+        WellnessBreakCardComponent,
+        WellnessInsightsCardComponent,
+        WellnessReminderCardComponent,
+      ],
       imports: [FormsModule],
       providers: [
         {

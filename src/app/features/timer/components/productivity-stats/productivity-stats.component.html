@@ -1,0 +1,24 @@
+<section class="productivity-stats" *ngIf="stats$ | async as stats" aria-labelledby="productivity-stats-title">
+  <div class="productivity-stats__header">
+    <span id="productivity-stats-title">Today</span>
+  </div>
+
+  <div class="productivity-stats__items">
+    <div class="productivity-stat">
+      <span>Focus</span>
+      <strong>{{ formatMinutes(stats.totalFocusMinutesToday) }}</strong>
+    </div>
+    <div class="productivity-stat">
+      <span>Sessions</span>
+      <strong>{{ stats.completedSessionsToday }}</strong>
+    </div>
+    <div class="productivity-stat">
+      <span>Streak</span>
+      <strong>{{ stats.currentStreakDays }}</strong>
+    </div>
+    <div class="productivity-stat">
+      <span>Tasks</span>
+      <strong>{{ stats.tasksCompletedToday }}</strong>
+    </div>
+  </div>
+</section>

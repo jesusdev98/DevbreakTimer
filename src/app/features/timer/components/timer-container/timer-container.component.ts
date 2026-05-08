@@ -1,6 +1,30 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, ElementRef, HostListener, OnDestroy, ViewChild } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
+import { Task } from '../../../kanban/models/task.model';
+import { KanbanService } from '../../../kanban/services/kanban.service';
+import { WorkspaceMode, WorkspaceModeId } from '../../../../models/workspace-mode.model';
+import { WorkspaceModeService } from '../../../../services/workspace-mode.service';
+import {
+  ShortcutActionId,
+  ShortcutDefinition,
+  ShortcutService,
+} from '../../../../services/shortcut.service';
+import { WellnessBreakSuggestion, WellnessCategory } from '../../models/wellness-break.model';
+import { FocusSessionCompletion } from '../../models/focus-session.model';
+import { WellnessBreakService } from '../../services/wellness-break.service';
+import { FocusSessionService } from '../../services/focus-session.service';
+import {
+  WellnessCategoryOption,
+  WellnessPreferencesService,
+} from '../../services/wellness-preferences.service';
+import {
+  WellnessReminder,
+  WellnessReminderEngineService,
+  WellnessMetrics,
+  WellnessReminderPreferences,
+  WellnessReminderType,
+} from '../../services/wellness-reminder-engine.service';
 import {
   AppSettings,
   PomodoroState,
@@ -13,16 +37,7 @@ import {
   TimerSettings,
   TimerStatus,
 } from '../../services/timer.service';
-
-type SettingsDraft = {
-  theme: ThemeMode;
-  profileId: PomodoroProfileId;
-  focusMinutes: number;
-  shortBreakMinutes: number;
-  longBreakMinutes: number;
-  cyclesBeforeLongBreak: number;
-  soundEnabled: boolean;
-};
+import { SettingsDraft } from '../timer-settings-panel/timer-settings-panel.component';
 
 @Component({
   selector: 'app-timer-container',
@@ -35,14 +50,31 @@ export class TimerContainerComponent implements OnDestroy {
   public readonly status$: Observable<TimerStatus>;
   public readonly settings$: Observable<TimerSettings>;
   public readonly pomodoroState$: Observable<PomodoroState>;
+  public readonly activeTask$: Observable<Task | null>;
+  public readonly wellnessReminder$: Observable<WellnessReminder | null>;
+  public readonly wellnessMetrics$: Observable<WellnessMetrics>;
 
   public readonly pomodoroProfiles = TimerService.BUILT_IN_POMODORO_PROFILES;
+  public readonly workspaceModes: readonly WorkspaceMode[];
+  public readonly wellnessCategoryOptions: readonly WellnessCategoryOption[];
   public readonly presets = [5, 15, 25, 45];
   public settingsPanelOpen = false;
-  public settingsDraft: SettingsDraft = this.createSettingsDraft(null);
+  public settingsDraft: SettingsDraft = {
+    theme: 'dark',
+    profileId: 'classic',
+    focusMinutes: 25,
+    shortBreakMinutes: 5,
+    longBreakMinutes: 15,
+    cyclesBeforeLongBreak: 4,
+    soundEnabled: true,
+    workspaceModeId: 'hybrid',
+    wellnessCategories: [],
+  };
   public currentStatus: TimerStatus = 'idle';
   public durationInMinutes = 25;
-  public currentExercise: string | null = null;
+  public wellnessSuggestion: WellnessBreakSuggestion | null = null;
+  public focusSessionCompletion: FocusSessionCompletion | null = null;
+  public taskCompletionMessage: string | null = null;
   public completionMessage: string | null = null;
   public progress = 0;
   public soundEnabled = true;
@@ -53,26 +85,75 @@ export class TimerContainerComponent implements OnDestroy {
     completedFocusSessions: 0,
     cycle: 1,
   };
+  public currentWorkspaceMode: WorkspaceMode;
+  public shortcuts: ShortcutDefinition[] = [];
+  public editingShortcutAction: ShortcutActionId | null = null;
+  public shortcutValidationMessage: string | null = null;
+  public focusPanelVisible = true;
+  public wellnessReminderPreferences: WellnessReminderPreferences;
+  public timerAnnouncement = '';
+
+  @ViewChild('settingsButton') private settingsButton?: ElementRef<HTMLButtonElement>;
 
   private readonly destroy$ = new Subject<void>();
   private handledCompletionEventId: number | null = null;
   private completionMessageTimeout: ReturnType<typeof setTimeout> | null = null;
   private initialDuration = 25 * 60;
   private settings: TimerSettings | null = null;
-  private readonly exercises: string[] = [
-    '10 burpees',
-    '15 squats',
-    '30s plank',
-    '20 jumping jacks',
-    'stretch your back',
-    'walk for 1 minute',
-  ];
+  private wellnessSuggestionSession: SessionType | null = null;
 
-  public constructor(private readonly timerService: TimerService) {
+  public constructor(
+    private readonly timerService: TimerService,
+    private readonly kanbanService: KanbanService,
+    private readonly workspaceModeService: WorkspaceModeService,
+    private readonly wellnessBreakService: WellnessBreakService,
+    private readonly wellnessPreferencesService: WellnessPreferencesService,
+    private readonly focusSessionService: FocusSessionService,
+    private readonly shortcutService: ShortcutService,
+    private readonly wellnessReminderEngine: WellnessReminderEngineService,
+  ) {
     this.remainingTime$ = this.timerService.remainingTime$;
     this.status$ = this.timerService.status$;
     this.settings$ = this.timerService.settings$;
     this.pomodoroState$ = this.timerService.pomodoroState$;
+    this.activeTask$ = this.kanbanService.activeTask$;
+    this.wellnessReminder$ = this.wellnessReminderEngine.activeReminder$;
+    this.wellnessMetrics$ = this.wellnessReminderEngine.metrics$;
+    this.workspaceModes = this.workspaceModeService.modes;
+    this.wellnessCategoryOptions = this.wellnessPreferencesService.categoryOptions;
+    this.currentWorkspaceMode = this.workspaceModeService.getSelectedMode();
+    this.shortcuts = this.shortcutService.getShortcuts();
+    this.wellnessReminderPreferences = this.wellnessReminderEngine.getPreferences();
+    this.settingsDraft = this.createSettingsDraft(null);
+
+    this.wellnessReminderEngine.preferences$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((preferences: WellnessReminderPreferences): void => {
+        this.wellnessReminderPreferences = preferences;
+      });
+
+    this.wellnessReminder$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((reminder: WellnessReminder | null): void => {
+        if (reminder !== null) {
+          this.announceTimer(`Wellness reminder: ${reminder.title}`);
+        }
+      });
+
+    this.shortcutService.shortcuts$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((shortcuts: ShortcutDefinition[]): void => {
+        this.shortcuts = shortcuts;
+      });
+
+    this.workspaceModeService.selectedMode$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((mode: WorkspaceMode): void => {
+        this.currentWorkspaceMode = mode;
+        this.settingsDraft = this.settingsPanelOpen ? this.settingsDraft : this.createSettingsDraft(this.settings);
+        this.clearWellnessSuggestion();
+        this.syncWellnessSuggestion(this.pomodoroState);
+      });
 
     this.timerService.duration$
       .pipe(takeUntil(this.destroy$))
@@ -108,6 +189,7 @@ export class TimerContainerComponent implements OnDestroy {
       .subscribe((pomodoroState: PomodoroState): void => {
         this.pomodoroState = pomodoroState;
         this.pomodoroEnabled = pomodoroState.enabled;
+        this.syncWellnessSuggestion(pomodoroState);
       });
 
     this.status$
@@ -127,7 +209,8 @@ export class TimerContainerComponent implements OnDestroy {
         }
 
         this.handledCompletionEventId = event.id;
-        this.currentExercise = this.getRandomExercise();
+        this.prepareBreakSuggestion(event.nextSessionType);
+        this.completeFocusSession(event);
         this.triggerCompletionEffects(event);
         this.timerService.acknowledgeCompletionEvent(event.id);
       });
@@ -138,23 +221,43 @@ export class TimerContainerComponent implements OnDestroy {
       return;
     }
 
+    this.taskCompletionMessage = null;
+
     if (this.currentStatus === 'paused') {
       this.timerService.start();
+      this.announceTimer('Timer resumed');
       return;
     }
 
     const durationInSeconds = this.getStartDuration();
+    this.wellnessReminderEngine.recordWorkSessionStart(
+      durationInSeconds,
+      this.pomodoroEnabled ? this.pomodoroState.currentSession : 'focus',
+    );
     this.timerService.start(durationInSeconds);
+    this.startFocusSession(durationInSeconds);
+    this.announceTimer(`${this.getSessionTitle(this.pomodoroState.currentSession)} started`);
   }
 
   public pause(): void {
     this.timerService.pause();
+    this.announceTimer('Timer paused');
   }
 
   public reset(): void {
     this.timerService.reset();
-    this.currentExercise = null;
+    this.wellnessReminderEngine.markReset();
+    this.focusSessionService.cancelActiveSession();
+    this.focusSessionCompletion = null;
+    this.taskCompletionMessage = null;
+    this.clearWellnessSuggestion();
     this.completionMessage = null;
+    this.announceTimer('Timer reset');
+  }
+
+  public clearActiveTask(): void {
+    this.kanbanService.clearActiveTask();
+    this.announceTimer('Focus task cleared');
   }
 
   public selectPreset(minutes: number): void {
@@ -184,6 +287,22 @@ export class TimerContainerComponent implements OnDestroy {
     this.timerService.setSoundEnabled(enabled);
   }
 
+  public setWellnessRemindersEnabled(enabled: boolean): void {
+    this.wellnessReminderEngine.setEnabled(enabled);
+  }
+
+  public setWellnessReminderTypeEnabled(type: WellnessReminderType, enabled: boolean): void {
+    this.wellnessReminderEngine.setReminderEnabled(type, enabled);
+  }
+
+  public setWellnessReminderTypeFromEvent(change: { type: WellnessReminderType; enabled: boolean }): void {
+    this.setWellnessReminderTypeEnabled(change.type, change.enabled);
+  }
+
+  public handleShortcutCaptureEvent(capture: { event: KeyboardEvent; action: ShortcutActionId }): void {
+    this.handleShortcutCapture(capture.event, capture.action);
+  }
+
   public openSettings(): void {
     this.settingsDraft = this.createSettingsDraft(this.settings);
     this.settingsPanelOpen = true;
@@ -192,6 +311,16 @@ export class TimerContainerComponent implements OnDestroy {
   public closeSettings(): void {
     this.settingsPanelOpen = false;
     this.settingsDraft = this.createSettingsDraft(this.settings);
+    this.editingShortcutAction = null;
+    this.shortcutValidationMessage = null;
+    this.restoreSettingsButtonFocus();
+  }
+
+  public handleSettingsKeydown(event: KeyboardEvent): void {
+    if (this.shortcutService.matches(event, 'escapeModal')) {
+      event.preventDefault();
+      this.closeSettings();
+    }
   }
 
   public selectSettingsProfile(profileId: PomodoroProfileId): void {
@@ -215,9 +344,31 @@ export class TimerContainerComponent implements OnDestroy {
     };
   }
 
+  public toggleWellnessCategory(category: WellnessCategory): void {
+    const selectedCategories = this.settingsDraft.wellnessCategories;
+    const nextCategories = selectedCategories.includes(category)
+      ? selectedCategories.filter((selectedCategory) => selectedCategory !== category)
+      : [...selectedCategories, category];
+
+    this.settingsDraft = {
+      ...this.settingsDraft,
+      wellnessCategories: nextCategories,
+    };
+  }
+
+  public isWellnessCategorySelected(category: WellnessCategory): boolean {
+    return this.settingsDraft.wellnessCategories.includes(category);
+  }
+
+  public showWellnessPreferences(modeId: WorkspaceModeId = this.settingsDraft.workspaceModeId): boolean {
+    return modeId === 'wellness' || modeId === 'hybrid';
+  }
+
   public saveSettings(): void {
     this.timerService.setSoundEnabled(this.settingsDraft.soundEnabled);
     this.timerService.setTheme(this.settingsDraft.theme);
+    this.wellnessPreferencesService.setEnabledCategories(this.settingsDraft.wellnessCategories);
+    this.workspaceModeService.setMode(this.settingsDraft.workspaceModeId);
 
     if (this.settingsDraft.profileId === 'custom') {
       this.timerService.setCustomPomodoroProfile({
@@ -233,6 +384,9 @@ export class TimerContainerComponent implements OnDestroy {
     }
 
     this.settingsPanelOpen = false;
+    this.editingShortcutAction = null;
+    this.shortcutValidationMessage = null;
+    this.restoreSettingsButtonFocus();
   }
 
   public getSessionTitle(sessionType: SessionType): string {
@@ -290,6 +444,123 @@ export class TimerContainerComponent implements OnDestroy {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   }
 
+  public formatFocusMinutes(minutes: number): string {
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+
+    if (hours === 0) {
+      return `${remainingMinutes}m`;
+    }
+
+    if (remainingMinutes === 0) {
+      return `${hours}h`;
+    }
+
+    return `${hours}h ${remainingMinutes}m`;
+  }
+
+  public isFocusMode(): boolean {
+    return this.currentWorkspaceMode.id === 'focus';
+  }
+
+  public shouldShowFocusPanel(activeTask: Task | null): boolean {
+    return activeTask !== null && this.isFocusMode() && this.focusPanelVisible;
+  }
+
+  public toggleFocusPanel(): void {
+    if (!this.isFocusMode()) {
+      return;
+    }
+
+    this.focusPanelVisible = !this.focusPanelVisible;
+    this.announceTimer(this.focusPanelVisible ? 'Focus panel shown' : 'Focus panel hidden');
+  }
+
+  public startShortcutCapture(action: ShortcutActionId): void {
+    this.editingShortcutAction = action;
+    this.shortcutValidationMessage = null;
+  }
+
+  public handleShortcutCapture(event: KeyboardEvent, action: ShortcutActionId): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (this.shortcutService.matches(event, 'escapeModal') && action !== 'escapeModal') {
+      this.editingShortcutAction = null;
+      this.shortcutValidationMessage = null;
+      return;
+    }
+
+    const combo = this.shortcutService.comboFromEvent(event);
+
+    if (combo === null) {
+      this.shortcutValidationMessage = 'Press a key with an optional modifier.';
+      return;
+    }
+
+    const result = this.shortcutService.setShortcut(action, combo);
+    this.shortcutValidationMessage = result.message;
+
+    if (result.valid) {
+      this.editingShortcutAction = null;
+    }
+  }
+
+  public resetShortcuts(): void {
+    this.shortcutService.resetDefaults();
+    this.editingShortcutAction = null;
+    this.shortcutValidationMessage = null;
+  }
+
+  public formatShortcut(combo: string): string {
+    return this.shortcutService.formatCombo(combo);
+  }
+
+  public continueTask(): void {
+    this.focusSessionCompletion = null;
+    this.announceTimer('Focus summary dismissed');
+  }
+
+  public markFocusedTaskDone(): void {
+    const taskId = this.focusSessionCompletion?.session.taskId;
+
+    if (!taskId) {
+      return;
+    }
+
+    this.kanbanService.completeTaskById(taskId);
+    this.focusSessionCompletion = null;
+    this.taskCompletionMessage = 'Task Completed. Great progress.';
+    this.announceTimer('Task completed');
+  }
+
+  public startBreakFromCompletion(): void {
+    this.wellnessReminderEngine.markReset();
+    this.focusSessionCompletion = null;
+    this.announceTimer('Break started');
+  }
+
+  public dismissWellnessReminder(reminder: WellnessReminder): void {
+    this.wellnessReminderEngine.dismiss(reminder.type);
+    this.announceTimer('Wellness reminder dismissed');
+  }
+
+  public completeWellnessReminder(reminder: WellnessReminder): void {
+    if (reminder.type === 'sedentary') {
+      this.wellnessReminderEngine.markReset();
+      this.announceTimer('Movement break completed');
+      return;
+    }
+
+    this.wellnessReminderEngine.complete(reminder.type);
+    this.announceTimer('Wellness action completed');
+  }
+
+  public nextWellnessSuggestion(reminder: WellnessReminder): void {
+    this.wellnessReminderEngine.nextSuggestion(reminder.type);
+    this.announceTimer('Wellness suggestion updated');
+  }
+
   public ngOnDestroy(): void {
     if (this.completionMessageTimeout !== null) {
       clearTimeout(this.completionMessageTimeout);
@@ -297,6 +568,24 @@ export class TimerContainerComponent implements OnDestroy {
 
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  protected handleGlobalShortcut(event: KeyboardEvent): void {
+    if (event.defaultPrevented || this.isTypingTarget(event.target)) {
+      return;
+    }
+
+    if (this.settingsPanelOpen && this.shortcutService.matches(event, 'escapeModal')) {
+      event.preventDefault();
+      this.closeSettings();
+      return;
+    }
+
+    if (this.shortcutService.matches(event, 'toggleFocusPanel')) {
+      event.preventDefault();
+      this.toggleFocusPanel();
+    }
   }
 
   private getStartDuration(): number {
@@ -308,6 +597,62 @@ export class TimerContainerComponent implements OnDestroy {
     this.timerService.setSelectedDuration(durationInSeconds);
 
     return durationInSeconds;
+  }
+
+  private startFocusSession(durationInSeconds: number): void {
+    if (!this.isFocusMode() || !this.isFocusSessionContext()) {
+      return;
+    }
+
+    const activeTask = this.kanbanService.getActiveTask();
+
+    if (activeTask === null) {
+      return;
+    }
+
+    this.focusSessionCompletion = null;
+    this.focusSessionService.startSession({
+      taskId: activeTask.id,
+      taskTitle: activeTask.title,
+      workspaceMode: this.currentWorkspaceMode.id,
+      durationMinutes: Math.max(1, Math.round(durationInSeconds / 60)),
+    });
+  }
+
+  private completeFocusSession(event: TimerCompletionEvent): void {
+    if (event.sessionType !== 'focus' || !this.isFocusMode()) {
+      return;
+    }
+
+    this.focusSessionCompletion = this.focusSessionService.completeActiveSession();
+    this.announceTimer('Focus session completed');
+  }
+
+  private isFocusSessionContext(): boolean {
+    return !this.pomodoroEnabled || this.pomodoroState.currentSession === 'focus';
+  }
+
+  private isTypingTarget(target: EventTarget | null): boolean {
+    if (!(target instanceof HTMLElement)) {
+      return false;
+    }
+
+    const tagName = target.tagName.toLowerCase();
+
+    return (
+      tagName === 'input' ||
+      tagName === 'textarea' ||
+      tagName === 'select' ||
+      target.isContentEditable
+    );
+  }
+
+  private restoreSettingsButtonFocus(): void {
+    window.setTimeout(() => this.settingsButton?.nativeElement.focus());
+  }
+
+  private announceTimer(message: string): void {
+    this.timerAnnouncement = message;
   }
 
   private triggerCompletionEffects(event: TimerCompletionEvent): void {
@@ -353,6 +698,8 @@ export class TimerContainerComponent implements OnDestroy {
       longBreakMinutes: this.secondsToMinutes(profile.durations['long-break']),
       cyclesBeforeLongBreak: profile.cyclesBeforeLongBreak,
       soundEnabled: activeSettings?.soundEnabled ?? true,
+      workspaceModeId: this.currentWorkspaceMode.id,
+      wellnessCategories: this.wellnessPreferencesService.getEnabledCategories(),
     };
   }
 
@@ -393,9 +740,35 @@ export class TimerContainerComponent implements OnDestroy {
     }, 7000);
   }
 
-  private getRandomExercise(): string {
-    const index = Math.floor(Math.random() * this.exercises.length);
-    return this.exercises[index];
+  private syncWellnessSuggestion(pomodoroState: PomodoroState): void {
+    if (!pomodoroState.enabled || pomodoroState.currentSession === 'focus') {
+      this.clearWellnessSuggestion();
+      return;
+    }
+
+    this.prepareBreakSuggestion(pomodoroState.currentSession);
+  }
+
+  private prepareBreakSuggestion(sessionType: SessionType | null): void {
+    if (sessionType === null || sessionType === 'focus') {
+      return;
+    }
+
+    if (this.wellnessSuggestion !== null && this.wellnessSuggestionSession === sessionType) {
+      return;
+    }
+
+    this.wellnessSuggestion = this.wellnessBreakService.getSuggestion(
+      sessionType,
+      this.currentWorkspaceMode,
+      this.wellnessPreferencesService.getEnabledCategories(),
+    );
+    this.wellnessSuggestionSession = sessionType;
+  }
+
+  private clearWellnessSuggestion(): void {
+    this.wellnessSuggestion = null;
+    this.wellnessSuggestionSession = null;
   }
 
   private sendNotification(event: TimerCompletionEvent): void {

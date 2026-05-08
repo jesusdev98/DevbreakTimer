@@ -1,0 +1,10 @@
+<section class="wellness-break" aria-label="Break suggestion">
+  <div class="wellness-break__content">
+    <span class="wellness-break__label">Break Suggestion</span>
+    <strong>{{ suggestion.title }}</strong>
+    <p>{{ suggestion.description }}</p>
+  </div>
+  <span class="wellness-break__meta" *ngIf="suggestion.durationLabel">
+    {{ suggestion.durationLabel }}
+  </span>
+</section>

@@ -1,0 +1,177 @@
+.kanban-board__toolbar {
+  display: grid;
+  grid-template-columns: minmax(14rem, 22rem) minmax(0, 1fr) auto auto;
+  align-items: end;
+  gap: var(--kb-toolbar-gap);
+  flex: 0 0 auto;
+  margin-bottom: var(--kb-toolbar-margin);
+}
+
+.kanban-search {
+  display: grid;
+  gap: 0.3rem;
+  width: min(100%, 22rem);
+  min-width: 0;
+}
+
+.kanban-search span,
+.kanban-sort span {
+  color: var(--text-secondary);
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.kanban-search input {
+  width: 100%;
+  min-width: 0;
+  padding: var(--kb-control-padding-y) var(--kb-control-padding-x);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  background: var(--surface-control);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--kb-control-font-size);
+  font-weight: 700;
+  outline: 0;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.kanban-search input::placeholder {
+  color: var(--text-muted);
+}
+
+.kanban-search input:focus,
+.kanban-sort select:focus-visible {
+  border-color: color-mix(in srgb, var(--accent) 58%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+.kanban-filters {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+  overflow-x: auto;
+  padding-bottom: 0.05rem;
+  scrollbar-width: none;
+}
+
+.kanban-filters::-webkit-scrollbar {
+  display: none;
+}
+
+.kanban-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 0.38rem;
+  min-width: 0;
+  padding: var(--kb-chip-padding-y) var(--kb-chip-padding-x);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  background: var(--surface-subtle);
+  color: var(--text-muted);
+  font: inherit;
+  font-size: calc(var(--kb-control-font-size) - 0.06rem);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.kanban-filter-chip:hover,
+.kanban-filter-chip:focus-visible {
+  border-color: color-mix(in srgb, var(--accent) 42%, transparent);
+  color: var(--text-secondary);
+}
+
+.kanban-filter-chip strong {
+  display: inline-grid;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  place-items: center;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--text-muted);
+  font-size: 0.62rem;
+}
+
+.kanban-filter-chip--active {
+  border-color: color-mix(in srgb, var(--accent) 54%, transparent);
+  background: color-mix(in srgb, var(--accent) 13%, transparent);
+  color: var(--accent);
+}
+
+.kanban-filter-chip--active strong {
+  color: var(--accent);
+}
+
+.kanban-sort {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 9.8rem;
+}
+
+.kanban-sort select {
+  min-width: 0;
+  padding: var(--kb-control-padding-y) var(--kb-control-padding-x);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  background: var(--surface-control);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--kb-control-font-size);
+  font-weight: 800;
+  outline: 0;
+}
+
+.kanban-density {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  min-width: 0;
+  padding: 0.2rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  background: var(--surface-subtle);
+}
+
+.kanban-density__button {
+  min-width: 0;
+  padding: calc(var(--kb-control-padding-y) - 0.18rem) 0.52rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: calc(var(--kb-control-font-size) - 0.08rem);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.kanban-density__button:hover,
+.kanban-density__button:focus-visible {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--text-secondary);
+}
+
+.kanban-density__button--active {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  color: var(--accent);
+}
+
+.kanban-density__button--active:hover,
+.kanban-density__button--active:focus-visible {
+  color: var(--accent);
+}
+
+@media (max-width: 980px) {
+  .kanban-board__toolbar {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .kanban-sort {
+    min-width: 0;
+  }
+}

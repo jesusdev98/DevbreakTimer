@@ -1,22 +1,75 @@
-<section class="kanban-column" [attr.aria-label]="title">
+<section
+  class="kanban-column"
+  [attr.data-testid]="'kanban-column-' + status"
+  [attr.aria-labelledby]="'kanban-column-title-' + status">
   <header class="kanban-column__header">
-    <h3>{{ title }}</h3>
-    <span class="kanban-column__count" [attr.aria-label]="tasks.length + ' tasks'">
+    <h3 [id]="'kanban-column-title-' + status">{{ title }}</h3>
+    <span class="kanban-column__count" [attr.aria-label]="tasks.length + ' tasks in ' + title">
       {{ tasks.length }}
     </span>
   </header>
 
-  <div class="kanban-column__tasks" *ngIf="tasks.length; else emptyColumn">
-    <app-task-card
+  <div
+    class="kanban-column__tasks"
+    cdkDropList
+    [id]="dropListId"
+    role="list"
+    [attr.aria-label]="title + ' tasks'"
+    [cdkDropListData]="tasks"
+    [cdkDropListConnectedTo]="connectedDropLists"
+    (cdkDropListDropped)="handleTaskDrop($event)">
+    <div
       *ngFor="let task of tasks"
-      [task]="task"
-      [canMoveBack]="canMoveBack"
-      [canMoveForward]="canMoveForward"
-      (taskAction)="handleTaskAction(task, $event)">
-    </app-task-card>
+      class="kanban-column__task"
+      role="listitem"
+      [attr.data-testid]="'kanban-task-' + task.id"
+      cdkDrag
+      [cdkDragData]="task"
+      [cdkDragDisabled]="disableDrag || isTaskEditing(task)">
+      <app-task-card
+        [task]="task"
+        [isActive]="showFocusAction && task.id === activeTaskId"
+        [showFocusAction]="showFocusAction"
+        [showEditAction]="showEditAction"
+        [showArchiveAction]="showArchiveAction"
+        [showRestoreAction]="showRestoreAction"
+        (editStarted)="markTaskEditing(task)"
+        (editCancelled)="clearTaskEditing(task)"
+        (taskAction)="handleTaskAction(task, $event)"
+        (saveTask)="handleTaskEdit(task, $event)">
+      </app-task-card>
+    </div>
+
+    <div class="kanban-column__empty" *ngIf="!tasks.length">
+      <strong>{{ emptyStateLabel }}</strong>
+      <span>{{ emptyStateHint }}</span>
+    </div>
   </div>
 
-  <ng-template #emptyColumn>
-    <div class="kanban-column__empty" aria-hidden="true"></div>
-  </ng-template>
+  <form
+    *ngIf="showQuickAdd && quickAddOpen"
+    class="kanban-quick-add"
+    (ngSubmit)="submitQuickTask()"
+    (keydown.escape)="handleQuickAddEscape($event)"
+    [attr.aria-label]="'Quick add task to ' + title">
+    <input
+      #quickAddInput
+      type="text"
+      name="quickAddTitle"
+      [(ngModel)]="quickAddTitle"
+      placeholder="Task title"
+      autocomplete="off"
+      [attr.aria-label]="'Task title for ' + title" />
+    <button type="submit" [disabled]="!quickAddTitle.trim()">Add</button>
+  </form>
+
+  <button
+    #quickAddTrigger
+    *ngIf="showQuickAdd && !quickAddOpen"
+    type="button"
+    class="kanban-column__quick-add-trigger"
+    [attr.aria-label]="'Add task to ' + title"
+    (click)="requestQuickAdd()">
+    + Add task
+  </button>
 </section>

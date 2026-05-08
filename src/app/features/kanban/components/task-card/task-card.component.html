@@ -1,17 +1,55 @@
-<article class="task-card">
-  <div class="task-card__content">
-    <h4>{{ task.title }}</h4>
+<article
+  class="task-card"
+  data-testid="task-card"
+  [attr.aria-labelledby]="'task-title-' + task.id"
+  [class.task-card--editing]="isEditing"
+  [class.task-card--active]="isActive">
+  <div class="task-card__content" *ngIf="!isEditing; else editTask">
+    <span class="task-card__focus-badge" *ngIf="isActive">Active Focus</span>
+    <h4 [id]="'task-title-' + task.id">{{ task.title }}</h4>
     <p *ngIf="task.description">{{ task.description }}</p>
   </div>
 
-  <div class="task-card__actions" aria-label="Task actions">
-    <button type="button" [disabled]="!canMoveBack" (click)="emitAction('moveBack')">
-      Move Back
+  <ng-template #editTask>
+    <form
+      class="task-card__edit"
+      (ngSubmit)="saveEdit()"
+      (keydown)="handleEditKeydown($event)"
+      [attr.aria-label]="'Edit task ' + task.title">
+      <label>
+        <span>Title</span>
+        <input
+          #editTitleInput
+          type="text"
+          name="draftTitle"
+          [(ngModel)]="draftTitle"
+          autocomplete="off"
+          aria-keyshortcuts="Control+Enter Escape"
+          required />
+      </label>
+
+      <label>
+        <span>Description</span>
+        <textarea name="draftDescription" [(ngModel)]="draftDescription" rows="3"></textarea>
+      </label>
+
+      <div class="task-card__actions task-card__actions--edit" role="group" aria-label="Edit actions">
+        <button type="submit" [disabled]="!canSave">Save</button>
+        <button type="button" (click)="cancelEdit()">Cancel</button>
+      </div>
+    </form>
+  </ng-template>
+
+  <div class="task-card__actions" *ngIf="!isEditing" role="group" [attr.aria-label]="'Actions for ' + task.title">
+    <button type="button" *ngIf="showFocusAction && !isActive" (click)="emitAction('focus')">
+      Focus
     </button>
-    <button type="button" [disabled]="!canMoveForward" (click)="emitAction('moveForward')">
-      Move Forward
+    <button type="button" *ngIf="showFocusAction && isActive" (click)="emitAction('clearFocus')">
+      Clear Focus
     </button>
-    <button type="button" (click)="emitAction('archive')">Archive</button>
+    <button #editButton type="button" *ngIf="showEditAction" (click)="startEdit()">Edit</button>
+    <button type="button" *ngIf="showRestoreAction" (click)="emitAction('restore')">Restore</button>
+    <button type="button" *ngIf="showArchiveAction" (click)="emitAction('archive')">Archive</button>
     <button type="button" (click)="emitAction('delete')">Delete</button>
   </div>
 </article>

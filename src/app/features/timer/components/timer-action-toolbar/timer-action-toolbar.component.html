@@ -1,0 +1,66 @@
+<label class="timer-card__field">
+  <span class="timer-card__label">
+    Duration (min)
+    <span *ngIf="durationLockMessage" class="timer-card__label-state">Locked</span>
+  </span>
+  <input
+    class="timer-card__input"
+    data-testid="duration-input"
+    type="number"
+    min="1"
+    step="1"
+    inputmode="numeric"
+    placeholder="e.g. 25"
+    [ngModel]="durationInMinutes"
+    (ngModelChange)="durationChanged.emit($event)"
+    [disabled]="durationLocked" />
+  <span *ngIf="durationLockMessage" class="timer-field-note">
+    {{ durationLockMessage }}
+  </span>
+</label>
+
+<div class="quick-presets" role="group" aria-label="Quick duration presets">
+  <button
+    *ngFor="let preset of presets"
+    class="quick-presets__button"
+    [attr.data-testid]="'preset-' + preset"
+    type="button"
+    (click)="presetSelected.emit(preset)"
+    [class.quick-presets__button--active]="durationInMinutes === preset && !pomodoroEnabled"
+    [attr.aria-pressed]="durationInMinutes === preset && !pomodoroEnabled"
+    [disabled]="durationLocked">
+    {{ preset }}m
+  </button>
+</div>
+
+<div class="timer-card__actions">
+  <button
+    class="timer-card__button timer-card__button--primary"
+    data-testid="start-button"
+    [class.timer-card__button--muted]="status === 'running'"
+    [class.timer-card__button--resume]="status === 'paused'"
+    type="button"
+    (click)="startTimer.emit()"
+    [disabled]="status === 'running'">
+    {{ startLabel }}
+  </button>
+
+  <button
+    class="timer-card__button timer-card__button--secondary"
+    data-testid="pause-button"
+    [class.timer-card__button--paused]="status === 'paused'"
+    type="button"
+    (click)="pauseTimer.emit()"
+    [disabled]="status !== 'running'">
+    Pause
+  </button>
+
+  <button
+    class="timer-card__button timer-card__button--ghost"
+    data-testid="reset-button"
+    [class.timer-card__button--highlight]="status === 'completed'"
+    type="button"
+    (click)="resetTimer.emit()">
+    Reset
+  </button>
+</div>

@@ -5,9 +5,106 @@
 }
 
 .kanban-board {
+  --kb-shell-padding: clamp(1rem, 2vw, 1.5rem);
+  --kb-toolbar-gap: 0.65rem;
+  --kb-toolbar-margin: 0.75rem;
+  --kb-column-gap: 0.9rem;
+  --kb-control-padding-y: 0.58rem;
+  --kb-control-padding-x: 0.65rem;
+  --kb-control-font-size: 0.78rem;
+  --kb-chip-padding-y: 0.48rem;
+  --kb-chip-padding-x: 0.56rem;
+  --kb-column-padding: 0.85rem;
+  --kb-column-task-gap: 0.65rem;
+  --kb-column-task-margin: 0.85rem;
+  --kb-card-padding: 0.9rem;
+  --kb-card-radius: 14px;
+  --kb-card-content-gap: 0.45rem;
+  --kb-card-title-size: 0.94rem;
+  --kb-card-description-size: 0.8rem;
+  --kb-card-action-gap: 0.42rem;
+  --kb-card-action-margin: 0.85rem;
+  --kb-card-action-padding-y: 0.44rem;
+  --kb-card-action-padding-x: 0.58rem;
+  --kb-quick-add-margin: 0.65rem;
+  --kb-quick-add-gap: 0.45rem;
+  --kb-quick-add-padding-y: 0.62rem;
+  --kb-quick-add-padding-x: 0.7rem;
+  display: grid;
+  grid-template-rows: auto auto;
+  align-content: start;
+  gap: 1rem;
   width: 100%;
   min-width: 0;
-  padding: clamp(1rem, 3vw, 1.4rem);
+  min-height: 0;
+  color: var(--text-primary);
+}
+
+.kanban-board--density-compact {
+  --kb-shell-padding: clamp(0.75rem, 1.5vw, 1rem);
+  --kb-toolbar-gap: 0.45rem;
+  --kb-toolbar-margin: 0.55rem;
+  --kb-column-gap: 0.55rem;
+  --kb-control-padding-y: 0.46rem;
+  --kb-control-padding-x: 0.58rem;
+  --kb-control-font-size: 0.72rem;
+  --kb-chip-padding-y: 0.38rem;
+  --kb-chip-padding-x: 0.48rem;
+  --kb-column-padding: 0.58rem;
+  --kb-column-task-gap: 0.46rem;
+  --kb-column-task-margin: 0.58rem;
+  --kb-card-padding: 0.64rem;
+  --kb-card-radius: 11px;
+  --kb-card-content-gap: 0.28rem;
+  --kb-card-title-size: 0.84rem;
+  --kb-card-description-size: 0.72rem;
+  --kb-card-action-gap: 0.3rem;
+  --kb-card-action-margin: 0.58rem;
+  --kb-card-action-padding-y: 0.34rem;
+  --kb-card-action-padding-x: 0.44rem;
+  --kb-quick-add-margin: 0.48rem;
+  --kb-quick-add-gap: 0.34rem;
+  --kb-quick-add-padding-y: 0.48rem;
+  --kb-quick-add-padding-x: 0.56rem;
+}
+
+.kanban-board--density-focus {
+  --kb-shell-padding: clamp(1.2rem, 2.5vw, 1.8rem);
+  --kb-toolbar-gap: 0.8rem;
+  --kb-toolbar-margin: 1rem;
+  --kb-column-gap: 1.05rem;
+  --kb-control-padding-y: 0.66rem;
+  --kb-control-padding-x: 0.78rem;
+  --kb-control-font-size: 0.82rem;
+  --kb-chip-padding-y: 0.54rem;
+  --kb-chip-padding-x: 0.66rem;
+  --kb-column-padding: 1rem;
+  --kb-column-task-gap: 0.82rem;
+  --kb-column-task-margin: 1rem;
+  --kb-card-padding: 1rem;
+  --kb-card-radius: 16px;
+  --kb-card-content-gap: 0.56rem;
+  --kb-card-title-size: 0.98rem;
+  --kb-card-description-size: 0.82rem;
+  --kb-card-action-gap: 0.48rem;
+  --kb-card-action-margin: 1rem;
+  --kb-card-action-padding-y: 0.48rem;
+  --kb-card-action-padding-x: 0.64rem;
+  --kb-quick-add-margin: 0.82rem;
+  --kb-quick-add-gap: 0.55rem;
+  --kb-quick-add-padding-y: 0.7rem;
+  --kb-quick-add-padding-x: 0.78rem;
+}
+
+.kanban-board__active {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: min(76vh, 52rem);
+  min-width: 0;
+  min-height: 34rem;
+  overflow: hidden;
+  padding: var(--kb-shell-padding);
   border: 1px solid var(--border-subtle);
   border-radius: 28px;
   background: var(--card-bg);
@@ -18,7 +115,8 @@
 }
 
 .kanban-board__header {
-  margin-bottom: 1rem;
+  flex: 0 0 auto;
+  margin-bottom: 0.85rem;
 }
 
 .kanban-board__eyebrow {
@@ -39,14 +137,41 @@
 
 .kanban-board__columns {
   display: grid;
-  grid-template-columns: repeat(4, minmax(8.5rem, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: repeat(4, minmax(12.5rem, 1fr));
+  grid-auto-rows: minmax(0, 1fr);
+  align-items: stretch;
+  gap: var(--kb-column-gap);
+  min-height: 0;
+  overflow: hidden;
+  flex: 1 1 auto;
+}
+
+.kanban-board__active app-task-create {
+  flex: 0 0 auto;
+}
+
+.kanban-board__columns > app-kanban-column {
+  min-height: 0;
+  overflow: hidden;
 }
 
 @media (max-width: 980px) {
+  .kanban-board__active {
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+  }
+
   .kanban-board__columns {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: auto;
+    overflow: visible;
   }
+
+  .kanban-board__columns > app-kanban-column {
+    overflow: visible;
+  }
+
 }
 
 @media (max-width: 560px) {

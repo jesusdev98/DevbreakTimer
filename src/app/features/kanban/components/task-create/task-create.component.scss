@@ -1,0 +1,109 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.task-create {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--kb-toolbar-gap, 0.75rem);
+  margin-bottom: var(--kb-toolbar-margin, 1rem);
+  padding: var(--kb-column-padding, 0.85rem);
+  border: 1px solid var(--border-subtle);
+  border-radius: 18px;
+  background: var(--surface-subtle);
+}
+
+.task-create__fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: var(--kb-toolbar-gap, 0.65rem);
+}
+
+.task-create label {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.task-create span {
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.task-create input,
+.task-create textarea {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  background: var(--surface-control);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--kb-control-font-size, 0.82rem);
+  font-weight: 700;
+  outline: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.task-create input {
+  padding: var(--kb-control-padding-y, 0.66rem) var(--kb-control-padding-x, 0.7rem);
+}
+
+.task-create textarea {
+  min-height: 2.62rem;
+  resize: vertical;
+  padding: var(--kb-control-padding-y, 0.58rem) var(--kb-control-padding-x, 0.7rem);
+}
+
+.task-create input::placeholder,
+.task-create textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.task-create input:focus,
+.task-create textarea:focus,
+.task-create input:focus-visible,
+.task-create textarea:focus-visible {
+  border-color: color-mix(in srgb, var(--accent) 58%, transparent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 16%, transparent);
+}
+
+.task-create button:hover:not(:disabled),
+.task-create button:focus-visible:not(:disabled) {
+  border-color: color-mix(in srgb, var(--accent) 72%, transparent);
+  background: color-mix(in srgb, var(--accent) 24%, transparent);
+}
+
+.task-create button {
+  min-width: 6.7rem;
+  padding: var(--kb-control-padding-y, 0.7rem) calc(var(--kb-control-padding-x, 0.82rem) + 0.12rem);
+  border: 1px solid color-mix(in srgb, var(--accent) 58%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  color: var(--accent);
+  font: inherit;
+  font-size: var(--kb-control-font-size, 0.78rem);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.task-create button:disabled {
+  cursor: not-allowed;
+  border-color: var(--border-subtle);
+  background: var(--surface-disabled);
+  color: var(--disabled-text);
+}
+
+@media (max-width: 720px) {
+  .task-create,
+  .task-create__fields {
+    grid-template-columns: 1fr;
+  }
+}

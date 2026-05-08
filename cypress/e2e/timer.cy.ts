@@ -23,6 +23,7 @@ describe('DevBreak Timer', () => {
     cy.getByTestId('start-button').click();
     cy.tick(2_000);
     cy.reload();
+    cy.tick(2_000);
 
     cy.getByTestId('timer-status').should('contain.text', 'running');
     cy.getByTestId('timer-display').should('contain.text', '04:58');
@@ -126,3 +127,5 @@ function installNotificationMock(win: Window, permission: NotificationPermission
     }),
   });
 }
+
+export {};

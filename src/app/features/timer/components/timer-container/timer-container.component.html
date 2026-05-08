@@ -1,7 +1,10 @@
 <ng-container
   *ngIf="{
     status: (status$ | async),
-    time: (remainingTime$ | async)
+    time: (remainingTime$ | async),
+    activeTask: (activeTask$ | async),
+    wellnessReminder: (wellnessReminder$ | async),
+    wellnessMetrics: (wellnessMetrics$ | async)
   } as vm">
   <section
     class="timer-card"
@@ -9,8 +12,10 @@
     [class.timer-card--idle]="vm.status === 'idle'"
     [class.timer-card--running]="vm.status === 'running'"
     [class.timer-card--paused]="vm.status === 'paused'"
-    [class.timer-card--completed]="vm.status === 'completed'">
+    [class.timer-card--completed]="vm.status === 'completed'"
+    aria-labelledby="timer-title">
     <button
+      #settingsButton
       class="settings-entry"
       data-testid="settings-button"
       type="button"
@@ -21,14 +26,32 @@
 
     <header class="timer-card__header">
       <p class="timer-card__eyebrow">DevBreak Timer</p>
-      <h1 class="timer-card__title" data-testid="session-title">
+      <h1 id="timer-title" class="timer-card__title" data-testid="session-title">
         {{ pomodoroEnabled ? getSessionTitle(pomodoroState.currentSession) : 'Countdown' }}
       </h1>
+      <p class="timer-card__meta">
+        {{ currentWorkspaceMode.label }} Mode - {{ currentWorkspaceMode.timerCue }}
+      </p>
       <p class="timer-card__meta" data-testid="session-meta" *ngIf="pomodoroEnabled">
         Cycle {{ pomodoroState.cycle }} / {{ getCyclesBeforeLongBreak() }} -
         {{ pomodoroState.completedFocusSessions }} focus completed
       </p>
     </header>
+
+    <p class="sr-only" aria-live="polite" aria-atomic="true">{{ timerAnnouncement }}</p>
+
+    <section class="focus-panel" *ngIf="shouldShowFocusPanel(vm.activeTask)" aria-labelledby="focus-panel-title">
+      <div class="focus-panel__content">
+        <span id="focus-panel-title" class="focus-panel__label">Currently Focusing On</span>
+        <strong>{{ vm.activeTask?.title }}</strong>
+        <p *ngIf="vm.activeTask?.description">{{ vm.activeTask?.description }}</p>
+      </div>
+      <button type="button" (click)="clearActiveTask()">Clear</button>
+    </section>
+
+    <p class="focus-ownership-note" *ngIf="!isFocusMode()">
+      Focus ownership is available in Focus Mode.
+    </p>
 
     <div class="timer-card__mode">
       <div class="timer-toggle-group">
@@ -118,226 +141,94 @@
       {{ completionMessage }}
     </div>
 
-    <div *ngIf="vm.status === 'completed'" class="exercise">
-      {{ currentExercise }}
+    <section
+      *ngIf="focusSessionCompletion"
+      class="focus-completion"
+      aria-label="Focus session completed">
+      <div class="focus-completion__content">
+        <span class="focus-completion__label">Focus Session Completed</span>
+        <strong>+{{ focusSessionCompletion.session.durationMinutes }} productive minutes</strong>
+        <p *ngIf="focusSessionCompletion.session.taskTitle">
+          Task: {{ focusSessionCompletion.session.taskTitle }}
+        </p>
+      </div>
+      <div class="focus-completion__metrics">
+        <span>Today</span>
+        <strong>{{ formatFocusMinutes(focusSessionCompletion.dailyMetrics.totalFocusMinutesToday) }}</strong>
+        <small>{{ focusSessionCompletion.dailyMetrics.completedSessionsToday }} sessions</small>
+      </div>
+      <div class="focus-completion__actions">
+        <button type="button" (click)="continueTask()">Continue Task</button>
+        <button
+          type="button"
+          *ngIf="focusSessionCompletion.session.taskId"
+          (click)="markFocusedTaskDone()">
+          Mark Done
+        </button>
+        <button type="button" (click)="startBreakFromCompletion()">Start Break</button>
+      </div>
+    </section>
+
+    <div *ngIf="taskCompletionMessage" class="task-completion-message" aria-live="polite">
+      {{ taskCompletionMessage }}
     </div>
+
+    <app-wellness-break-card
+      *ngIf="wellnessSuggestion"
+      [suggestion]="wellnessSuggestion">
+    </app-wellness-break-card>
+
+    <app-wellness-reminder-card
+      *ngIf="vm.wellnessReminder"
+      [reminder]="vm.wellnessReminder"
+      [wellnessMode]="currentWorkspaceMode.id === 'wellness'"
+      (completeReminder)="completeWellnessReminder($event)"
+      (nextSuggestion)="nextWellnessSuggestion($event)"
+      (dismissReminder)="dismissWellnessReminder($event)">
+    </app-wellness-reminder-card>
+
+    <app-wellness-insights-card
+      *ngIf="vm.wellnessMetrics && vm.wellnessMetrics.totalInteractions > 0"
+      [metrics]="vm.wellnessMetrics">
+    </app-wellness-insights-card>
 
     <div class="progress">
       <div class="progress__bar" [style.width.%]="progress"></div>
     </div>
 
-    <label class="timer-card__field">
-      <span class="timer-card__label">
-        Duration (min)
-        <span *ngIf="getDurationLockMessage()" class="timer-card__label-state">Locked</span>
-      </span>
-      <input
-        class="timer-card__input"
-        data-testid="duration-input"
-        type="number"
-        min="1"
-        step="1"
-        inputmode="numeric"
-        placeholder="e.g. 25"
-        [ngModel]="durationInMinutes"
-        (ngModelChange)="setDuration($event)"
-        [disabled]="vm.status === 'running' || pomodoroEnabled" />
-      <span *ngIf="getDurationLockMessage()" class="timer-field-note">
-        {{ getDurationLockMessage() }}
-      </span>
-    </label>
+    <app-timer-action-toolbar
+      [status]="vm.status ?? 'idle'"
+      [durationInMinutes]="durationInMinutes"
+      [pomodoroEnabled]="pomodoroEnabled"
+      [presets]="presets"
+      [durationLockMessage]="getDurationLockMessage()"
+      (durationChanged)="setDuration($event)"
+      (presetSelected)="selectPreset($event)"
+      (startTimer)="start()"
+      (pauseTimer)="pause()"
+      (resetTimer)="reset()">
+    </app-timer-action-toolbar>
 
-    <div class="quick-presets" aria-label="Quick duration presets">
-      <button
-        *ngFor="let preset of presets"
-        class="quick-presets__button"
-        [attr.data-testid]="'preset-' + preset"
-        type="button"
-        (click)="selectPreset(preset)"
-        [class.quick-presets__button--active]="durationInMinutes === preset && !pomodoroEnabled"
-        [disabled]="vm.status === 'running' || pomodoroEnabled">
-        {{ preset }}m
-      </button>
-    </div>
-
-    <div class="timer-card__actions">
-      <button
-        class="timer-card__button timer-card__button--primary"
-        data-testid="start-button"
-        [class.timer-card__button--muted]="vm.status === 'running'"
-        [class.timer-card__button--resume]="vm.status === 'paused'"
-        type="button"
-        (click)="start()"
-        [disabled]="vm.status === 'running'">
-        {{ vm.status === 'paused' ? 'Resume' : vm.status === 'completed' ? 'Restart' : 'Start' }}
-      </button>
-
-      <button
-        class="timer-card__button timer-card__button--secondary"
-        data-testid="pause-button"
-        [class.timer-card__button--paused]="vm.status === 'paused'"
-        type="button"
-        (click)="pause()"
-        [disabled]="vm.status !== 'running'">
-        Pause
-      </button>
-
-      <button
-        class="timer-card__button timer-card__button--ghost"
-        data-testid="reset-button"
-        [class.timer-card__button--highlight]="vm.status === 'completed'"
-        type="button"
-        (click)="reset()">
-        Reset
-      </button>
-    </div>
-
-    <div
+    <app-timer-settings-panel
       *ngIf="settingsPanelOpen"
-      class="settings-modal"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="settings-title"
-      (keydown.escape)="closeSettings()">
-      <button
-        class="settings-modal__backdrop"
-        type="button"
-        aria-label="Close settings"
-        (click)="closeSettings()"></button>
-
-      <form class="settings-panel" (ngSubmit)="saveSettings()">
-        <header class="settings-panel__header">
-          <div>
-            <p class="settings-panel__eyebrow">Workspace</p>
-            <h2 id="settings-title">Settings</h2>
-          </div>
-          <button class="settings-panel__close" type="button" aria-label="Close settings" (click)="closeSettings()">
-            Close
-          </button>
-        </header>
-
-        <section class="settings-section" aria-labelledby="theme-settings-title">
-          <h3 id="theme-settings-title">Theme</h3>
-          <div class="settings-segmented">
-            <label
-              class="settings-segmented__option"
-              [class.settings-segmented__option--active]="settingsDraft.theme === 'dark'">
-              <input
-                type="radio"
-                name="theme"
-                value="dark"
-                [(ngModel)]="settingsDraft.theme" />
-              Dark
-            </label>
-            <label
-              class="settings-segmented__option"
-              [class.settings-segmented__option--active]="settingsDraft.theme === 'light'">
-              <input
-                type="radio"
-                name="theme"
-                value="light"
-                [(ngModel)]="settingsDraft.theme" />
-              Light
-            </label>
-          </div>
-        </section>
-
-        <section class="settings-section" aria-labelledby="profile-settings-title">
-          <h3 id="profile-settings-title">Pomodoro Profile</h3>
-          <div class="profile-list">
-            <label
-              *ngFor="let profile of pomodoroProfiles"
-              class="profile-option"
-              [class.profile-option--active]="settingsDraft.profileId === profile.id">
-              <input
-                type="radio"
-                name="pomodoroProfile"
-                [value]="profile.id"
-                [ngModel]="settingsDraft.profileId"
-                (ngModelChange)="selectSettingsProfile($event)" />
-              <span>
-                <strong>{{ profile.name }}</strong>
-                <small>{{ profile.description }}</small>
-              </span>
-            </label>
-
-            <label
-              class="profile-option"
-              [class.profile-option--active]="settingsDraft.profileId === 'custom'">
-              <input
-                type="radio"
-                name="pomodoroProfile"
-                value="custom"
-                [ngModel]="settingsDraft.profileId"
-                (ngModelChange)="selectSettingsProfile($event)" />
-              <span>
-                <strong>Custom</strong>
-                <small>Use your own focus, break, and cycle lengths.</small>
-              </span>
-            </label>
-          </div>
-
-          <div class="custom-profile" *ngIf="settingsDraft.profileId === 'custom'">
-            <label class="settings-field">
-              <span>Focus</span>
-              <input
-                type="number"
-                name="focusMinutes"
-                min="1"
-                step="1"
-                [(ngModel)]="settingsDraft.focusMinutes" />
-            </label>
-            <label class="settings-field">
-              <span>Short Break</span>
-              <input
-                type="number"
-                name="shortBreakMinutes"
-                min="1"
-                step="1"
-                [(ngModel)]="settingsDraft.shortBreakMinutes" />
-            </label>
-            <label class="settings-field">
-              <span>Long Break</span>
-              <input
-                type="number"
-                name="longBreakMinutes"
-                min="1"
-                step="1"
-                [(ngModel)]="settingsDraft.longBreakMinutes" />
-            </label>
-            <label class="settings-field">
-              <span>Cycles</span>
-              <input
-                type="number"
-                name="cyclesBeforeLongBreak"
-                min="1"
-                max="12"
-                step="1"
-                [(ngModel)]="settingsDraft.cyclesBeforeLongBreak" />
-            </label>
-          </div>
-        </section>
-
-        <section class="settings-section" aria-labelledby="feedback-settings-title">
-          <h3 id="feedback-settings-title">Feedback</h3>
-          <label class="settings-toggle">
-            <input
-              type="checkbox"
-              name="settingsSound"
-              [(ngModel)]="settingsDraft.soundEnabled" />
-            <span>Sound alerts</span>
-          </label>
-        </section>
-
-        <footer class="settings-panel__actions">
-          <button class="settings-action settings-action--ghost" type="button" (click)="closeSettings()">
-            Cancel
-          </button>
-          <button class="settings-action settings-action--primary" type="submit">
-            Apply
-          </button>
-        </footer>
-      </form>
-    </div>
+      [settingsDraft]="settingsDraft"
+      [workspaceModes]="workspaceModes"
+      [wellnessCategoryOptions]="wellnessCategoryOptions"
+      [pomodoroProfiles]="pomodoroProfiles"
+      [wellnessReminderPreferences]="wellnessReminderPreferences"
+      [shortcuts]="shortcuts"
+      [editingShortcutAction]="editingShortcutAction"
+      [shortcutValidationMessage]="shortcutValidationMessage"
+      (closeSettings)="closeSettings()"
+      (saveSettings)="saveSettings()"
+      (settingsKeydown)="handleSettingsKeydown($event)"
+      (profileSelected)="selectSettingsProfile($event)"
+      (wellnessCategoryToggled)="toggleWellnessCategory($event)"
+      (wellnessRemindersEnabledChanged)="setWellnessRemindersEnabled($event)"
+      (wellnessReminderTypeEnabledChanged)="setWellnessReminderTypeFromEvent($event)"
+      (resetShortcuts)="resetShortcuts()"
+      (shortcutCaptureStarted)="startShortcutCapture($event)"
+      (shortcutCaptured)="handleShortcutCaptureEvent($event)">
+    </app-timer-settings-panel>
   </section>
 </ng-container>

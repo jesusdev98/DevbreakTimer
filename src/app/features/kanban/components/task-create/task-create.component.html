@@ -1,0 +1,32 @@
+<form
+  class="task-create"
+  (ngSubmit)="submitTask()"
+  (keydown)="handleCreateKeydown($event)"
+  aria-label="Create new task">
+  <div class="task-create__fields">
+    <label>
+      <span>New Task</span>
+      <input
+        #titleInput
+        type="text"
+        name="title"
+        [(ngModel)]="title"
+        placeholder="Task title"
+        autocomplete="off"
+        aria-keyshortcuts="N Enter Escape"
+        required />
+    </label>
+
+    <label>
+      <span>Description</span>
+      <textarea
+        name="description"
+        [(ngModel)]="description"
+        placeholder="Optional note"
+        rows="2">
+      </textarea>
+    </label>
+  </div>
+
+  <button type="submit" [disabled]="!canCreate">Add Task</button>
+</form>
