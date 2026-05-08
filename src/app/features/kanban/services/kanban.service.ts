@@ -18,6 +18,7 @@ export interface KanbanColumn {
 
 const STORAGE_KEY = 'devbreak-kanban-tasks';
 const ACTIVE_TASK_STORAGE_KEY = 'devbreak-kanban-active-task-id';
+const DAILY_STATS_RESET_STORAGE_KEY = 'devbreak-kanban-daily-stats-reset-at';
 const DROP_LIST_PREFIX = 'kanban-column-';
 const WORKFLOW: TaskStatus[] = ['ideas', 'todo', 'in-progress', 'done'];
 const COLUMNS: KanbanColumn[] = [
@@ -35,6 +36,7 @@ export class KanbanService {
 
   private tasks = this.restoreTasks();
   private activeTaskId = this.restoreActiveTaskId();
+  private dailyStatsResetAt = this.restoreDailyStatsResetAt();
   private readonly activeTaskSubject = new BehaviorSubject<Task | null>(this.findActiveTask());
   private readonly completedTasksTodaySubject = new BehaviorSubject<number>(
     this.calculateCompletedTasksToday()
@@ -116,6 +118,23 @@ export class KanbanService {
         currentTask.id === task.id ? { ...currentTask, archived: false } : currentTask
       )
     );
+  }
+
+  resetWorkspace(): Task[] {
+    this.tasks = [];
+    this.activeTaskId = null;
+    this.persistTasks();
+    this.persistActiveTaskId();
+    this.emitActiveTask();
+    this.publishCompletedTasksToday();
+
+    return this.tasks;
+  }
+
+  resetCompletedTasksToday(): void {
+    this.dailyStatsResetAt = Date.now();
+    this.persistDailyStatsResetAt();
+    this.publishCompletedTasksToday();
   }
 
   completeTaskById(taskId: string, completedSessionsCount = 1): Task[] {
@@ -220,10 +239,13 @@ export class KanbanService {
     const now = new Date();
     const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
     const endOfDay = startOfDay + 24 * 60 * 60 * 1000;
+    const effectiveStart = this.dailyStatsResetAt >= startOfDay && this.dailyStatsResetAt < endOfDay
+      ? this.dailyStatsResetAt
+      : startOfDay;
 
     return this.tasks.filter((task) =>
       task.completedAt !== undefined &&
-      task.completedAt >= startOfDay &&
+      task.completedAt >= effectiveStart &&
       task.completedAt < endOfDay
     ).length;
   }
@@ -276,6 +298,25 @@ export class KanbanService {
       window.localStorage.removeItem(ACTIVE_TASK_STORAGE_KEY);
     } catch {
       // Focus selection remains usable in memory if storage is unavailable.
+    }
+  }
+
+  private restoreDailyStatsResetAt(): number {
+    try {
+      const storedValue = window.localStorage.getItem(DAILY_STATS_RESET_STORAGE_KEY);
+      const parsedValue = Number(storedValue);
+
+      return Number.isFinite(parsedValue) ? parsedValue : 0;
+    } catch {
+      return 0;
+    }
+  }
+
+  private persistDailyStatsResetAt(): void {
+    try {
+      window.localStorage.setItem(DAILY_STATS_RESET_STORAGE_KEY, String(this.dailyStatsResetAt));
+    } catch {
+      // Daily stats reset remains active in memory if storage is unavailable.
     }
   }
 

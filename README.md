@@ -1,3 +1,4 @@
+````md
 <div align="center">
 
 # DevBreak
@@ -20,13 +21,7 @@ DevBreak is a portfolio-grade productivity workspace built with Angular. It comb
 
 The product is intentionally calm: it helps users move work forward without turning productivity into a noisy scoring system.
 
-## Screenshots
-
-> Add final screenshots before publishing.
-
-| Workspace | Focus Mode | Settings |
-| --- | --- | --- |
-| `docs/screenshots/workspace.png` | `docs/screenshots/focus-mode.png` | `docs/screenshots/settings.png` |
+---
 
 ## Highlights
 
@@ -35,11 +30,14 @@ The product is intentionally calm: it helps users move work forward without turn
 - Advanced filters, sorting, density modes, and search
 - Focus ownership mode with active-task workflow
 - Timer and Pomodoro sessions with resilient timestamp-based persistence
-- Adaptive wellness reminders for hydration, posture, and movement
+- Adaptive wellness reminders for hydration, posture, and movement recovery
 - Contextual recovery suggestions and lightweight wellness consistency tracking
 - Keyboard shortcut personalization with conflict prevention
+- Workspace and daily productivity reset actions
 - Dark/light themes, reduced-motion support, and responsive layouts
 - Cypress E2E coverage for core workflows, persistence, keyboard, and accessibility behavior
+
+---
 
 ## Product Philosophy
 
@@ -52,6 +50,8 @@ Wellness guidance is intentionally subtle:
 - no productivity guilt
 - no invasive notifications
 - supportive summaries only after meaningful activity exists
+
+---
 
 ## Architecture
 
@@ -70,29 +70,33 @@ src/app/
       services/
   models/
   services/
-```
+````
 
 Key architectural choices:
 
-- RxJS streams for timer, workspace mode, focus, wellness, and derived UI state
-- LocalStorage persistence with validation and safe fallbacks
-- Angular CDK DragDrop for board interactions
-- Focused presentational components for settings, timer actions, wellness cards, and insights
-- CSS variables for density, theme, and responsive ergonomics
-- Minimal global state, no backend assumptions, no heavyweight store layer
+* RxJS streams for timer, workspace mode, focus, wellness, and derived UI state
+* LocalStorage persistence with validation and safe fallbacks
+* Angular CDK DragDrop for board interactions
+* Focused presentational component boundaries for settings, timer actions, wellness cards, and insights
+* CSS variables for density, theme, and responsive ergonomics
+* Minimal global state, no backend assumptions, no heavyweight store layer
+
+---
 
 ## Accessibility
 
 DevBreak includes an accessibility pass across semantics, keyboard behavior, screen-reader feedback, and motion preferences.
 
-- Landmark and heading structure
-- Accessible form labels and icon/control labels
-- Visible focus states
-- ESC handling and focus restoration
-- Keyboard activation parity for primary workflows
-- ARIA live regions for meaningful state changes
-- `prefers-reduced-motion` support
-- Cypress coverage for keyboard and accessibility-critical flows
+* Landmark and heading structure
+* Accessible form labels and icon/control labels
+* Visible focus states
+* ESC handling and focus restoration
+* Keyboard activation parity for primary workflows
+* ARIA live regions for meaningful state changes
+* `prefers-reduced-motion` support
+* Cypress coverage for keyboard and accessibility-critical flows
+
+---
 
 ## Testing & Reliability
 
@@ -102,11 +106,17 @@ npm run build
 npm run e2e
 ```
 
+Current validation status:
+
+* 56 automated tests passing
+* Production build passing
+* Cypress workflow coverage stable
+
 Coverage includes:
 
-- Unit tests for timer persistence, wellness heuristics, shortcuts, filters, density, and component behavior
-- Cypress E2E tests for Kanban, focus sessions, persistence restore, keyboard workflows, and reduced-motion smoke coverage
-- Production build validation through Angular budgets
+* Unit tests for timer persistence, wellness heuristics, shortcuts, filters, density, and component behavior
+* Cypress E2E tests for Kanban, focus sessions, persistence restore, keyboard workflows, and reduced-motion smoke coverage
+* Production build validation through Angular budgets
 
 Note for local Windows shells: if Cypress inherits `ELECTRON_RUN_AS_NODE`, clear it before running E2E.
 
@@ -116,16 +126,20 @@ $env:CYPRESS_SKIP_VERIFY='true'
 npm run e2e
 ```
 
+---
+
 ## Tech Stack
 
-- Angular
-- TypeScript
-- RxJS
-- SCSS
-- Angular CDK
-- Vitest / Angular unit testing
-- Cypress
-- GitHub Actions
+* Angular
+* TypeScript
+* RxJS
+* SCSS
+* Angular CDK
+* Vitest / Angular unit testing
+* Cypress
+* GitHub Actions
+
+---
 
 ## Getting Started
 
@@ -147,6 +161,8 @@ Production build:
 ```bash
 npm run build
 ```
+
+---
 
 ## Deployment
 
@@ -175,23 +191,30 @@ Install Command: npm ci
 
 For SPA fallback routing, add a Vercel rewrite if routes are introduced later.
 
+---
+
 ## GitHub Actions
 
 Workflows are intentionally lightweight:
 
-- CI: install, unit tests, production build
-- Pages deploy: install, unit tests, production build, upload static artifact
+* CI: install, unit tests, production build
+* Pages deploy: install, unit tests, production build, upload static artifact
 
 Cypress remains available for local and future CI expansion without making the default pipeline heavy.
+
+---
 
 ## Portfolio Notes
 
 DevBreak demonstrates production-minded frontend work:
 
-- product-oriented UX decisions
-- accessible keyboard-first interaction design
-- resilient local persistence
-- maintainable Angular boundaries
-- responsive operational UI
-- calm wellness-aware behavior
-- meaningful automated reliability coverage
+* product-oriented UX decisions
+* accessible keyboard-first interaction design
+* resilient local persistence
+* maintainable Angular boundaries
+* responsive operational UI
+* calm wellness-aware behavior
+* meaningful automated reliability coverage
+
+```
+```

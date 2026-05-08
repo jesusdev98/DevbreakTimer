@@ -39,4 +39,9 @@ export class ProductivityStatsComponent {
 
     return remainingMinutes === 0 ? `${hours}h` : `${hours}h ${remainingMinutes}m`;
   }
+
+  protected resetToday(): void {
+    this.focusSessionService.resetTodayStats();
+    this.kanbanService.resetCompletedTasksToday();
+  }
 }

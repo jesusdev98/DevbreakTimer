@@ -5,8 +5,7 @@ export type WellnessCategory =
   | 'cardio'
   | 'strength'
   | 'mobility'
-  | 'posture'
-  | 'recovery';
+  | 'pilates';
 
 export interface WellnessBreakSuggestion {
   id: string;

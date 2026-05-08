@@ -1,6 +1,7 @@
 <section class="productivity-stats" *ngIf="stats$ | async as stats" aria-labelledby="productivity-stats-title">
   <div class="productivity-stats__header">
     <span id="productivity-stats-title">Today</span>
+    <button type="button" (click)="resetToday()">Reset today</button>
   </div>
 
   <div class="productivity-stats__items">

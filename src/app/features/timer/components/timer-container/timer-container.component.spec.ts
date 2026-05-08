@@ -180,6 +180,32 @@ describe('TimerContainerComponent', () => {
     expect(query<HTMLButtonElement>('preset-25').disabled).toBe(true);
   });
 
+  it('locks session-critical settings only while the timer is running or paused', async () => {
+    query<HTMLButtonElement>('settings-button').click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expectSessionCriticalSettingsLocked(false);
+
+    timerService.statusSubject.next('running');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expectSessionCriticalSettingsLocked(true);
+
+    timerService.statusSubject.next('paused');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expectSessionCriticalSettingsLocked(true);
+
+    timerService.statusSubject.next('completed');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expectSessionCriticalSettingsLocked(false);
+  });
+
   function query<T extends HTMLElement = HTMLElement>(testId: string): T {
     const element = fixture.nativeElement.querySelector(`[data-testid="${testId}"]`) as T | null;
 
@@ -188,5 +214,34 @@ describe('TimerContainerComponent', () => {
     }
 
     return element;
+  }
+
+  function expectSessionCriticalSettingsLocked(locked: boolean): void {
+    const workspaceMode = fixture.nativeElement.querySelector(
+      'input[name="workspaceMode"]',
+    ) as HTMLInputElement;
+    const profile = fixture.nativeElement.querySelector(
+      'select[name="pomodoroProfile"]',
+    ) as HTMLSelectElement;
+    const theme = fixture.nativeElement.querySelector('input[name="theme"]') as HTMLInputElement;
+    const sound = fixture.nativeElement.querySelector(
+      'input[name="settingsSound"]',
+    ) as HTMLInputElement;
+
+    expect(workspaceMode.disabled).toBe(locked);
+    expect(profile.disabled).toBe(locked);
+    expect(theme.disabled).toBe(false);
+    expect(sound.disabled).toBe(false);
+
+    if (locked) {
+      expect(fixture.nativeElement.textContent).toContain(
+        'Finish or reset the current session to change mode.',
+      );
+      return;
+    }
+
+    expect(fixture.nativeElement.textContent).not.toContain(
+      'Finish or reset the current session to change mode.',
+    );
   }
 });

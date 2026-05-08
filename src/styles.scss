@@ -42,6 +42,9 @@ body {
   --text-muted: rgba(203, 213, 225, 0.74);
   --accent: #fbbf24;
   --accent-contrast: #111827;
+  --scrollbar-track: color-mix(in srgb, #020617 82%, var(--surface-control));
+  --scrollbar-thumb: color-mix(in srgb, var(--accent) 48%, #8b5a0a);
+  --scrollbar-thumb-hover: color-mix(in srgb, var(--accent) 72%, #fef3c7 8%);
   --preset-active-border: #fbbf2494;
   --preset-active-bg: #fbbf242e;
   --preset-active-text: #fef3c7;
@@ -94,6 +97,9 @@ body {
   --text-muted: rgba(51, 65, 85, 0.78);
   --accent: #b45309;
   --accent-contrast: #fffaf0;
+  --scrollbar-track: color-mix(in srgb, #07111f 82%, var(--surface-control));
+  --scrollbar-thumb: color-mix(in srgb, var(--accent) 58%, #fbbf24);
+  --scrollbar-thumb-hover: color-mix(in srgb, var(--accent) 72%, #f59e0b);
   --preset-active-border: #b45309ad;
   --preset-active-bg: #fbbf2457;
   --preset-active-text: #2f1f05;
@@ -135,6 +141,47 @@ summary {
     color 0.16s ease,
     box-shadow 0.16s ease,
     opacity 0.16s ease;
+}
+
+html,
+body,
+.settings-panel {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+.settings-panel::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track,
+.settings-panel::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: 999px;
+}
+
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+.settings-panel::-webkit-scrollbar-thumb {
+  border: 2px solid var(--scrollbar-track);
+  border-radius: 999px;
+  background: var(--scrollbar-thumb);
+}
+
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover,
+.settings-panel::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+html::-webkit-scrollbar-corner,
+body::-webkit-scrollbar-corner,
+.settings-panel::-webkit-scrollbar-corner {
+  background: var(--scrollbar-track);
 }
 
 button:focus-visible,
@@ -323,10 +370,32 @@ summary:focus-visible,
   line-height: 1.25;
 }
 
+.workspace-mode-option--disabled {
+  cursor: not-allowed;
+  background: var(--surface-disabled);
+  color: var(--disabled-text);
+}
+
+.workspace-mode-option--disabled small {
+  color: var(--disabled-text);
+}
+
+.settings-lock-note {
+  margin: -0.2rem 0 0.7rem;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
 .wellness-chip-list {
   display: flex;
   flex-wrap: wrap;
   gap: 0.45rem;
+}
+
+[aria-labelledby='wellness-reminder-settings-title'] .wellness-chip-list {
+  margin-top: 0.65rem;
 }
 
 .wellness-chip {

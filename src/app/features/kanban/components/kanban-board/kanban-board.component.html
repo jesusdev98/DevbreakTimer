@@ -63,6 +63,13 @@
           {{ density.label }}
         </button>
       </div>
+
+      <button
+        type="button"
+        class="kanban-toolbar-action"
+        (click)="resetWorkspace()">
+        Reset workspace
+      </button>
     </div>
 
     <app-task-create (createTask)="createTask($event)"></app-task-create>

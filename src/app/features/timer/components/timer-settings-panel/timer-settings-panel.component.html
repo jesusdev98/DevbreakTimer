@@ -47,15 +47,21 @@
 
     <section class="settings-section" aria-labelledby="mode-settings-title">
       <h3 id="mode-settings-title">Workspace Mode</h3>
+      <p class="settings-lock-note" id="mode-settings-lock" *ngIf="sessionSettingsLocked">
+        Finish or reset the current session to change mode.
+      </p>
       <div class="workspace-mode-grid">
         <label
           *ngFor="let mode of workspaceModes"
           class="workspace-mode-option"
+          [class.workspace-mode-option--disabled]="sessionSettingsLocked"
           [class.workspace-mode-option--active]="settingsDraft.workspaceModeId === mode.id">
           <input
             type="radio"
             name="workspaceMode"
             [value]="mode.id"
+            [disabled]="sessionSettingsLocked"
+            [attr.aria-describedby]="sessionSettingsLocked ? 'mode-settings-lock' : null"
             [(ngModel)]="settingsDraft.workspaceModeId" />
           <span>
             <strong>{{ mode.label }}</strong>
@@ -85,11 +91,16 @@
 
     <section class="settings-section" aria-labelledby="profile-settings-title">
       <h3 id="profile-settings-title">Pomodoro Profile</h3>
+      <p class="settings-lock-note" id="profile-settings-lock" *ngIf="sessionSettingsLocked">
+        Finish or reset the current session to change mode.
+      </p>
       <label class="settings-field">
         <span>Profile</span>
         <select
           name="pomodoroProfile"
           [ngModel]="settingsDraft.profileId"
+          [disabled]="sessionSettingsLocked"
+          [attr.aria-describedby]="sessionSettingsLocked ? 'profile-settings-lock' : null"
           (ngModelChange)="profileSelected.emit($event)">
           <option *ngFor="let profile of pomodoroProfiles" [value]="profile.id">
             {{ profile.name }} - {{ profile.description }}
@@ -106,6 +117,8 @@
             name="focusMinutes"
             min="1"
             step="1"
+            [disabled]="sessionSettingsLocked"
+            [attr.aria-describedby]="sessionSettingsLocked ? 'profile-settings-lock' : null"
             [(ngModel)]="settingsDraft.focusMinutes" />
         </label>
         <label class="settings-field">
@@ -115,6 +128,8 @@
             name="shortBreakMinutes"
             min="1"
             step="1"
+            [disabled]="sessionSettingsLocked"
+            [attr.aria-describedby]="sessionSettingsLocked ? 'profile-settings-lock' : null"
             [(ngModel)]="settingsDraft.shortBreakMinutes" />
         </label>
         <label class="settings-field">
@@ -124,6 +139,8 @@
             name="longBreakMinutes"
             min="1"
             step="1"
+            [disabled]="sessionSettingsLocked"
+            [attr.aria-describedby]="sessionSettingsLocked ? 'profile-settings-lock' : null"
             [(ngModel)]="settingsDraft.longBreakMinutes" />
         </label>
         <label class="settings-field">
@@ -134,6 +151,8 @@
             min="1"
             max="12"
             step="1"
+            [disabled]="sessionSettingsLocked"
+            [attr.aria-describedby]="sessionSettingsLocked ? 'profile-settings-lock' : null"
             [(ngModel)]="settingsDraft.cyclesBeforeLongBreak" />
         </label>
       </div>

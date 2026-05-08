@@ -18,6 +18,7 @@ interface StartFocusSessionRequest {
 
 const COMPLETED_SESSIONS_KEY = 'devbreak-focus-sessions';
 const ACTIVE_SESSION_KEY = 'devbreak-active-focus-session';
+const DAILY_STATS_RESET_KEY = 'devbreak-focus-daily-stats-reset-at';
 
 @Injectable({
   providedIn: 'root',
@@ -25,6 +26,7 @@ const ACTIVE_SESSION_KEY = 'devbreak-active-focus-session';
 export class FocusSessionService {
   private completedSessions = this.restoreCompletedSessions();
   private activeSession = this.restoreActiveSession();
+  private dailyStatsResetAt = this.restoreDailyStatsResetAt();
   private readonly productivityStatsSubject = new BehaviorSubject<ProductivityStats>(
     this.calculateProductivityStats()
   );
@@ -85,13 +87,22 @@ export class FocusSessionService {
     this.persistActiveSession();
   }
 
+  resetTodayStats(): void {
+    this.dailyStatsResetAt = Date.now();
+    this.persistDailyStatsResetAt();
+    this.publishProductivityStats();
+  }
+
   private calculateDailyMetrics(): DailyFocusMetrics {
     const now = new Date();
     const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
     const endOfDay = startOfDay + 24 * 60 * 60 * 1000;
+    const effectiveStart = this.dailyStatsResetAt >= startOfDay && this.dailyStatsResetAt < endOfDay
+      ? this.dailyStatsResetAt
+      : startOfDay;
     const todaysSessions = this.completedSessions.filter((session) =>
       session.completedAt !== null &&
-      session.completedAt >= startOfDay &&
+      session.completedAt >= effectiveStart &&
       session.completedAt < endOfDay
     );
 
@@ -213,6 +224,25 @@ export class FocusSessionService {
       window.localStorage.removeItem(ACTIVE_SESSION_KEY);
     } catch {
       // Active focus session remains available in memory if storage is unavailable.
+    }
+  }
+
+  private restoreDailyStatsResetAt(): number {
+    try {
+      const storedValue = window.localStorage.getItem(DAILY_STATS_RESET_KEY);
+      const parsedValue = Number(storedValue);
+
+      return Number.isFinite(parsedValue) ? parsedValue : 0;
+    } catch {
+      return 0;
+    }
+  }
+
+  private persistDailyStatsResetAt(): void {
+    try {
+      window.localStorage.setItem(DAILY_STATS_RESET_KEY, String(this.dailyStatsResetAt));
+    } catch {
+      // Daily stats reset remains active in memory if storage is unavailable.
     }
   }
 

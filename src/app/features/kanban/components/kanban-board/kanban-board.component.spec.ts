@@ -29,6 +29,7 @@ describe('KanbanBoardComponent', () => {
     | 'createTask'
     | 'updateTask'
     | 'handleDrop'
+    | 'resetWorkspace'
   >;
   let shortcutService: Pick<ShortcutService, 'formatCombo' | 'getCombo' | 'matches'>;
   let workspaceModeService: Pick<WorkspaceModeService, 'getSelectedMode'>;
@@ -62,6 +63,7 @@ describe('KanbanBoardComponent', () => {
       createTask: vi.fn(() => tasks),
       updateTask: vi.fn(() => tasks),
       handleDrop: vi.fn(() => tasks),
+      resetWorkspace: vi.fn(() => []),
     };
     shortcutService = {
       formatCombo: vi.fn((combo: string) => combo),
@@ -110,6 +112,15 @@ describe('KanbanBoardComponent', () => {
     expect(component.tasksFor('todo').map((item: Task) => item.id)).toEqual(['2']);
   });
 
+  it('keeps completed tasks visible in the default active board', () => {
+    const component = createComponent();
+
+    expect(component.tasksFor('done').map((item: Task) => item.title)).toEqual([
+      'Done alpha',
+      'Done beta',
+    ]);
+  });
+
   it('blocks focus task actions outside Focus mode', () => {
     const component = createComponent();
 
@@ -142,6 +153,18 @@ describe('KanbanBoardComponent', () => {
 
     expect(kanbanService.createTask).toHaveBeenCalledWith({ title: 'New task', status: 'todo' });
     expect(wellnessReminderEngine.recordTaskCreated).toHaveBeenCalled();
+  });
+
+  it('resets the workspace through the kanban service', () => {
+    const component = createComponent();
+
+    component.activeQuickAddStatus = 'todo';
+    component.resetWorkspace();
+
+    expect(kanbanService.resetWorkspace).toHaveBeenCalled();
+    expect(component.tasks).toEqual([]);
+    expect(component.activeQuickAddStatus).toBeNull();
+    expect(component.boardAnnouncement).toBe('Workspace reset');
   });
 
   function createComponent(): any {

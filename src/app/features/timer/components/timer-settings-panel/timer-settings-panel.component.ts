@@ -40,6 +40,7 @@ export class TimerSettingsPanelComponent {
   @Input({ required: true }) wellnessCategoryOptions: readonly WellnessCategoryOption[] = [];
   @Input({ required: true }) pomodoroProfiles: readonly PomodoroProfile[] = [];
   @Input({ required: true }) wellnessReminderPreferences!: WellnessReminderPreferences;
+  @Input() sessionSettingsLocked = false;
   @Input() shortcuts: ShortcutDefinition[] = [];
   @Input() editingShortcutAction: ShortcutActionId | null = null;
   @Input() shortcutValidationMessage: string | null = null;

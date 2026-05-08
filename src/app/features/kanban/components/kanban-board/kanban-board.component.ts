@@ -205,6 +205,12 @@ export class KanbanBoardComponent implements OnDestroy {
     this.persistDensityMode();
   }
 
+  protected resetWorkspace(): void {
+    this.activeQuickAddStatus = null;
+    this.tasks = this.kanbanService.resetWorkspace();
+    this.announce('Workspace reset');
+  }
+
   protected handleTaskAction({ task, action }: TaskActionEvent): void {
     if (action === 'focus') {
       if (!this.canUseFocusWorkflow()) {
@@ -385,7 +391,7 @@ export class KanbanBoardComponent implements OnDestroy {
       return task.id === this.activeTaskId() || (task.completedSessionsCount ?? 0) > 0;
     }
 
-    return task.status !== 'done';
+    return true;
   }
 
   private matchesSearch(task: Task): boolean {

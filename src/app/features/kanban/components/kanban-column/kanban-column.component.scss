@@ -63,7 +63,7 @@
   overscroll-behavior: contain;
   padding-right: 0.2rem;
   scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--accent) 42%, transparent) transparent;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
 
 .kanban-column__quick-add-trigger,
@@ -149,12 +149,22 @@
 }
 
 .kanban-column__tasks::-webkit-scrollbar {
-  width: 8px;
+  width: 9px;
+}
+
+.kanban-column__tasks::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: var(--scrollbar-track);
 }
 
 .kanban-column__tasks::-webkit-scrollbar-thumb {
+  border: 2px solid var(--scrollbar-track);
   border-radius: 999px;
-  background: color-mix(in srgb, var(--accent) 34%, transparent);
+  background: var(--scrollbar-thumb);
+}
+
+.kanban-column__tasks::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
 }
 
 .kanban-column__tasks.cdk-drop-list-dragging .kanban-column__task:not(.cdk-drag-placeholder) {

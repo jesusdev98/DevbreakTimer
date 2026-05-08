@@ -324,6 +324,10 @@ export class TimerContainerComponent implements OnDestroy {
   }
 
   public selectSettingsProfile(profileId: PomodoroProfileId): void {
+    if (this.areSessionSettingsLocked()) {
+      return;
+    }
+
     this.settingsDraft = {
       ...this.settingsDraft,
       profileId,
@@ -368,19 +372,22 @@ export class TimerContainerComponent implements OnDestroy {
     this.timerService.setSoundEnabled(this.settingsDraft.soundEnabled);
     this.timerService.setTheme(this.settingsDraft.theme);
     this.wellnessPreferencesService.setEnabledCategories(this.settingsDraft.wellnessCategories);
-    this.workspaceModeService.setMode(this.settingsDraft.workspaceModeId);
 
-    if (this.settingsDraft.profileId === 'custom') {
-      this.timerService.setCustomPomodoroProfile({
-        durations: {
-          focus: this.minutesToSeconds(this.settingsDraft.focusMinutes),
-          'short-break': this.minutesToSeconds(this.settingsDraft.shortBreakMinutes),
-          'long-break': this.minutesToSeconds(this.settingsDraft.longBreakMinutes),
-        },
-        cyclesBeforeLongBreak: Math.min(12, Math.max(1, Math.floor(this.settingsDraft.cyclesBeforeLongBreak))),
-      });
-    } else {
-      this.timerService.setPomodoroProfile(this.settingsDraft.profileId);
+    if (!this.areSessionSettingsLocked()) {
+      this.workspaceModeService.setMode(this.settingsDraft.workspaceModeId);
+
+      if (this.settingsDraft.profileId === 'custom') {
+        this.timerService.setCustomPomodoroProfile({
+          durations: {
+            focus: this.minutesToSeconds(this.settingsDraft.focusMinutes),
+            'short-break': this.minutesToSeconds(this.settingsDraft.shortBreakMinutes),
+            'long-break': this.minutesToSeconds(this.settingsDraft.longBreakMinutes),
+          },
+          cyclesBeforeLongBreak: Math.min(12, Math.max(1, Math.floor(this.settingsDraft.cyclesBeforeLongBreak))),
+        });
+      } else {
+        this.timerService.setPomodoroProfile(this.settingsDraft.profileId);
+      }
     }
 
     this.settingsPanelOpen = false;
@@ -630,6 +637,10 @@ export class TimerContainerComponent implements OnDestroy {
 
   private isFocusSessionContext(): boolean {
     return !this.pomodoroEnabled || this.pomodoroState.currentSession === 'focus';
+  }
+
+  private areSessionSettingsLocked(): boolean {
+    return this.currentStatus === 'running' || this.currentStatus === 'paused';
   }
 
   private isTypingTarget(target: EventTarget | null): boolean {
