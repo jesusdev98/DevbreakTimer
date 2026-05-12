@@ -1,55 +1,111 @@
+<div align="center">
+
 # FocusFlow
 
-FocusFlow is an installable Angular productivity workspace for focused work, lightweight task planning, and healthier recovery habits.
+**A wellness-aware Angular PWA for focused work, task flow, and sustainable recovery.**
 
-It combines a focus timer, Pomodoro workflows, a Kanban board, and wellness-aware break suggestions in a frontend-only PWA that works well on desktop, tablet, and mobile.
+FocusFlow combines a focus timer, Pomodoro workflows, Kanban planning, and lightweight wellness prompts in a local-first productivity workspace.
+
+![Angular](https://img.shields.io/badge/Angular-21-DD0031?style=flat-square&logo=angular&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![RxJS](https://img.shields.io/badge/RxJS-7.8-B7178C?style=flat-square&logo=reactivex&logoColor=white)
+![PWA](https://img.shields.io/badge/PWA-Installable-5A0FC8?style=flat-square)
+![Cypress](https://img.shields.io/badge/Cypress-E2E-17202C?style=flat-square&logo=cypress&logoColor=white)
+![i18n](https://img.shields.io/badge/i18n-EN%20%7C%20ES%20%7C%20FR-2563EB?style=flat-square)
+![Offline first](https://img.shields.io/badge/Offline--first-localStorage-0F766E?style=flat-square)
+![Accessibility](https://img.shields.io/badge/Accessibility-keyboard%20ready-4B5563?style=flat-square)
+
+</div>
+
+---
 
 ## Overview
 
-FocusFlow is built around a simple idea: productivity tools should support attention without ignoring recovery. The app helps users plan tasks, run focused sessions, track meaningful daily progress, and take small movement or wellness breaks without adding noise to the workflow.
+FocusFlow is a frontend-only productivity app designed for people who want structure without extra noise. It helps users plan tasks, run focused sessions, follow Pomodoro rhythms, and take short recovery breaks without leaving the workspace.
 
-The application is fully client-side and offline-first. User preferences, sessions, tasks, wellness exercises, language settings, and productivity state are persisted locally with safe restoration and fallback behavior.
+The product philosophy is simple: focus and recovery belong in the same workflow. FocusFlow keeps productivity metrics practical, wellness prompts lightweight, and all user data local to the browser.
+
+## Why FocusFlow
+
+- **Focused by default:** start sessions quickly, track meaningful progress, and keep the active task visible when needed.
+- **Wellness-aware:** use Wellness or Hybrid mode for movement-friendly breaks and concise exercise suggestions.
+- **Local-first:** tasks, sessions, settings, language, theme, and custom exercises persist offline.
+- **Installable:** runs as a desktop or mobile PWA after the production build is deployed.
+- **Portfolio-ready:** built as a polished Angular application with realistic product constraints.
 
 ## Features
 
-- Focus timer with completion tracking and daily productivity stats
+### Productivity
+
+- Focus timer with completion, skipped-session, streak, and focus-minute tracking
 - Pomodoro mode with configurable focus, short break, and long break durations
-- Wellness mode for movement-friendly work sessions
-- Hybrid mode that blends focus sessions with active recovery prompts
-- Kanban workspace with task creation, editing, completion, archiving, restore, filtering, sorting, and drag/drop-ready workflows
-- Custom wellness exercises by category, including stretching, mobility, cardio, strength, and Pilates
-- Sound personalization with volume, preset, and repeat alert settings
-- Runtime internationalization for English, Spanish, and French
-- Installable PWA support with manifest, service worker, offline asset caching, and app-like standalone behavior
-- LocalStorage-backed offline persistence with defensive normalization for legacy or malformed data
-- Responsive layouts for desktop, installed PWA windows, tablets, and mobile screens
-- Accessibility-minded interaction design with keyboard navigation, focus handling, labels, and live announcements
+- Kanban workspace with create, edit, complete, archive, restore, filter, sort, and drag/drop-ready task flows
+- Daily productivity stats derived from canonical task and session history
+- Sound presets, volume control, and optional repeating completion alerts
+
+### Wellness
+
+- Wellness mode for recovery-oriented sessions
+- Hybrid mode for focus sessions with active break suggestions
+- Custom wellness exercises grouped by stretching, mobility, cardio, strength, and Pilates
+- Recovery Rhythm insights for completed and omitted recovery interactions
+- Mode-aware session notifications with concise recovery suggestions
+
+### PWA & Offline
+
+- Angular service worker integration
+- Installable standalone app behavior
+- Offline asset caching after first visit
+- LocalStorage persistence with defensive restore logic
+- Desktop, tablet, mobile, and installed PWA responsive polish
+
+### Accessibility & i18n
+
+- Keyboard-friendly primary flows
+- Visible focus states and focus restoration
+- ARIA labels and live announcements for meaningful state changes
+- Runtime language switching for English, Spanish, and French
+- Responsive controls designed to remain usable on small screens
 
 ## Tech Stack
 
-- Angular
-- TypeScript
-- RxJS
-- SCSS
-- Angular CDK
-- Angular service worker / PWA support
-- ngx-translate
-- Vitest / Angular test runner
-- Cypress
+| Area | Tools |
+| --- | --- |
+| Framework | Angular |
+| Language | TypeScript |
+| State & async | RxJS |
+| Styling | SCSS |
+| UI behavior | Angular CDK |
+| PWA | Angular service worker, web app manifest |
+| i18n | ngx-translate |
+| Testing | Angular test runner, Vitest, Cypress |
 
 ## Architecture
 
-FocusFlow uses a frontend-only Angular architecture with feature modules for the timer and Kanban workspace. State is owned by focused Angular services and exposed through RxJS streams so UI components can stay mostly presentational.
+FocusFlow uses a modular Angular structure with service-owned state and focused UI components.
 
-The app does not require a backend. Persistence is handled through localStorage with validation and normalization on restore. Productivity metrics are derived from canonical session and task history instead of separate drifting counters.
+```text
+src/app/
+  features/
+    kanban/
+      components/
+      models/
+      services/
+    timer/
+      components/
+      models/
+      services/
+  models/
+  services/
+```
 
-Core architectural choices:
+Architecture highlights:
 
-- Client-side only, deployable as static assets
-- Offline-first PWA behavior after the first visit
-- Service-owned state for timer, session history, tasks, wellness preferences, shortcuts, language, and workspace mode
-- Derived productivity stats for completed sessions, skipped sessions, focus minutes, streaks, completed tasks, and recovery rhythm
-- Lightweight persistence with safe fallbacks instead of sync infrastructure
+- Frontend-only application deployable as static assets
+- LocalStorage persistence with validation and normalization on restore
+- Canonical session and task history for productivity metrics
+- RxJS streams for timer, session, task, shortcut, language, wellness, and workspace-mode state
+- No backend, native wrapper, external store, or sync requirement
 
 ## Installation
 
@@ -59,13 +115,13 @@ Install dependencies:
 npm install
 ```
 
-Run the development server:
+Run the local development server:
 
 ```bash
 npm start
 ```
 
-Open the app:
+Open:
 
 ```text
 http://localhost:4200/
@@ -77,13 +133,13 @@ Create a production build:
 npm run build
 ```
 
-Run the unit test suite:
+Run unit tests:
 
 ```bash
 npm test -- --watch=false
 ```
 
-Run Cypress E2E tests:
+Run Cypress:
 
 ```bash
 npm run e2e
@@ -91,72 +147,74 @@ npm run e2e
 
 ## PWA Support
 
-FocusFlow includes Angular service worker support and a configured web app manifest.
+FocusFlow is configured as an Angular PWA for production builds.
 
-The production build supports:
+Supported behavior:
 
-- Desktop installation in Chromium-based browsers such as Chrome and Edge
-- Android installation through supported mobile browsers
+- Desktop install in Chrome and Edge
+- Android install in supported mobile browsers
 - Standalone app display mode
 - Offline reload after the first successful visit
 - Cached application shell and static assets
-- Local persistence for tasks, settings, wellness exercises, language, theme, and productivity history
+- Local persistence for tasks, sessions, settings, language, theme, sounds, and wellness exercises
 
-Because the app is frontend-only, offline support is intentionally local-first. There is no account system or cloud sync layer.
+The app intentionally remains local-first. There is no account system, backend sync, or server dependency.
 
 ## Accessibility
 
-Accessibility is treated as part of the product surface, not as a separate mode.
+FocusFlow includes accessibility support across the main interaction paths:
 
-The app includes:
-
-- Keyboard-accessible primary flows
-- Visible focus states
-- Focus restoration for settings and dialog-like interactions
+- Keyboard navigation for settings, task controls, timer actions, and modal-like flows
+- Focus restoration after settings interactions
 - Escape handling where appropriate
-- Form labels and accessible control names
-- ARIA live announcements for important timer and task state changes
-- Responsive layouts that preserve readable controls on small screens
-- Reduced-motion considerations in the UI layer
+- Screen-reader labels for controls and form fields
+- ARIA live regions for timer, task, and wellness announcements
+- Reduced interruption design for wellness prompts and completion states
 
 ## Screenshots
 
-Screenshots are intentionally left as placeholders so they can reflect the final deployed build.
+Screenshots should be captured from the deployed production build so they reflect the final PWA behavior.
 
-### Desktop
+| View | Placeholder |
+| --- | --- |
+| Desktop workspace | Add desktop screenshot |
+| Mobile layout | Add mobile screenshot |
+| Wellness mode | Add wellness mode screenshot |
+| Kanban workspace | Add Kanban screenshot |
+| Installed PWA | Add installed PWA screenshot |
 
-Add a desktop screenshot here.
+## Deployment Notes
 
-### Mobile
+FocusFlow builds to static assets and can be hosted on platforms such as GitHub Pages, Vercel, Netlify, or any static hosting provider.
 
-Add a mobile screenshot here.
+Recommended release checks:
 
-### Wellness Mode
+```bash
+npm ci
+npm run build
+npm test -- --watch=false
+```
 
-Add a wellness mode screenshot here.
-
-### Kanban Workspace
-
-Add a Kanban workspace screenshot here.
+For PWA behavior, validate installability and offline reload from a production build over HTTPS or localhost.
 
 ## Future Improvements
 
-FocusFlow is intentionally complete as a local-first PWA, but a few realistic extensions would fit the product:
+The current app is complete as a local-first PWA. Realistic future additions could include:
 
-- Optional cloud sync for users who want multi-device continuity
+- Optional cloud sync for multi-device continuity
+- Import/export for local data portability
 - Richer productivity and recovery analytics
 - More built-in wellness exercise presets
-- Optional import/export for local data portability
 - Additional language packs
 
-## Release Notes
+## Project Notes
 
-FocusFlow is designed as a polished portfolio project that demonstrates production-minded Angular development:
+FocusFlow demonstrates production-minded frontend work:
 
-- Modular frontend architecture
+- Modular Angular architecture
 - Offline-first PWA integration
-- Responsive operational UI
-- Local persistence and defensive state restoration
+- Responsive application layout
+- Defensive local persistence
 - Runtime i18n
 - Accessibility-aware interaction design
-- Behavior-focused tests around session tracking, tasks, wellness logic, and productivity stats
+- Behavior-focused testing around sessions, tasks, wellness logic, and productivity stats
