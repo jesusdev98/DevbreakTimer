@@ -10,9 +10,11 @@ import {
   ShortcutDefinition,
   ShortcutService,
 } from '../../../../services/shortcut.service';
-import { WellnessBreakSuggestion, WellnessCategory } from '../../models/wellness-break.model';
+import { LanguageCode, LanguageService } from '../../../../services/language.service';
+import { WellnessBreakSuggestion, WellnessCategory, WellnessExercise } from '../../models/wellness-break.model';
 import { FocusSessionCompletion } from '../../models/focus-session.model';
 import { WellnessBreakService } from '../../services/wellness-break.service';
+import { WellnessExerciseInput, WellnessExerciseService } from '../../services/wellness-exercise.service';
 import { FocusSessionService } from '../../services/focus-session.service';
 import {
   WellnessCategoryOption,
@@ -31,6 +33,7 @@ import {
   PomodoroProfile,
   PomodoroProfileId,
   SessionType,
+  SoundPresetId,
   ThemeMode,
   TimerCompletionEvent,
   TimerService,
@@ -56,6 +59,7 @@ export class TimerContainerComponent implements OnDestroy {
 
   public readonly pomodoroProfiles = TimerService.BUILT_IN_POMODORO_PROFILES;
   public readonly workspaceModes: readonly WorkspaceMode[];
+  public readonly languageOptions;
   public readonly wellnessCategoryOptions: readonly WellnessCategoryOption[];
   public readonly presets = [5, 15, 25, 45];
   public settingsPanelOpen = false;
@@ -67,6 +71,10 @@ export class TimerContainerComponent implements OnDestroy {
     longBreakMinutes: 15,
     cyclesBeforeLongBreak: 4,
     soundEnabled: true,
+    soundPresetId: 'soft-bell',
+    soundVolume: 70,
+    completionSoundMode: 'once',
+    language: 'en',
     workspaceModeId: 'hybrid',
     wellnessCategories: [],
   };
@@ -78,6 +86,7 @@ export class TimerContainerComponent implements OnDestroy {
   public completionMessage: string | null = null;
   public progress = 0;
   public soundEnabled = true;
+  public completionAlarmActive = false;
   public pomodoroEnabled = false;
   public pomodoroState: PomodoroState = {
     enabled: false,
@@ -91,6 +100,7 @@ export class TimerContainerComponent implements OnDestroy {
   public shortcutValidationMessage: string | null = null;
   public focusPanelVisible = true;
   public wellnessReminderPreferences: WellnessReminderPreferences;
+  public wellnessExercises: WellnessExercise[] = [];
   public timerAnnouncement = '';
 
   @ViewChild('settingsButton') private settingsButton?: ElementRef<HTMLButtonElement>;
@@ -98,6 +108,8 @@ export class TimerContainerComponent implements OnDestroy {
   private readonly destroy$ = new Subject<void>();
   private handledCompletionEventId: number | null = null;
   private completionMessageTimeout: ReturnType<typeof setTimeout> | null = null;
+  private completionAlarmInterval: ReturnType<typeof setInterval> | null = null;
+  private audioContext: AudioContext | null = null;
   private initialDuration = 25 * 60;
   private settings: TimerSettings | null = null;
   private wellnessSuggestionSession: SessionType | null = null;
@@ -107,9 +119,11 @@ export class TimerContainerComponent implements OnDestroy {
     private readonly kanbanService: KanbanService,
     private readonly workspaceModeService: WorkspaceModeService,
     private readonly wellnessBreakService: WellnessBreakService,
+    private readonly wellnessExerciseService: WellnessExerciseService,
     private readonly wellnessPreferencesService: WellnessPreferencesService,
     private readonly focusSessionService: FocusSessionService,
     private readonly shortcutService: ShortcutService,
+    private readonly languageService: LanguageService,
     private readonly wellnessReminderEngine: WellnessReminderEngineService,
   ) {
     this.remainingTime$ = this.timerService.remainingTime$;
@@ -120,11 +134,21 @@ export class TimerContainerComponent implements OnDestroy {
     this.wellnessReminder$ = this.wellnessReminderEngine.activeReminder$;
     this.wellnessMetrics$ = this.wellnessReminderEngine.metrics$;
     this.workspaceModes = this.workspaceModeService.modes;
+    this.languageOptions = this.languageService.languages;
     this.wellnessCategoryOptions = this.wellnessPreferencesService.categoryOptions;
     this.currentWorkspaceMode = this.workspaceModeService.getSelectedMode();
     this.shortcuts = this.shortcutService.getShortcuts();
     this.wellnessReminderPreferences = this.wellnessReminderEngine.getPreferences();
+    this.wellnessExercises = this.wellnessExerciseService.getExercises();
     this.settingsDraft = this.createSettingsDraft(null);
+
+    this.wellnessExerciseService.exercises$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((exercises: WellnessExercise[]): void => {
+        this.wellnessExercises = exercises;
+        this.clearWellnessSuggestion();
+        this.syncWellnessSuggestion(this.pomodoroState);
+      });
 
     this.wellnessReminderEngine.preferences$
       .pipe(takeUntil(this.destroy$))
@@ -209,8 +233,8 @@ export class TimerContainerComponent implements OnDestroy {
         }
 
         this.handledCompletionEventId = event.id;
-        this.prepareBreakSuggestion(event.nextSessionType);
-        this.completeFocusSession(event);
+        this.prepareCompletionSuggestion(event);
+        this.completeTrackedSession(event);
         this.triggerCompletionEffects(event);
         this.timerService.acknowledgeCompletionEvent(event.id);
       });
@@ -221,11 +245,12 @@ export class TimerContainerComponent implements OnDestroy {
       return;
     }
 
+    this.stopCompletionAlarm();
     this.taskCompletionMessage = null;
 
     if (this.currentStatus === 'paused') {
       this.timerService.start();
-      this.announceTimer('Timer resumed');
+      this.announceTimer(this.translate('timer.announcements.resumed'));
       return;
     }
 
@@ -235,29 +260,37 @@ export class TimerContainerComponent implements OnDestroy {
       this.pomodoroEnabled ? this.pomodoroState.currentSession : 'focus',
     );
     this.timerService.start(durationInSeconds);
-    this.startFocusSession(durationInSeconds);
-    this.announceTimer(`${this.getSessionTitle(this.pomodoroState.currentSession)} started`);
+    this.startTrackedSession(durationInSeconds);
+    this.announceTimer(this.translate('timer.announcements.started', {
+      session: this.getSessionTitle(this.pomodoroState.currentSession),
+    }));
   }
 
   public pause(): void {
     this.timerService.pause();
-    this.announceTimer('Timer paused');
+    this.announceTimer(this.translate('timer.announcements.paused'));
   }
 
   public reset(): void {
+    this.stopCompletionAlarm();
     this.timerService.reset();
     this.wellnessReminderEngine.markReset();
-    this.focusSessionService.cancelActiveSession();
+    const skippedSession = this.focusSessionService.cancelActiveSession();
+
+    if (skippedSession?.skippedAt) {
+      this.wellnessReminderEngine.recordSkippedFocusSession(skippedSession.skippedAt);
+    }
+
     this.focusSessionCompletion = null;
     this.taskCompletionMessage = null;
     this.clearWellnessSuggestion();
     this.completionMessage = null;
-    this.announceTimer('Timer reset');
+    this.announceTimer(this.translate('timer.announcements.reset'));
   }
 
   public clearActiveTask(): void {
     this.kanbanService.clearActiveTask();
-    this.announceTimer('Focus task cleared');
+    this.announceTimer(this.translate('timer.announcements.focusTaskCleared'));
   }
 
   public selectPreset(minutes: number): void {
@@ -285,6 +318,33 @@ export class TimerContainerComponent implements OnDestroy {
 
   public setSoundEnabled(enabled: boolean): void {
     this.timerService.setSoundEnabled(enabled);
+
+    if (!enabled) {
+      this.stopCompletionAlarm();
+    }
+  }
+
+  public applySoundSettings(): void {
+    this.timerService.setSoundEnabled(this.settingsDraft.soundEnabled);
+    this.timerService.setSoundPreset(this.settingsDraft.soundPresetId);
+    this.timerService.setSoundVolume(Number(this.settingsDraft.soundVolume));
+    this.timerService.setCompletionSoundMode(this.settingsDraft.completionSoundMode);
+
+    if (!this.settingsDraft.soundEnabled) {
+      this.stopCompletionAlarm();
+    }
+
+    if (this.settingsDraft.completionSoundMode === 'once') {
+      this.stopCompletionAlarm();
+    }
+  }
+
+  public applyLanguageSetting(language: LanguageCode): void {
+    this.settingsDraft = {
+      ...this.settingsDraft,
+      language,
+    };
+    this.languageService.setLanguage(language);
   }
 
   public setWellnessRemindersEnabled(enabled: boolean): void {
@@ -297,6 +357,18 @@ export class TimerContainerComponent implements OnDestroy {
 
   public setWellnessReminderTypeFromEvent(change: { type: WellnessReminderType; enabled: boolean }): void {
     this.setWellnessReminderTypeEnabled(change.type, change.enabled);
+  }
+
+  public addWellnessExercise(exercise: WellnessExerciseInput): void {
+    this.wellnessExerciseService.addExercise(exercise);
+  }
+
+  public updateWellnessExercise(change: { id: string; exercise: WellnessExerciseInput }): void {
+    this.wellnessExerciseService.updateExercise(change.id, change.exercise);
+  }
+
+  public deleteWellnessExercise(id: string): void {
+    this.wellnessExerciseService.deleteExercise(id);
   }
 
   public handleShortcutCaptureEvent(capture: { event: KeyboardEvent; action: ShortcutActionId }): void {
@@ -369,7 +441,8 @@ export class TimerContainerComponent implements OnDestroy {
   }
 
   public saveSettings(): void {
-    this.timerService.setSoundEnabled(this.settingsDraft.soundEnabled);
+    this.applySoundSettings();
+    this.languageService.setLanguage(this.settingsDraft.language);
     this.timerService.setTheme(this.settingsDraft.theme);
     this.wellnessPreferencesService.setEnabledCategories(this.settingsDraft.wellnessCategories);
 
@@ -397,13 +470,7 @@ export class TimerContainerComponent implements OnDestroy {
   }
 
   public getSessionTitle(sessionType: SessionType): string {
-    const labels: Record<SessionType, string> = {
-      focus: 'Focus Session',
-      'short-break': 'Short Break',
-      'long-break': 'Long Break',
-    };
-
-    return labels[sessionType];
+    return this.translate(`timer.sessions.${sessionType}`);
   }
 
   public getNextSessionTitle(): string {
@@ -426,11 +493,11 @@ export class TimerContainerComponent implements OnDestroy {
 
   public getDurationLockMessage(): string | null {
     if (this.currentStatus === 'running') {
-      return 'Locked while the timer is running. Pause or reset to change duration.';
+      return this.translate('timer.duration.lockedRunning');
     }
 
     if (this.pomodoroEnabled) {
-      return 'Pomodoro uses fixed focus and break lengths, so custom duration controls are locked.';
+      return this.translate('timer.duration.lockedPomodoro');
     }
 
     return null;
@@ -474,15 +541,6 @@ export class TimerContainerComponent implements OnDestroy {
     return activeTask !== null && this.isFocusMode() && this.focusPanelVisible;
   }
 
-  public toggleFocusPanel(): void {
-    if (!this.isFocusMode()) {
-      return;
-    }
-
-    this.focusPanelVisible = !this.focusPanelVisible;
-    this.announceTimer(this.focusPanelVisible ? 'Focus panel shown' : 'Focus panel hidden');
-  }
-
   public startShortcutCapture(action: ShortcutActionId): void {
     this.editingShortcutAction = action;
     this.shortcutValidationMessage = null;
@@ -524,11 +582,13 @@ export class TimerContainerComponent implements OnDestroy {
   }
 
   public continueTask(): void {
+    this.stopCompletionAlarm();
     this.focusSessionCompletion = null;
-    this.announceTimer('Focus summary dismissed');
+    this.announceTimer(this.translate('timer.announcements.focusSummaryDismissed'));
   }
 
   public markFocusedTaskDone(): void {
+    this.stopCompletionAlarm();
     const taskId = this.focusSessionCompletion?.session.taskId;
 
     if (!taskId) {
@@ -537,35 +597,36 @@ export class TimerContainerComponent implements OnDestroy {
 
     this.kanbanService.completeTaskById(taskId);
     this.focusSessionCompletion = null;
-    this.taskCompletionMessage = 'Task Completed. Great progress.';
-    this.announceTimer('Task completed');
+    this.taskCompletionMessage = this.translate('timer.taskCompletedMessage');
+    this.announceTimer(this.translate('timer.announcements.taskCompleted'));
   }
 
   public startBreakFromCompletion(): void {
+    this.stopCompletionAlarm();
     this.wellnessReminderEngine.markReset();
     this.focusSessionCompletion = null;
-    this.announceTimer('Break started');
+    this.announceTimer(this.translate('timer.announcements.breakStarted'));
   }
 
   public dismissWellnessReminder(reminder: WellnessReminder): void {
     this.wellnessReminderEngine.dismiss(reminder.type);
-    this.announceTimer('Wellness reminder dismissed');
+    this.announceTimer(this.translate('wellness.announcements.reminderDismissed'));
   }
 
   public completeWellnessReminder(reminder: WellnessReminder): void {
     if (reminder.type === 'sedentary') {
-      this.wellnessReminderEngine.markReset();
-      this.announceTimer('Movement break completed');
+      this.wellnessReminderEngine.completeMovementReset();
+      this.announceTimer(this.translate('wellness.announcements.movementCompleted'));
       return;
     }
 
     this.wellnessReminderEngine.complete(reminder.type);
-    this.announceTimer('Wellness action completed');
+    this.announceTimer(this.translate('wellness.announcements.actionCompleted'));
   }
 
   public nextWellnessSuggestion(reminder: WellnessReminder): void {
     this.wellnessReminderEngine.nextSuggestion(reminder.type);
-    this.announceTimer('Wellness suggestion updated');
+    this.announceTimer(this.translate('wellness.announcements.suggestionUpdated'));
   }
 
   public ngOnDestroy(): void {
@@ -573,6 +634,10 @@ export class TimerContainerComponent implements OnDestroy {
       clearTimeout(this.completionMessageTimeout);
     }
 
+    this.stopCompletionAlarm();
+    void this.audioContext?.close().catch((): void => {
+      return;
+    });
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -589,10 +654,6 @@ export class TimerContainerComponent implements OnDestroy {
       return;
     }
 
-    if (this.shortcutService.matches(event, 'toggleFocusPanel')) {
-      event.preventDefault();
-      this.toggleFocusPanel();
-    }
   }
 
   private getStartDuration(): number {
@@ -606,33 +667,31 @@ export class TimerContainerComponent implements OnDestroy {
     return durationInSeconds;
   }
 
-  private startFocusSession(durationInSeconds: number): void {
-    if (!this.isFocusMode() || !this.isFocusSessionContext()) {
+  private startTrackedSession(durationInSeconds: number): void {
+    if (!this.isFocusSessionContext()) {
       return;
     }
 
     const activeTask = this.kanbanService.getActiveTask();
 
-    if (activeTask === null) {
-      return;
-    }
-
     this.focusSessionCompletion = null;
     this.focusSessionService.startSession({
-      taskId: activeTask.id,
-      taskTitle: activeTask.title,
+      taskId: this.isFocusMode() ? activeTask?.id : undefined,
+      taskTitle: this.isFocusMode() ? activeTask?.title : undefined,
       workspaceMode: this.currentWorkspaceMode.id,
       durationMinutes: Math.max(1, Math.round(durationInSeconds / 60)),
     });
   }
 
-  private completeFocusSession(event: TimerCompletionEvent): void {
-    if (event.sessionType !== 'focus' || !this.isFocusMode()) {
+  private completeTrackedSession(event: TimerCompletionEvent): void {
+    if (event.sessionType !== 'focus') {
       return;
     }
 
-    this.focusSessionCompletion = this.focusSessionService.completeActiveSession();
-    this.announceTimer('Focus session completed');
+    const completion = this.focusSessionService.completeActiveSession();
+
+    this.focusSessionCompletion = this.isFocusMode() ? completion : null;
+    this.announceTimer(this.translate('timer.announcements.focusCompleted'));
   }
 
   private isFocusSessionContext(): boolean {
@@ -667,13 +726,22 @@ export class TimerContainerComponent implements OnDestroy {
   }
 
   private triggerCompletionEffects(event: TimerCompletionEvent): void {
+    this.stopCompletionAlarm();
     this.completionMessage = this.getCompletionMessage(event);
-    this.scheduleCompletionMessageClear();
     this.sendNotification(event);
 
     if (this.soundEnabled) {
-      this.playSound();
+      this.playCompletionSound();
+
+      if (this.settings?.completionSoundMode === 'repeat') {
+        this.startCompletionAlarm();
+      } else {
+        this.scheduleCompletionMessageClear();
+      }
+      return;
     }
+
+    this.scheduleCompletionMessageClear();
   }
 
   private getNextSessionType(): SessionType {
@@ -709,6 +777,10 @@ export class TimerContainerComponent implements OnDestroy {
       longBreakMinutes: this.secondsToMinutes(profile.durations['long-break']),
       cyclesBeforeLongBreak: profile.cyclesBeforeLongBreak,
       soundEnabled: activeSettings?.soundEnabled ?? true,
+      soundPresetId: activeSettings?.soundPresetId ?? 'soft-bell',
+      soundVolume: activeSettings?.soundVolume ?? 70,
+      completionSoundMode: activeSettings?.completionSoundMode ?? 'once',
+      language: this.languageService.getCurrentLanguage(),
       workspaceModeId: this.currentWorkspaceMode.id,
       wellnessCategories: this.wellnessPreferencesService.getEnabledCategories(),
     };
@@ -734,10 +806,13 @@ export class TimerContainerComponent implements OnDestroy {
     const completedSession = this.getSessionTitle(event.sessionType);
 
     if (!event.pomodoroEnabled || event.nextSessionType === null) {
-      return `${completedSession} complete. Nice work.`;
+      return this.translate('timer.completion.once', { session: completedSession });
     }
 
-    return `${completedSession} complete. ${this.getSessionTitle(event.nextSessionType)} started automatically.`;
+    return this.translate('timer.completion.nextStarted', {
+      session: completedSession,
+      nextSession: this.getSessionTitle(event.nextSessionType),
+    });
   }
 
   private scheduleCompletionMessageClear(): void {
@@ -751,13 +826,32 @@ export class TimerContainerComponent implements OnDestroy {
     }, 7000);
   }
 
+  public dismissCompletionAlarm(): void {
+    this.stopCompletionAlarm();
+    this.completionMessage = null;
+    this.announceTimer(this.translate('timer.announcements.alarmDismissed'));
+  }
+
   private syncWellnessSuggestion(pomodoroState: PomodoroState): void {
-    if (!pomodoroState.enabled || pomodoroState.currentSession === 'focus') {
+    if (
+      !this.shouldShowExerciseSuggestions() ||
+      !pomodoroState.enabled ||
+      pomodoroState.currentSession === 'focus'
+    ) {
       this.clearWellnessSuggestion();
       return;
     }
 
     this.prepareBreakSuggestion(pomodoroState.currentSession);
+  }
+
+  private prepareCompletionSuggestion(event: TimerCompletionEvent): void {
+    if (event.sessionType !== 'focus' || !this.shouldShowExerciseSuggestions()) {
+      this.clearWellnessSuggestion();
+      return;
+    }
+
+    this.prepareBreakSuggestion(event.nextSessionType ?? 'short-break');
   }
 
   private prepareBreakSuggestion(sessionType: SessionType | null): void {
@@ -780,6 +874,10 @@ export class TimerContainerComponent implements OnDestroy {
   private clearWellnessSuggestion(): void {
     this.wellnessSuggestion = null;
     this.wellnessSuggestionSession = null;
+  }
+
+  private shouldShowExerciseSuggestions(): boolean {
+    return this.currentWorkspaceMode.breakPromptBehavior === 'exercise';
   }
 
   private sendNotification(event: TimerCompletionEvent): void {
@@ -808,32 +906,181 @@ export class TimerContainerComponent implements OnDestroy {
   }
 
   private createNotification(event: TimerCompletionEvent): void {
-    const nextSession = event.nextSessionType === null
-      ? null
-      : this.getSessionTitle(event.nextSessionType);
-
     try {
-      new Notification(`${this.getSessionTitle(event.sessionType)} complete`, {
-        body: nextSession === null ? 'Time is up. Take a moment to reset.' : `${nextSession} started automatically.`,
+      new Notification(this.getNotificationTitle(event), {
+        body: this.getNotificationBody(event),
       });
     } catch {
       return;
     }
   }
 
-  private playSound(): void {
-    const audio = new Audio('assets/beep.mp3');
-    audio.volume = 1;
-
-    void audio.play().then((): void => {
-      setTimeout((): void => {
-        audio.currentTime = 0;
-        void audio.play().catch((): void => {
-          return;
-        });
-      }, 180);
-    }).catch((): void => {
-      return;
+  private getNotificationTitle(event: TimerCompletionEvent): string {
+    return this.translate(`timer.notifications.titles.${this.currentWorkspaceMode.id}`, {
+      session: this.getSessionTitle(event.sessionType),
     });
+  }
+
+  private getNotificationBody(event: TimerCompletionEvent): string {
+    const nextSession = event.nextSessionType === null
+      ? null
+      : this.getSessionTitle(event.nextSessionType);
+    const baseBody = nextSession === null
+      ? this.translate(`timer.notifications.bodies.${this.currentWorkspaceMode.id}.reset`)
+      : this.translate(`timer.notifications.bodies.${this.currentWorkspaceMode.id}.next`, { nextSession });
+    const suggestionText = this.getNotificationSuggestionText();
+
+    if (
+      suggestionText === null ||
+      (this.currentWorkspaceMode.id !== 'wellness' && this.currentWorkspaceMode.id !== 'hybrid')
+    ) {
+      return baseBody;
+    }
+
+    return `${baseBody} ${this.translate('timer.notifications.suggestedRecovery', {
+      suggestion: suggestionText,
+    })}`;
+  }
+
+  private getNotificationSuggestionText(): string | null {
+    if (this.wellnessSuggestion === null) {
+      return null;
+    }
+
+    const title = this.wellnessSuggestion.custom
+      ? this.wellnessSuggestion.title
+      : this.translate(`wellness.exercises.presets.${this.wellnessSuggestion.id}`);
+    const duration = this.wellnessSuggestion.duration
+      ? this.translate('wellness.exercises.durationSeconds', {
+          duration: this.wellnessSuggestion.duration,
+        })
+      : null;
+
+    return duration === null ? title : `${title} - ${duration}`;
+  }
+
+  private startCompletionAlarm(): void {
+    if (this.completionAlarmInterval !== null || !this.soundEnabled) {
+      return;
+    }
+
+    this.completionAlarmActive = true;
+
+    this.completionAlarmInterval = setInterval((): void => {
+      if (!this.soundEnabled || this.currentStatus === 'running') {
+        this.stopCompletionAlarm();
+        return;
+      }
+
+      this.playCompletionSound();
+    }, 4500);
+  }
+
+  private stopCompletionAlarm(): void {
+    if (this.completionAlarmInterval !== null) {
+      clearInterval(this.completionAlarmInterval);
+      this.completionAlarmInterval = null;
+    }
+
+    this.completionAlarmActive = false;
+  }
+
+  private playCompletionSound(): void {
+    if (!this.soundEnabled || (this.settings?.soundVolume ?? 70) <= 0) {
+      return;
+    }
+
+    try {
+      const context = this.getAudioContext();
+      const preset = this.settings?.soundPresetId ?? 'soft-bell';
+      const volume = Math.max(0, Math.min(1, (this.settings?.soundVolume ?? 70) / 100));
+      const now = context.currentTime;
+
+      this.soundSequenceFor(preset).forEach((tone): void => {
+        this.playTone(context, now + tone.delay, tone.frequency, tone.duration, volume, tone.type);
+      });
+    } catch {
+      return;
+    }
+  }
+
+  private getAudioContext(): AudioContext {
+    if (this.audioContext !== null) {
+      return this.audioContext;
+    }
+
+    const audioWindow = window as Window & typeof globalThis & {
+      webkitAudioContext?: typeof AudioContext;
+    };
+    const AudioContextConstructor = audioWindow.AudioContext || audioWindow.webkitAudioContext;
+
+    if (AudioContextConstructor === undefined) {
+      throw new Error('Web Audio is unavailable.');
+    }
+
+    this.audioContext = new AudioContextConstructor();
+
+    return this.audioContext;
+  }
+
+  private soundSequenceFor(
+    preset: SoundPresetId,
+  ): readonly { delay: number; frequency: number; duration: number; type: OscillatorType }[] {
+    const sequences: Record<
+      SoundPresetId,
+      readonly { delay: number; frequency: number; duration: number; type: OscillatorType }[]
+    > = {
+      'soft-bell': [
+        { delay: 0, frequency: 660, duration: 0.42, type: 'sine' },
+        { delay: 0.18, frequency: 880, duration: 0.52, type: 'sine' },
+      ],
+      digital: [
+        { delay: 0, frequency: 880, duration: 0.12, type: 'square' },
+        { delay: 0.16, frequency: 1175, duration: 0.14, type: 'square' },
+      ],
+      minimal: [
+        { delay: 0, frequency: 720, duration: 0.22, type: 'sine' },
+      ],
+      retro: [
+        { delay: 0, frequency: 523, duration: 0.12, type: 'triangle' },
+        { delay: 0.14, frequency: 659, duration: 0.12, type: 'triangle' },
+        { delay: 0.28, frequency: 784, duration: 0.18, type: 'triangle' },
+      ],
+      alarm: [
+        { delay: 0, frequency: 988, duration: 0.18, type: 'sawtooth' },
+        { delay: 0.24, frequency: 988, duration: 0.18, type: 'sawtooth' },
+        { delay: 0.48, frequency: 740, duration: 0.22, type: 'sawtooth' },
+      ],
+    };
+
+    return sequences[preset];
+  }
+
+  private playTone(
+    context: AudioContext,
+    startTime: number,
+    frequency: number,
+    duration: number,
+    volume: number,
+    type: OscillatorType,
+  ): void {
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    const safeVolume = Math.max(0.001, volume * 0.22);
+
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(frequency, startTime);
+    gain.gain.setValueAtTime(0.001, startTime);
+    gain.gain.exponentialRampToValueAtTime(safeVolume, startTime + 0.018);
+    gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+    oscillator.connect(gain);
+    gain.connect(context.destination);
+    oscillator.start(startTime);
+    oscillator.stop(startTime + duration + 0.03);
+  }
+
+  private translate(key: string, params?: Record<string, unknown>): string {
+    return this.languageService.instant(key, params);
   }
 }

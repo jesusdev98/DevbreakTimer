@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ShortcutService } from '../../../../services/shortcut.service';
+import { LanguageService } from '../../../../services/language.service';
 import { WorkspaceModeService } from '../../../../services/workspace-mode.service';
 import { WorkspaceMode, WorkspaceModeId } from '../../../../models/workspace-mode.model';
 import { WellnessReminderEngineService } from '../../../timer/services/wellness-reminder-engine.service';
@@ -34,6 +35,7 @@ describe('KanbanBoardComponent', () => {
   let shortcutService: Pick<ShortcutService, 'formatCombo' | 'getCombo' | 'matches'>;
   let workspaceModeService: Pick<WorkspaceModeService, 'getSelectedMode'>;
   let wellnessReminderEngine: Pick<WellnessReminderEngineService, 'recordTaskCreated'>;
+  let languageService: Pick<LanguageService, 'instant'>;
 
   beforeEach(() => {
     localStorage.clear();
@@ -75,6 +77,23 @@ describe('KanbanBoardComponent', () => {
     };
     wellnessReminderEngine = {
       recordTaskCreated: vi.fn(),
+    };
+    languageService = {
+      instant: vi.fn((key: string, params?: Record<string, unknown>) => {
+        if (key === 'kanban.announcements.workspaceReset') {
+          return 'Workspace reset';
+        }
+
+        if (key === 'kanban.columns.todo') {
+          return 'To Do';
+        }
+
+        if (key === 'kanban.columns.done') {
+          return 'Done';
+        }
+
+        return params ? `${key} ${JSON.stringify(params)}` : key;
+      }),
     };
   });
 
@@ -173,6 +192,7 @@ describe('KanbanBoardComponent', () => {
       shortcutService as ShortcutService,
       workspaceModeService as WorkspaceModeService,
       wellnessReminderEngine as WellnessReminderEngineService,
+      languageService as LanguageService,
     ) as any;
   }
 

@@ -80,6 +80,22 @@ describe('Keyboard and accessibility workflows', () => {
     cy.focused().should('have.attr', 'data-testid', 'settings-button');
   });
 
+  it('keeps keyboard focus inside the settings dialog until it closes', () => {
+    cy.visit('/');
+
+    cy.getByTestId('settings-button').click();
+    cy.focused().should('contain.text', 'Close');
+
+    cy.focused().type('{shift+tab}');
+    cy.focused().should('contain.text', 'Apply');
+
+    cy.focused().type('{tab}');
+    cy.focused().should('contain.text', 'Close');
+
+    cy.get('body').type('{esc}');
+    cy.focused().should('have.attr', 'data-testid', 'settings-button');
+  });
+
   it('keeps workflows usable with reduced motion enabled', () => {
     cy.clock(now, ['Date', 'setInterval', 'clearInterval']);
     cy.visit('/', {

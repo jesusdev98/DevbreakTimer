@@ -6,11 +6,11 @@
 
 .productivity-stats {
   width: 100%;
-  max-width: 460px;
+  max-width: 480px;
   margin: 0 auto;
-  padding: 0.75rem;
+  padding: 0.82rem;
   border: 1px solid var(--border-subtle);
-  border-radius: 20px;
+  border-radius: var(--radius-panel);
   background: var(--surface-subtle);
   color: var(--text-primary);
   box-shadow: 0 14px 30px rgba(15, 23, 42, 0.12);
@@ -31,7 +31,8 @@
 
 .productivity-stats__header button {
   flex: 0 0 auto;
-  padding: 0.28rem 0.46rem;
+  min-height: 2rem;
+  padding: 0.28rem 0.55rem;
   border: 1px solid var(--border-subtle);
   border-radius: 999px;
   background: transparent;
@@ -53,15 +54,15 @@
 
 .productivity-stats__items {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(4.6rem, 1fr));
   gap: 0.45rem;
 }
 
 .productivity-stat {
   min-width: 0;
-  padding: 0.52rem 0.42rem;
+  padding: 0.56rem 0.48rem;
   border: 1px solid var(--border-subtle);
-  border-radius: 13px;
+  border-radius: var(--radius-control);
   background: var(--surface-control);
 }
 

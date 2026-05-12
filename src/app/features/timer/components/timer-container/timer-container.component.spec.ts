@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { BehaviorSubject } from 'rxjs';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   PomodoroState,
   TimerCompletionEvent,
@@ -15,6 +16,8 @@ import { WellnessBreakCardComponent } from '../wellness-break-card/wellness-brea
 import { WellnessInsightsCardComponent } from '../wellness-insights-card/wellness-insights-card.component';
 import { WellnessReminderCardComponent } from '../wellness-reminder-card/wellness-reminder-card.component';
 import { TimerContainerComponent } from './timer-container.component';
+import { LanguageService } from '../../../../services/language.service';
+import { WorkspaceModeService } from '../../../../services/workspace-mode.service';
 
 class MockTimerService {
   public readonly remainingTimeSubject = new BehaviorSubject<number>(25 * 60);
@@ -29,6 +32,9 @@ class MockTimerService {
     },
     cyclesBeforeLongBreak: 4,
     soundEnabled: true,
+    soundPresetId: 'soft-bell',
+    soundVolume: 70,
+    completionSoundMode: 'once',
     theme: 'dark',
     pomodoroProfileId: 'classic',
     customPomodoroProfile: {
@@ -64,6 +70,9 @@ class MockTimerService {
   public setSelectedDuration = vi.fn();
   public setPomodoroEnabled = vi.fn();
   public setSoundEnabled = vi.fn();
+  public setSoundPreset = vi.fn();
+  public setSoundVolume = vi.fn();
+  public setCompletionSoundMode = vi.fn();
   public setTheme = vi.fn();
   public setPomodoroProfile = vi.fn();
   public setCustomPomodoroProfile = vi.fn();
@@ -74,9 +83,42 @@ describe('TimerContainerComponent', () => {
   let component: TimerContainerComponent;
   let fixture: ComponentFixture<TimerContainerComponent>;
   let timerService: MockTimerService;
+  let workspaceModeService: WorkspaceModeService;
 
   beforeEach(async () => {
+    localStorage.clear();
     timerService = new MockTimerService();
+    const languageService = {
+      languages: [
+        { code: 'en', label: 'English' },
+        { code: 'es', label: 'Español' },
+      ],
+      getCurrentLanguage: vi.fn(() => 'en'),
+      setLanguage: vi.fn(),
+      instant: vi.fn((key: string, params?: Record<string, unknown>) => {
+        if (key === 'timer.sessions.focus') {
+          return 'Focus Session';
+        }
+
+        if (key === 'timer.sessions.short-break') {
+          return 'Short Break';
+        }
+
+        if (key === 'timer.sessions.long-break') {
+          return 'Long Break';
+        }
+
+        if (key === 'timer.duration.lockedRunning') {
+          return 'Locked while the timer is running. Pause or reset to change duration.';
+        }
+
+        if (key === 'timer.duration.lockedPomodoro') {
+          return 'Pomodoro uses fixed focus and break lengths, so custom duration controls are locked.';
+        }
+
+        return params ? `${key} ${JSON.stringify(params)}` : key;
+      }),
+    };
 
     await TestBed.configureTestingModule({
       declarations: [
@@ -87,19 +129,39 @@ describe('TimerContainerComponent', () => {
         WellnessInsightsCardComponent,
         WellnessReminderCardComponent,
       ],
-      imports: [FormsModule],
+      imports: [FormsModule, TranslateModule.forRoot()],
       providers: [
         {
           provide: TimerService,
           useValue: timerService,
         },
+        {
+          provide: LanguageService,
+          useValue: languageService,
+        },
       ],
     }).compileComponents();
 
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('en', {
+      timer: {
+        cycleMeta: 'Cycle {{ cycle }} / {{ total }} - {{ completed }} focus completed',
+      },
+      settings: {
+        sessionLocked: 'Finish or reset the current session to change mode.',
+      },
+    }, true);
+    translate.use('en');
+
     fixture = TestBed.createComponent(TimerContainerComponent);
     component = fixture.componentInstance;
+    workspaceModeService = TestBed.inject(WorkspaceModeService);
     fixture.detectChanges();
     await fixture.whenStable();
+  });
+
+  afterEach(() => {
+    localStorage.clear();
   });
 
   it('creates the timer container', () => {
@@ -138,6 +200,20 @@ describe('TimerContainerComponent', () => {
     expect(timerService.setSoundEnabled).toHaveBeenCalledWith(false);
   });
 
+  it('applies sound settings immediately from settings', async () => {
+    query<HTMLButtonElement>('settings-button').click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const volume = fixture.nativeElement.querySelector('input[name="soundVolume"]') as HTMLInputElement;
+    volume.value = '35';
+    volume.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(timerService.setSoundVolume).toHaveBeenCalledWith(35);
+  });
+
   it('renders session information when Pomodoro mode is enabled', () => {
     timerService.pomodoroStateSubject.next({
       enabled: true,
@@ -147,7 +223,7 @@ describe('TimerContainerComponent', () => {
     });
     fixture.detectChanges();
 
-    expect(query('session-title').textContent).toContain('Short Break');
+    expect(query('pomodoro-session-panel').textContent).toContain('Short Break');
     expect(query('session-meta').textContent).toContain('Cycle 2 / 4');
     expect(query('session-meta').textContent).toContain('1 focus completed');
   });
@@ -206,6 +282,58 @@ describe('TimerContainerComponent', () => {
     expectSessionCriticalSettingsLocked(false);
   });
 
+  it('shows wellness exercise suggestions after completed wellness and hybrid sessions', () => {
+    workspaceModeService.setMode('wellness');
+    emitFocusCompletion(1);
+
+    expect(component.wellnessSuggestion).toEqual(expect.objectContaining({
+      duration: expect.any(Number),
+    }));
+
+    component.wellnessSuggestion = null;
+    workspaceModeService.setMode('hybrid');
+    emitFocusCompletion(2);
+
+    expect(component.wellnessSuggestion).toEqual(expect.objectContaining({
+      duration: expect.any(Number),
+    }));
+  });
+
+  it('does not show wellness exercise suggestions after focus or pomodoro sessions', () => {
+    workspaceModeService.setMode('focus');
+    emitFocusCompletion(3);
+
+    expect(component.wellnessSuggestion).toBeNull();
+
+    workspaceModeService.setMode('pomodoro');
+    emitFocusCompletion(4);
+
+    expect(component.wellnessSuggestion).toBeNull();
+  });
+
+  it('syncs reset skipped sessions into recovery rhythm metrics once', () => {
+    component.start();
+    component.reset();
+    component.reset();
+
+    let metrics = {
+      completedActions: -1,
+      dismissedReminders: -1,
+      recoveryCompletionPercentage: -1,
+      recoveryStreakDays: -1,
+      weeklyConsistencyDays: -1,
+      totalInteractions: -1,
+    };
+
+    component.wellnessMetrics$.subscribe((nextMetrics) => {
+      metrics = nextMetrics;
+    }).unsubscribe();
+
+    expect(metrics.completedActions).toBe(0);
+    expect(metrics.dismissedReminders).toBe(1);
+    expect(metrics.totalInteractions).toBe(1);
+  });
+
   function query<T extends HTMLElement = HTMLElement>(testId: string): T {
     const element = fixture.nativeElement.querySelector(`[data-testid="${testId}"]`) as T | null;
 
@@ -243,5 +371,15 @@ describe('TimerContainerComponent', () => {
     expect(fixture.nativeElement.textContent).not.toContain(
       'Finish or reset the current session to change mode.',
     );
+  }
+
+  function emitFocusCompletion(id: number): void {
+    timerService.completionEventSubject.next({
+      id,
+      completedAt: Date.now(),
+      sessionType: 'focus',
+      nextSessionType: null,
+      pomodoroEnabled: false,
+    });
   }
 });

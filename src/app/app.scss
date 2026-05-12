@@ -2,13 +2,13 @@
   width: 100%;
   min-height: 100dvh;
   display: block;
-  padding: clamp(1rem, 4vw, 2rem);
+  padding: clamp(0.75rem, 2.4vw, 1.75rem);
   overflow-x: hidden;
 }
 
 .app-shell {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(21rem, 27.5rem);
+  grid-template-columns: minmax(0, 1fr) minmax(20rem, 26rem);
   align-items: start;
   gap: clamp(1rem, 2.4vw, 2rem);
   width: min(100%, 1480px);
@@ -24,10 +24,32 @@
 .app-shell__timer {
   display: grid;
   gap: 0.85rem;
+  align-content: start;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1180px) {
   .app-shell {
     grid-template-columns: 1fr;
+    width: min(100%, 980px);
+  }
+
+  .app-shell__timer {
+    order: -1;
+  }
+}
+
+@media (min-width: 1181px) and (max-width: 1320px) {
+  :host {
+    padding-inline: clamp(0.7rem, 1.5vw, 1rem);
+  }
+
+  .app-shell {
+    gap: clamp(0.85rem, 1.6vw, 1.25rem);
+  }
+}
+
+@media (max-width: 560px) {
+  :host {
+    padding: 0.65rem;
   }
 }

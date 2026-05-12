@@ -1,10 +1,16 @@
-<section class="wellness-break" aria-label="Break suggestion">
+<section class="wellness-break" [attr.aria-label]="'wellness.breakSuggestion.aria' | translate">
   <div class="wellness-break__content">
-    <span class="wellness-break__label">Break Suggestion</span>
-    <strong>{{ suggestion.title }}</strong>
-    <p>{{ suggestion.description }}</p>
+    <span class="wellness-break__label">{{ 'wellness.breakSuggestion.label' | translate }}</span>
+    <strong>
+      {{
+        suggestion.custom
+          ? suggestion.title
+          : ('wellness.exercises.presets.' + suggestion.id | translate)
+      }}
+    </strong>
+    <p>{{ 'wellness.breakSuggestion.description' | translate }}</p>
   </div>
-  <span class="wellness-break__meta" *ngIf="suggestion.durationLabel">
-    {{ suggestion.durationLabel }}
+  <span class="wellness-break__meta" *ngIf="suggestion.duration">
+    {{ 'wellness.exercises.durationSeconds' | translate: { duration: suggestion.duration } }}
   </span>
 </section>

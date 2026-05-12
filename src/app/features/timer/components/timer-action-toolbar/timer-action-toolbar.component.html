@@ -1,7 +1,7 @@
 <label class="timer-card__field">
   <span class="timer-card__label">
-    Duration (min)
-    <span *ngIf="durationLockMessage" class="timer-card__label-state">Locked</span>
+    {{ 'timer.duration.label' | translate }}
+    <span *ngIf="durationLockMessage" class="timer-card__label-state">{{ 'common.locked' | translate }}</span>
   </span>
   <input
     class="timer-card__input"
@@ -10,11 +10,12 @@
     min="1"
     step="1"
     inputmode="numeric"
-    placeholder="e.g. 25"
+    [placeholder]="'timer.duration.placeholder' | translate"
     [ngModel]="durationInMinutes"
     (ngModelChange)="durationChanged.emit($event)"
+    [attr.aria-describedby]="durationLockMessage ? 'duration-lock-note' : null"
     [disabled]="durationLocked" />
-  <span *ngIf="durationLockMessage" class="timer-field-note">
+  <span *ngIf="durationLockMessage" id="duration-lock-note" class="timer-field-note">
     {{ durationLockMessage }}
   </span>
 </label>
@@ -42,7 +43,7 @@
     type="button"
     (click)="startTimer.emit()"
     [disabled]="status === 'running'">
-    {{ startLabel }}
+    {{ (status === 'completed' ? 'timer.actions.restart' : 'timer.actions.start') | translate }}
   </button>
 
   <button
@@ -52,7 +53,7 @@
     type="button"
     (click)="pauseTimer.emit()"
     [disabled]="status !== 'running'">
-    Pause
+    {{ 'timer.actions.pause' | translate }}
   </button>
 
   <button
@@ -61,6 +62,6 @@
     [class.timer-card__button--highlight]="status === 'completed'"
     type="button"
     (click)="resetTimer.emit()">
-    Reset
+    {{ 'timer.actions.reset' | translate }}
   </button>
 </div>

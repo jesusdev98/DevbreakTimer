@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { ProductivityStatsComponent } from './components/productivity-stats/productivity-stats.component';
 import { TimerActionToolbarComponent } from './components/timer-action-toolbar/timer-action-toolbar.component';
 import { TimerSettingsPanelComponent } from './components/timer-settings-panel/timer-settings-panel.component';
@@ -21,7 +22,8 @@ import { WellnessReminderCardComponent } from './components/wellness-reminder-ca
   ],
   imports: [
     CommonModule,
-    FormsModule
+    FormsModule,
+    TranslateModule
   ],
   exports: [
     ProductivityStatsComponent,

@@ -38,6 +38,10 @@ export class FocusSessionService {
   }
 
   startSession(request: StartFocusSessionRequest): FocusSession {
+    if (this.isActiveSessionUnfinished()) {
+      this.skipActiveSession();
+    }
+
     const session: FocusSession = {
       id: this.createSessionId(),
       taskId: request.taskId,
@@ -45,8 +49,10 @@ export class FocusSessionService {
       workspaceMode: request.workspaceMode,
       startedAt: Date.now(),
       completedAt: null,
+      skippedAt: null,
       durationMinutes: request.durationMinutes,
       completed: false,
+      skipped: false,
     };
 
     this.activeSession = session;
@@ -56,14 +62,17 @@ export class FocusSessionService {
   }
 
   completeActiveSession(): FocusSessionCompletion | null {
-    if (this.activeSession === null) {
+    if (!this.isActiveSessionUnfinished()) {
       return null;
     }
 
+    const activeSession = this.activeSession as FocusSession;
     const completedSession: FocusSession = {
-      ...this.activeSession,
+      ...activeSession,
       completedAt: Date.now(),
+      skippedAt: null,
       completed: true,
+      skipped: false,
     };
 
     this.completedSessions = [...this.completedSessions, completedSession];
@@ -78,13 +87,8 @@ export class FocusSessionService {
     };
   }
 
-  cancelActiveSession(): void {
-    if (this.activeSession === null) {
-      return;
-    }
-
-    this.activeSession = null;
-    this.persistActiveSession();
+  cancelActiveSession(): FocusSession | null {
+    return this.skipActiveSession();
   }
 
   resetTodayStats(): void {
@@ -101,10 +105,18 @@ export class FocusSessionService {
       ? this.dailyStatsResetAt
       : startOfDay;
     const todaysSessions = this.completedSessions.filter((session) =>
+      session.completed === true &&
       session.completedAt !== null &&
       session.completedAt >= effectiveStart &&
       session.completedAt < endOfDay
     );
+    const skippedSessionsToday = this.completedSessions.filter((session) =>
+      session.skipped === true &&
+      session.skippedAt !== null &&
+      session.skippedAt !== undefined &&
+      session.skippedAt >= effectiveStart &&
+      session.skippedAt < endOfDay
+    ).length;
 
     return {
       totalFocusMinutesToday: todaysSessions.reduce(
@@ -112,6 +124,7 @@ export class FocusSessionService {
         0
       ),
       completedSessionsToday: todaysSessions.length,
+      skippedSessionsToday,
     };
   }
 
@@ -125,7 +138,7 @@ export class FocusSessionService {
   private calculateCurrentStreak(): number {
     const completedDayKeys = [...new Set(
       this.completedSessions
-        .filter((session) => session.completedAt !== null)
+        .filter((session) => session.completed === true && session.completedAt !== null)
         .map((session) => this.getDayKey(session.completedAt as number))
     )].sort((a, b) => b.localeCompare(a));
 
@@ -182,9 +195,18 @@ export class FocusSessionService {
 
       const parsedValue: unknown = JSON.parse(storedValue);
 
-      return this.isFocusSessionArray(parsedValue)
-        ? parsedValue.filter((session) => session.completed)
-        : [];
+      if (!Array.isArray(parsedValue)) {
+        return [];
+      }
+
+      const sessions = parsedValue
+        .filter((session): session is FocusSession => this.isFocusSession(session))
+        .map((session) => this.normalizeStoredSession(session))
+        .filter((session): session is FocusSession => session !== null);
+
+      this.persistSessionHistory(sessions);
+
+      return sessions;
     } catch {
       return [];
     }
@@ -200,15 +222,29 @@ export class FocusSessionService {
 
       const parsedValue: unknown = JSON.parse(storedValue);
 
-      return this.isFocusSession(parsedValue) && !parsedValue.completed ? parsedValue : null;
+      const restoredSession = this.isFocusSession(parsedValue)
+        ? this.normalizeActiveSession(parsedValue)
+        : null;
+
+      if (restoredSession === null) {
+        window.localStorage.removeItem(ACTIVE_SESSION_KEY);
+      }
+
+      return restoredSession !== null
+        ? restoredSession
+        : null;
     } catch {
       return null;
     }
   }
 
   private persistCompletedSessions(): void {
+    this.persistSessionHistory(this.completedSessions);
+  }
+
+  private persistSessionHistory(sessions: FocusSession[]): void {
     try {
-      window.localStorage.setItem(COMPLETED_SESSIONS_KEY, JSON.stringify(this.completedSessions));
+      window.localStorage.setItem(COMPLETED_SESSIONS_KEY, JSON.stringify(sessions));
     } catch {
       // Focus history remains available in memory if storage is unavailable.
     }
@@ -225,6 +261,90 @@ export class FocusSessionService {
     } catch {
       // Active focus session remains available in memory if storage is unavailable.
     }
+  }
+
+  private skipActiveSession(): FocusSession | null {
+    if (!this.isActiveSessionUnfinished()) {
+      return null;
+    }
+
+    const activeSession = this.activeSession as FocusSession;
+    const skippedSession: FocusSession = {
+      ...activeSession,
+      completedAt: null,
+      skippedAt: Date.now(),
+      completed: false,
+      skipped: true,
+    };
+
+    this.completedSessions = [...this.completedSessions, skippedSession];
+    this.activeSession = null;
+    this.persistCompletedSessions();
+    this.persistActiveSession();
+    this.publishProductivityStats();
+
+    return skippedSession;
+  }
+
+  private isActiveSessionUnfinished(): boolean {
+    return (
+      this.activeSession !== null &&
+      this.activeSession.completed !== true &&
+      this.activeSession.skipped !== true &&
+      this.activeSession.completedAt === null
+    );
+  }
+
+  private normalizeStoredSession(session: FocusSession): FocusSession | null {
+    const skippedAt = typeof session.skippedAt === 'number' && Number.isFinite(session.skippedAt)
+      ? session.skippedAt
+      : session.startedAt;
+    const isSkipped = session.skipped === true && Number.isFinite(skippedAt);
+    const isCompleted = (
+      session.completed === true &&
+      session.skipped !== true &&
+      typeof session.completedAt === 'number' &&
+      Number.isFinite(session.completedAt)
+    );
+
+    if (isCompleted) {
+      return {
+        ...session,
+        completedAt: session.completedAt,
+        skippedAt: null,
+        completed: true,
+        skipped: false,
+      };
+    }
+
+    if (isSkipped) {
+      return {
+        ...session,
+        completedAt: null,
+        skippedAt,
+        completed: false,
+        skipped: true,
+      };
+    }
+
+    return null;
+  }
+
+  private normalizeActiveSession(session: FocusSession): FocusSession | null {
+    if (
+      session.completed === true ||
+      session.skipped === true ||
+      session.completedAt !== null
+    ) {
+      return null;
+    }
+
+    return {
+      ...session,
+      skippedAt: null,
+      completed: false,
+      skipped: false,
+    };
   }
 
   private restoreDailyStatsResetAt(): number {
@@ -246,10 +366,6 @@ export class FocusSessionService {
     }
   }
 
-  private isFocusSessionArray(value: unknown): value is FocusSession[] {
-    return Array.isArray(value) && value.every((session) => this.isFocusSession(session));
-  }
-
   private isFocusSession(value: unknown): value is FocusSession {
     if (!value || typeof value !== 'object') {
       return false;
@@ -263,9 +379,19 @@ export class FocusSessionService {
       (candidate.taskTitle === undefined || typeof candidate.taskTitle === 'string') &&
       this.isWorkspaceMode(candidate.workspaceMode) &&
       typeof candidate.startedAt === 'number' &&
-      (candidate.completedAt === null || typeof candidate.completedAt === 'number') &&
+      Number.isFinite(candidate.startedAt) &&
+      (candidate.completedAt === null ||
+        (typeof candidate.completedAt === 'number' && Number.isFinite(candidate.completedAt))) &&
+      (
+        candidate.skippedAt === undefined ||
+        candidate.skippedAt === null ||
+        (typeof candidate.skippedAt === 'number' && Number.isFinite(candidate.skippedAt))
+      ) &&
       typeof candidate.durationMinutes === 'number' &&
-      typeof candidate.completed === 'boolean'
+      Number.isFinite(candidate.durationMinutes) &&
+      candidate.durationMinutes > 0 &&
+      typeof candidate.completed === 'boolean' &&
+      (candidate.skipped === undefined || typeof candidate.skipped === 'boolean')
     );
   }
 

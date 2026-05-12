@@ -38,7 +38,7 @@ describe('ShortcutService', () => {
     const result = service.setShortcut('search', 'N');
 
     expect(result.valid).toBe(false);
-    expect(result.message).toContain('Create task');
+    expect(result.message).toContain('New task');
   });
 
   it('rejects reserved and weak action combos', () => {
@@ -52,9 +52,25 @@ describe('ShortcutService', () => {
   it('matches keyboard events against configured shortcuts', () => {
     const service = new ShortcutService();
 
-    service.setShortcut('toggleFocusPanel', 'Control+F');
+    service.setShortcut('search', 'Control+F');
 
-    expect(service.matches(new KeyboardEvent('keydown', { key: 'f', ctrlKey: true }), 'toggleFocusPanel')).toBe(true);
-    expect(service.matches(new KeyboardEvent('keydown', { key: 'f' }), 'toggleFocusPanel')).toBe(false);
+    expect(service.matches(new KeyboardEvent('keydown', { key: 'f', ctrlKey: true }), 'search')).toBe(true);
+    expect(service.matches(new KeyboardEvent('keydown', { key: 'f' }), 'search')).toBe(false);
+  });
+
+  it('omits the retired focus panel shortcut from defaults and restored settings', () => {
+    localStorage.setItem(storageKey, JSON.stringify([
+      { action: 'toggleFocusPanel', label: 'Focus panel', combo: 'F' },
+      { action: 'search', label: 'Search', combo: '/' },
+    ]));
+
+    const service = new ShortcutService();
+
+    expect(service.getShortcuts().map((shortcut) => shortcut.action)).toEqual([
+      'createTask',
+      'search',
+      'save',
+      'escapeModal',
+    ]);
   });
 });

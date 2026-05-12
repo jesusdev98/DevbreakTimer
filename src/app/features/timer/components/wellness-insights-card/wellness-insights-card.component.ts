@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { LanguageService } from '../../../../services/language.service';
 
 import { WellnessMetrics } from '../../services/wellness-reminder-engine.service';
 
@@ -10,15 +11,19 @@ import { WellnessMetrics } from '../../services/wellness-reminder-engine.service
 export class WellnessInsightsCardComponent {
   @Input({ required: true }) metrics!: WellnessMetrics;
 
+  constructor(private readonly languageService: LanguageService) {}
+
   protected consistencyLabel(): string {
     if (this.metrics.weeklyConsistencyDays === 0) {
-      return 'Recovery can start with the next quiet reset.';
+      return this.languageService.instant('wellness.insights.noDays');
     }
 
     if (this.metrics.weeklyConsistencyDays === 1) {
-      return 'Recovery showed up on 1 day this week.';
+      return this.languageService.instant('wellness.insights.oneDay');
     }
 
-    return `Recovery showed up on ${this.metrics.weeklyConsistencyDays} days this week.`;
+    return this.languageService.instant('wellness.insights.manyDays', {
+      count: this.metrics.weeklyConsistencyDays,
+    });
   }
 }

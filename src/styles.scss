@@ -22,6 +22,12 @@ body {
 
 :root,
 :root[data-theme='dark'] {
+  --radius-card: 24px;
+  --radius-panel: 18px;
+  --radius-control: 13px;
+  --control-min-height: 2.5rem;
+  --control-padding-y: 0.66rem;
+  --control-padding-x: 0.82rem;
   --app-bg:
     radial-gradient(circle at 50% -12%, rgba(30, 64, 175, 0.22), transparent 38%),
     radial-gradient(circle at 12% 18%, rgba(251, 191, 36, 0.08), transparent 28%),
@@ -77,6 +83,12 @@ body {
 }
 
 :root[data-theme='light'] {
+  --radius-card: 24px;
+  --radius-panel: 18px;
+  --radius-control: 13px;
+  --control-min-height: 2.5rem;
+  --control-padding-y: 0.66rem;
+  --control-padding-x: 0.82rem;
   --app-bg:
     radial-gradient(circle at 50% -10%, rgba(191, 219, 254, 0.58), transparent 36%),
     radial-gradient(circle at 10% 18%, rgba(251, 191, 36, 0.18), transparent 26%),
@@ -135,12 +147,29 @@ input,
 textarea,
 select,
 summary {
+  font: inherit;
   transition:
     border-color 0.16s ease,
     background-color 0.16s ease,
     color 0.16s ease,
     box-shadow 0.16s ease,
-    opacity 0.16s ease;
+    opacity 0.16s ease,
+    transform 0.16s ease;
+}
+
+button,
+input,
+select {
+  min-height: var(--control-min-height);
+}
+
+input[type='checkbox'],
+input[type='radio'] {
+  min-height: 1rem;
+}
+
+button {
+  touch-action: manipulation;
 }
 
 html,
@@ -192,7 +221,9 @@ summary:focus-visible,
 [tabindex]:focus-visible {
   outline: 2px solid color-mix(in srgb, var(--accent) 78%, white);
   outline-offset: 3px;
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent);
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent),
+    0 10px 24px rgba(15, 23, 42, 0.18);
 }
 
 .sr-only {
@@ -216,7 +247,8 @@ summary:focus-visible,
   position: absolute;
   top: 1rem;
   right: 1rem;
-  padding: 0.45rem 0.65rem;
+  min-height: 2.2rem;
+  padding: 0.45rem 0.75rem;
   border: 1px solid var(--border-subtle);
   border-radius: 999px;
   background: var(--surface-subtle);
@@ -257,9 +289,9 @@ summary:focus-visible,
   width: min(100%, 520px);
   max-height: min(720px, calc(100dvh - 2rem));
   overflow: auto;
-  padding: 1.15rem;
+  padding: clamp(1rem, 2vw, 1.35rem);
   border: 1px solid var(--border-subtle);
-  border-radius: 24px;
+  border-radius: var(--radius-card);
   background: var(--panel-bg);
   box-shadow: var(--shadow-elevated);
   color: var(--text-primary);
@@ -295,8 +327,8 @@ summary:focus-visible,
 }
 
 .settings-section {
-  margin-top: 1rem;
-  padding-top: 1rem;
+  margin-top: 1.1rem;
+  padding-top: 1.1rem;
   border-top: 1px solid var(--border-subtle);
 }
 
@@ -341,13 +373,22 @@ summary:focus-visible,
   display: flex;
   align-items: center;
   gap: 0.65rem;
+  min-height: 3rem;
   min-width: 0;
-  padding: 0.72rem;
+  padding: 0.72rem 0.78rem;
   border: 1px solid var(--border-subtle);
-  border-radius: 14px;
+  border-radius: var(--radius-control);
   background: var(--surface-subtle);
   color: var(--text-secondary);
   cursor: pointer;
+}
+
+.settings-segmented__option:hover,
+.workspace-mode-option:hover,
+.profile-option:hover,
+.settings-toggle:hover {
+  border-color: color-mix(in srgb, var(--accent) 34%, var(--border-subtle));
+  background: color-mix(in srgb, var(--accent) 7%, var(--surface-subtle));
 }
 
 .settings-segmented__option--active,
@@ -388,6 +429,19 @@ summary:focus-visible,
   line-height: 1.35;
 }
 
+.settings-helper,
+.settings-limit-note {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.settings-limit-note {
+  color: var(--accent);
+}
+
 .wellness-chip-list {
   display: flex;
   flex-wrap: wrap;
@@ -399,7 +453,8 @@ summary:focus-visible,
 }
 
 .wellness-chip {
-  padding: 0.52rem 0.68rem;
+  min-height: 2.35rem;
+  padding: 0.52rem 0.74rem;
   border: 1px solid var(--border-subtle);
   border-radius: 999px;
   background: var(--surface-subtle);
@@ -414,6 +469,114 @@ summary:focus-visible,
   border-color: color-mix(in srgb, var(--success) 46%, transparent);
   background: color-mix(in srgb, var(--success) 14%, transparent);
   color: var(--success-text);
+}
+
+.wellness-exercise-manager {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.85rem;
+}
+
+.wellness-exercise-groups {
+  display: grid;
+  gap: 0.58rem;
+}
+
+.wellness-exercise-group {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.62rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--surface-subtle) 82%, transparent);
+}
+
+.wellness-exercise-group__heading,
+.wellness-exercise-item,
+.wellness-exercise-item__actions,
+.wellness-exercise-form__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.wellness-exercise-group__heading,
+.wellness-exercise-item {
+  justify-content: space-between;
+}
+
+.wellness-exercise-group__heading strong {
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+}
+
+.wellness-exercise-group__heading span {
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.wellness-exercise-list {
+  display: grid;
+  gap: 0.36rem;
+}
+
+.wellness-exercise-item {
+  min-width: 0;
+  padding: 0.42rem 0.5rem;
+  border-radius: 10px;
+  background: var(--surface-control);
+  color: var(--text-secondary);
+  font-size: 0.74rem;
+  font-weight: 750;
+}
+
+.wellness-exercise-item span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.wellness-exercise-item__actions {
+  flex: 0 0 auto;
+}
+
+.wellness-exercise-item__actions button {
+  min-height: 1.8rem;
+  padding: 0.28rem 0.44rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  background: var(--surface-subtle);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 0.64rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.wellness-exercise-item__actions button:hover,
+.wellness-exercise-item__actions button:focus-visible {
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  color: var(--accent);
+}
+
+.wellness-exercise-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(5.25rem, 0.55fr);
+  gap: 0.58rem;
+  padding: 0.62rem;
+  border: 1px dashed var(--border-subtle);
+  border-radius: var(--radius-control);
+  background: var(--surface-subtle);
+}
+
+.wellness-exercise-form .settings-limit-note,
+.wellness-exercise-form__actions {
+  grid-column: 1 / -1;
+}
+
+.wellness-exercise-form__actions {
+  justify-content: flex-start;
+  flex-wrap: wrap;
 }
 
 .profile-option span {
@@ -440,7 +603,7 @@ summary:focus-visible,
   margin: -0.25rem 0 1rem;
   padding: 0.78rem;
   border: 1px solid color-mix(in srgb, var(--accent) 54%, var(--border-subtle));
-  border-radius: 15px;
+  border-radius: var(--radius-panel);
   background: color-mix(in srgb, var(--accent) 12%, transparent);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 8%, transparent);
   animation: fade-in-up 0.28s ease;
@@ -476,7 +639,8 @@ summary:focus-visible,
 
 .focus-panel button {
   flex: 0 0 auto;
-  padding: 0.36rem 0.52rem;
+  min-height: 2rem;
+  padding: 0.36rem 0.58rem;
   border: 1px solid var(--border-subtle);
   border-radius: 999px;
   background: var(--surface-subtle);
@@ -513,7 +677,7 @@ summary:focus-visible,
   margin-top: 0.75rem;
   padding: 0.85rem;
   border: 1px solid color-mix(in srgb, var(--success) 42%, var(--border-subtle));
-  border-radius: 14px;
+  border-radius: var(--radius-panel);
   background: color-mix(in srgb, var(--success) 13%, transparent);
   color: var(--text-primary);
   animation: fade-in-up 0.35s ease;
@@ -564,7 +728,7 @@ summary:focus-visible,
   margin-top: 0.75rem;
   padding: 0.78rem;
   border: 1px solid color-mix(in srgb, var(--info) 34%, var(--border-subtle));
-  border-radius: 14px;
+  border-radius: var(--radius-panel);
   background: color-mix(in srgb, var(--info) 10%, transparent);
   color: var(--text-primary);
   animation: fade-in-up 0.3s ease;
@@ -647,7 +811,8 @@ summary:focus-visible,
 }
 
 .wellness-reminder__actions button {
-  padding: 0.38rem 0.54rem;
+  min-height: 2rem;
+  padding: 0.38rem 0.58rem;
   border: 1px solid color-mix(in srgb, var(--info) 34%, var(--border-subtle));
   border-radius: 999px;
   background: var(--surface-subtle);
@@ -676,7 +841,7 @@ summary:focus-visible,
   margin-top: 0.75rem;
   padding: 0.72rem;
   border: 1px solid var(--border-subtle);
-  border-radius: 14px;
+  border-radius: var(--radius-panel);
   background: var(--surface-subtle);
   color: var(--text-primary);
 }
@@ -741,7 +906,7 @@ summary:focus-visible,
   margin-top: 0.75rem;
   padding: 0.85rem;
   border: 1px solid color-mix(in srgb, var(--success) 44%, var(--border-subtle));
-  border-radius: 14px;
+  border-radius: var(--radius-panel);
   background: color-mix(in srgb, var(--success) 12%, transparent);
   color: var(--text-primary);
   animation: fade-in-up 0.35s ease;
@@ -802,7 +967,8 @@ summary:focus-visible,
 
 .focus-completion__actions button {
   min-width: 0;
-  padding: 0.42rem 0.58rem;
+  min-height: 2.1rem;
+  padding: 0.42rem 0.64rem;
   border: 1px solid color-mix(in srgb, var(--success) 34%, var(--border-subtle));
   border-radius: 999px;
   background: var(--surface-subtle);
@@ -843,12 +1009,45 @@ summary:focus-visible,
 .settings-field input,
 .settings-field select {
   min-width: 0;
-  padding: 0.72rem;
+  padding: var(--control-padding-y) var(--control-padding-x);
   border: 1px solid var(--border-strong);
-  border-radius: 12px;
+  border-radius: var(--radius-control);
   background: var(--surface-control);
   color: var(--text-primary);
   font: inherit;
+}
+
+.settings-field input[type='range'] {
+  min-height: 1.9rem;
+  padding: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.settings-field input::placeholder {
+  color: var(--text-muted);
+}
+
+.settings-field--range {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.settings-field--range span {
+  grid-column: 1 / -1;
+}
+
+.settings-field--range strong {
+  min-width: 3rem;
+  color: var(--text-primary);
+  font-size: 0.78rem;
+  text-align: right;
+}
+
+.sound-settings {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 0.7rem;
 }
 
 .settings-inline-action,
@@ -881,7 +1080,7 @@ summary:focus-visible,
   min-width: 0;
   padding: 0.55rem 0.62rem;
   border: 1px solid var(--border-subtle);
-  border-radius: 12px;
+  border-radius: var(--radius-control);
   background: var(--surface-subtle);
   color: var(--text-secondary);
   font-size: 0.78rem;
@@ -922,20 +1121,22 @@ summary:focus-visible,
 .settings-panel__close,
 .settings-action {
   border: 0;
-  border-radius: 12px;
+  border-radius: var(--radius-control);
   font-weight: 800;
   cursor: pointer;
 }
 
 .settings-panel__close {
-  padding: 0.55rem 0.7rem;
+  min-height: 2.35rem;
+  padding: 0.55rem 0.78rem;
   background: var(--surface-subtle);
   color: var(--text-secondary);
 }
 
 .settings-action {
   min-width: 0;
-  padding: 0.8rem 1rem;
+  min-height: 2.55rem;
+  padding: 0.78rem 1rem;
 }
 
 .settings-action--ghost {
@@ -955,11 +1156,31 @@ select:disabled {
   opacity: 0.82;
 }
 
+button:disabled {
+  cursor: not-allowed;
+  transform: none;
+}
+
 @media (max-width: 520px) {
   .settings-panel {
     width: 100%;
     max-height: calc(100dvh - 1rem);
     border-radius: 20px;
+  }
+
+  .settings-panel__header,
+  .settings-panel__actions,
+  .focus-panel,
+  .wellness-break,
+  .wellness-reminder,
+  .focus-completion {
+    align-items: stretch;
+  }
+
+  .settings-panel__actions,
+  .focus-completion {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .wellness-insights {
@@ -971,8 +1192,46 @@ select:disabled {
   }
 
   .custom-profile,
-  .settings-panel__actions {
+  .wellness-exercise-form,
+  .workspace-mode-grid,
+  .settings-segmented {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .wellness-exercise-item {
+    display: grid;
+    justify-items: stretch;
+  }
+
+  .wellness-exercise-item__actions {
+    justify-content: stretch;
+  }
+
+  .wellness-exercise-item__actions button {
+    flex: 1 1 auto;
+  }
+
+  .wellness-reminder__actions,
+  .focus-completion__actions {
+    justify-content: stretch;
+  }
+
+  .wellness-reminder__actions button,
+  .focus-completion__actions button {
+    flex: 1 1 9rem;
+  }
+}
+
+@media (pointer: coarse) {
+  button,
+  input,
+  select {
+    min-height: 2.75rem;
+  }
+
+  input[type='checkbox'],
+  input[type='radio'] {
+    min-height: 1rem;
   }
 }
 

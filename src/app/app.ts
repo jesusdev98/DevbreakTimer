@@ -1,4 +1,5 @@
 import { Component, signal } from '@angular/core';
+import { LanguageService } from './services/language.service';
 
 @Component({
   selector: 'app-root',
@@ -7,5 +8,7 @@ import { Component, signal } from '@angular/core';
   styleUrl: './app.scss'
 })
 export class App {
-  protected readonly title = signal('devbreak-timer');
+  protected readonly title = signal('FocusFlow');
+
+  constructor(private readonly languageService: LanguageService) {}
 }

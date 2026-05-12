@@ -130,6 +130,51 @@ describe('WellnessReminderEngineService', () => {
     expect(metrics.totalInteractions).toBe(2);
   });
 
+  it('does not count ordinary timer resets as completed recovery actions', () => {
+    service = TestBed.inject(WellnessReminderEngineService);
+
+    service.markReset();
+
+    expect(readMetrics()).toEqual({
+      completedActions: 0,
+      dismissedReminders: 0,
+      recoveryCompletionPercentage: 0,
+      recoveryStreakDays: 0,
+      weeklyConsistencyDays: 0,
+      totalInteractions: 0,
+    });
+  });
+
+  it('counts explicit movement resets as completed recovery actions', () => {
+    service = TestBed.inject(WellnessReminderEngineService);
+
+    service.completeMovementReset();
+
+    expect(readMetrics()).toEqual({
+      completedActions: 1,
+      dismissedReminders: 0,
+      recoveryCompletionPercentage: 100,
+      recoveryStreakDays: 1,
+      weeklyConsistencyDays: 1,
+      totalInteractions: 1,
+    });
+  });
+
+  it('counts canonical skipped focus sessions as omitted recovery rhythm interactions', () => {
+    service = TestBed.inject(WellnessReminderEngineService);
+
+    service.recordSkippedFocusSession(now);
+
+    expect(readMetrics()).toEqual({
+      completedActions: 0,
+      dismissedReminders: 1,
+      recoveryCompletionPercentage: 0,
+      recoveryStreakDays: 0,
+      weeklyConsistencyDays: 0,
+      totalInteractions: 1,
+    });
+  });
+
   it('derives recovery streak and weekly consistency from completed actions', () => {
     localStorage.setItem(storageKey, JSON.stringify({
       enabled: true,

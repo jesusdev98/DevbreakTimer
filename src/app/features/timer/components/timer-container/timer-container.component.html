@@ -13,28 +13,30 @@
     [class.timer-card--running]="vm.status === 'running'"
     [class.timer-card--paused]="vm.status === 'paused'"
     [class.timer-card--completed]="vm.status === 'completed'"
-    aria-labelledby="timer-title">
+    [attr.aria-label]="'timer.eyebrow' | translate">
     <button
       #settingsButton
       class="settings-entry"
       data-testid="settings-button"
       type="button"
-      aria-label="Open settings"
+      [attr.aria-label]="'timer.aria.openSettings' | translate"
       (click)="openSettings()">
-      Settings
+      {{ 'settings.title' | translate }}
     </button>
 
     <header class="timer-card__header">
-      <p class="timer-card__eyebrow">DevBreak Timer</p>
-      <h1 id="timer-title" class="timer-card__title" data-testid="session-title">
-        {{ pomodoroEnabled ? getSessionTitle(pomodoroState.currentSession) : 'Countdown' }}
-      </h1>
+      <p class="timer-card__eyebrow">{{ 'timer.eyebrow' | translate }}</p>
       <p class="timer-card__meta">
-        {{ currentWorkspaceMode.label }} Mode - {{ currentWorkspaceMode.timerCue }}
+        {{ 'settings.mode.options.' + currentWorkspaceMode.id + '.label' | translate }}
+        {{ 'timer.modeSuffix' | translate }} -
+        {{ 'settings.mode.options.' + currentWorkspaceMode.id + '.timerCue' | translate }}
       </p>
       <p class="timer-card__meta" data-testid="session-meta" *ngIf="pomodoroEnabled">
-        Cycle {{ pomodoroState.cycle }} / {{ getCyclesBeforeLongBreak() }} -
-        {{ pomodoroState.completedFocusSessions }} focus completed
+        {{ 'timer.cycleMeta' | translate: {
+          cycle: pomodoroState.cycle,
+          total: getCyclesBeforeLongBreak(),
+          completed: pomodoroState.completedFocusSessions
+        } }}
       </p>
     </header>
 
@@ -42,15 +44,15 @@
 
     <section class="focus-panel" *ngIf="shouldShowFocusPanel(vm.activeTask)" aria-labelledby="focus-panel-title">
       <div class="focus-panel__content">
-        <span id="focus-panel-title" class="focus-panel__label">Currently Focusing On</span>
+        <span id="focus-panel-title" class="focus-panel__label">{{ 'timer.focusPanel.label' | translate }}</span>
         <strong>{{ vm.activeTask?.title }}</strong>
         <p *ngIf="vm.activeTask?.description">{{ vm.activeTask?.description }}</p>
       </div>
-      <button type="button" (click)="clearActiveTask()">Clear</button>
+      <button type="button" (click)="clearActiveTask()">{{ 'common.clear' | translate }}</button>
     </section>
 
     <p class="focus-ownership-note" *ngIf="!isFocusMode()">
-      Focus ownership is available in Focus Mode.
+      {{ 'timer.focusOwnershipNote' | translate }}
     </p>
 
     <div class="timer-card__mode">
@@ -65,14 +67,14 @@
             [disabled]="vm.status === 'running'" />
           <span class="timer-toggle__control"></span>
           <span class="timer-toggle__content">
-            <span class="timer-toggle__text">Pomodoro</span>
+            <span class="timer-toggle__text">{{ 'timer.toggles.pomodoro' | translate }}</span>
             <span class="timer-toggle__hint">
-              Auto-runs focus, short breaks, and a long break after 4 focus sessions.
+              {{ 'timer.toggles.pomodoroHint' | translate }}
             </span>
           </span>
         </label>
         <p *ngIf="vm.status === 'running'" class="timer-lock-note">
-          Mode is locked during an active session.
+          {{ 'timer.modeLocked' | translate }}
         </p>
       </div>
 
@@ -86,8 +88,8 @@
             (ngModelChange)="setSoundEnabled($event)" />
           <span class="timer-toggle__control"></span>
           <span class="timer-toggle__content">
-            <span class="timer-toggle__text">Sound</span>
-            <span class="timer-toggle__hint">Plays a clear alert when each session completes.</span>
+            <span class="timer-toggle__text">{{ 'timer.toggles.sound' | translate }}</span>
+            <span class="timer-toggle__hint">{{ 'timer.toggles.soundHint' | translate }}</span>
           </span>
         </label>
       </div>
@@ -95,15 +97,15 @@
 
     <div *ngIf="pomodoroEnabled" class="session-panel" data-testid="pomodoro-session-panel">
       <div class="session-panel__item">
-        <span class="session-panel__label">Current</span>
+        <span class="session-panel__label">{{ 'timer.sessionPanel.current' | translate }}</span>
         <strong>{{ getSessionTitle(pomodoroState.currentSession) }}</strong>
       </div>
       <div class="session-panel__item">
-        <span class="session-panel__label">Next</span>
+        <span class="session-panel__label">{{ 'timer.sessionPanel.next' | translate }}</span>
         <strong>{{ getNextSessionTitle() }}</strong>
       </div>
       <div class="session-panel__item">
-        <span class="session-panel__label">Focus left</span>
+        <span class="session-panel__label">{{ 'timer.sessionPanel.focusLeft' | translate }}</span>
         <strong>{{ getRemainingFocusSessionsInCycle() }}</strong>
       </div>
     </div>
@@ -125,47 +127,54 @@
         [class.timer-card__status--running]="vm.status === 'running'"
         [class.timer-card__status--paused]="vm.status === 'paused'"
         [class.timer-card__status--completed]="vm.status === 'completed'">
-        {{ vm.status }}
+        {{ 'timer.status.' + vm.status | translate }}
       </span>
     </div>
 
     <div *ngIf="vm.status === 'idle'" class="timer-hint">
       {{
         pomodoroEnabled
-          ? 'Start the current Pomodoro session. The next session will begin automatically.'
-          : 'Set a duration and press Start'
+          ? ('timer.hints.pomodoroIdle' | translate)
+          : ('timer.hints.idle' | translate)
       }}
     </div>
 
     <div *ngIf="completionMessage" class="completion-message" aria-live="assertive">
-      {{ completionMessage }}
+      <span>{{ completionMessage }}</span>
+      <button
+        *ngIf="completionAlarmActive"
+        type="button"
+        (click)="dismissCompletionAlarm()"
+        [attr.aria-label]="'timer.aria.dismissRepeatingAlarm' | translate">
+        {{ 'timer.dismissAlarm' | translate }}
+      </button>
     </div>
 
     <section
       *ngIf="focusSessionCompletion"
       class="focus-completion"
-      aria-label="Focus session completed">
+      [attr.aria-label]="'timer.aria.focusCompleted' | translate">
       <div class="focus-completion__content">
-        <span class="focus-completion__label">Focus Session Completed</span>
-        <strong>+{{ focusSessionCompletion.session.durationMinutes }} productive minutes</strong>
+        <span class="focus-completion__label">{{ 'timer.focusCompletion.label' | translate }}</span>
+        <strong>{{ 'timer.focusCompletion.minutes' | translate: { minutes: focusSessionCompletion.session.durationMinutes } }}</strong>
         <p *ngIf="focusSessionCompletion.session.taskTitle">
-          Task: {{ focusSessionCompletion.session.taskTitle }}
+          {{ 'timer.focusCompletion.task' | translate: { task: focusSessionCompletion.session.taskTitle } }}
         </p>
       </div>
       <div class="focus-completion__metrics">
-        <span>Today</span>
+        <span>{{ 'stats.today' | translate }}</span>
         <strong>{{ formatFocusMinutes(focusSessionCompletion.dailyMetrics.totalFocusMinutesToday) }}</strong>
-        <small>{{ focusSessionCompletion.dailyMetrics.completedSessionsToday }} sessions</small>
+        <small>{{ 'stats.sessionsCount' | translate: { count: focusSessionCompletion.dailyMetrics.completedSessionsToday } }}</small>
       </div>
       <div class="focus-completion__actions">
-        <button type="button" (click)="continueTask()">Continue Task</button>
+        <button type="button" (click)="continueTask()">{{ 'timer.focusCompletion.continueTask' | translate }}</button>
         <button
           type="button"
           *ngIf="focusSessionCompletion.session.taskId"
           (click)="markFocusedTaskDone()">
-          Mark Done
+          {{ 'timer.focusCompletion.markDone' | translate }}
         </button>
-        <button type="button" (click)="startBreakFromCompletion()">Start Break</button>
+        <button type="button" (click)="startBreakFromCompletion()">{{ 'timer.focusCompletion.startBreak' | translate }}</button>
       </div>
     </section>
 
@@ -192,7 +201,13 @@
       [metrics]="vm.wellnessMetrics">
     </app-wellness-insights-card>
 
-    <div class="progress">
+    <div
+      class="progress"
+      role="progressbar"
+      [attr.aria-label]="'timer.aria.progress' | translate"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      [attr.aria-valuenow]="progress">
       <div class="progress__bar" [style.width.%]="progress"></div>
     </div>
 
@@ -213,7 +228,9 @@
       *ngIf="settingsPanelOpen"
       [settingsDraft]="settingsDraft"
       [workspaceModes]="workspaceModes"
+      [languageOptions]="languageOptions"
       [wellnessCategoryOptions]="wellnessCategoryOptions"
+      [wellnessExercises]="wellnessExercises"
       [pomodoroProfiles]="pomodoroProfiles"
       [wellnessReminderPreferences]="wellnessReminderPreferences"
       [sessionSettingsLocked]="currentStatus === 'running' || currentStatus === 'paused'"
@@ -225,9 +242,14 @@
       (settingsKeydown)="handleSettingsKeydown($event)"
       (profileSelected)="selectSettingsProfile($event)"
       (wellnessCategoryToggled)="toggleWellnessCategory($event)"
+      (exerciseAdded)="addWellnessExercise($event)"
+      (exerciseUpdated)="updateWellnessExercise($event)"
+      (exerciseDeleted)="deleteWellnessExercise($event)"
       (wellnessRemindersEnabledChanged)="setWellnessRemindersEnabled($event)"
       (wellnessReminderTypeEnabledChanged)="setWellnessReminderTypeFromEvent($event)"
       (resetShortcuts)="resetShortcuts()"
+      (soundSettingsChanged)="applySoundSettings()"
+      (languageChanged)="applyLanguageSetting($event)"
       (shortcutCaptureStarted)="startShortcutCapture($event)"
       (shortcutCaptured)="handleShortcutCaptureEvent($event)">
     </app-timer-settings-panel>

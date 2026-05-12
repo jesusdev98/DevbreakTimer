@@ -3,52 +3,52 @@
   role="dialog"
   aria-modal="true"
   aria-labelledby="settings-title"
-  (keydown)="settingsKeydown.emit($event)">
-  <button
-    class="settings-modal__backdrop"
-    type="button"
-    tabindex="-1"
-    aria-label="Close settings"
-    (click)="closeSettings.emit()"></button>
+  (keydown)="handleDialogKeydown($event)">
+    <button
+      class="settings-modal__backdrop"
+      type="button"
+      tabindex="-1"
+      [attr.aria-label]="'settings.aria.close' | translate"
+      (click)="closeSettings.emit()"></button>
 
-  <form class="settings-panel" (ngSubmit)="saveSettings.emit()">
+  <form #settingsPanel class="settings-panel" (ngSubmit)="saveSettings.emit()">
     <header class="settings-panel__header">
       <div>
-        <p class="settings-panel__eyebrow">Workspace</p>
-        <h2 id="settings-title">Settings</h2>
+        <p class="settings-panel__eyebrow">{{ 'settings.eyebrow' | translate }}</p>
+        <h2 id="settings-title">{{ 'settings.title' | translate }}</h2>
       </div>
       <button
         #settingsCloseButton
         class="settings-panel__close"
         type="button"
-        aria-label="Close settings"
+        [attr.aria-label]="'settings.aria.close' | translate"
         (click)="closeSettings.emit()">
-        Close
+        {{ 'common.close' | translate }}
       </button>
     </header>
 
     <section class="settings-section" aria-labelledby="theme-settings-title">
-      <h3 id="theme-settings-title">Theme</h3>
+      <h3 id="theme-settings-title">{{ 'settings.theme.title' | translate }}</h3>
       <div class="settings-segmented">
         <label
           class="settings-segmented__option"
           [class.settings-segmented__option--active]="settingsDraft.theme === 'dark'">
           <input type="radio" name="theme" value="dark" [(ngModel)]="settingsDraft.theme" />
-          Dark
+          {{ 'settings.theme.dark' | translate }}
         </label>
         <label
           class="settings-segmented__option"
           [class.settings-segmented__option--active]="settingsDraft.theme === 'light'">
           <input type="radio" name="theme" value="light" [(ngModel)]="settingsDraft.theme" />
-          Light
+          {{ 'settings.theme.light' | translate }}
         </label>
       </div>
     </section>
 
     <section class="settings-section" aria-labelledby="mode-settings-title">
-      <h3 id="mode-settings-title">Workspace Mode</h3>
+      <h3 id="mode-settings-title">{{ 'settings.mode.title' | translate }}</h3>
       <p class="settings-lock-note" id="mode-settings-lock" *ngIf="sessionSettingsLocked">
-        Finish or reset the current session to change mode.
+        {{ 'settings.sessionLocked' | translate }}
       </p>
       <div class="workspace-mode-grid">
         <label
@@ -64,19 +64,34 @@
             [attr.aria-describedby]="sessionSettingsLocked ? 'mode-settings-lock' : null"
             [(ngModel)]="settingsDraft.workspaceModeId" />
           <span>
-            <strong>{{ mode.label }}</strong>
-            <small>{{ mode.description }}</small>
+            <strong>{{ 'settings.mode.options.' + mode.id + '.label' | translate }}</strong>
+            <small>{{ 'settings.mode.options.' + mode.id + '.description' | translate }}</small>
           </span>
         </label>
       </div>
+    </section>
+
+    <section class="settings-section" aria-labelledby="language-settings-title">
+      <h3 id="language-settings-title">{{ 'settings.language.title' | translate }}</h3>
+      <label class="settings-field">
+        <span>{{ 'settings.language.label' | translate }}</span>
+        <select
+          name="language"
+          [ngModel]="settingsDraft.language"
+          (ngModelChange)="languageChanged.emit($event)">
+          <option *ngFor="let language of languageOptions" [value]="language.code">
+            {{ language.label }}
+          </option>
+        </select>
+      </label>
     </section>
 
     <section
       class="settings-section"
       *ngIf="showWellnessPreferences()"
       aria-labelledby="wellness-settings-title">
-      <h3 id="wellness-settings-title">Wellness Exercises</h3>
-      <div class="wellness-chip-list" aria-label="Wellness categories">
+      <h3 id="wellness-settings-title">{{ 'settings.wellnessExercises.title' | translate }}</h3>
+      <div class="wellness-chip-list" [attr.aria-label]="'settings.aria.wellnessCategories' | translate">
         <button
           *ngFor="let category of wellnessCategoryOptions"
           type="button"
@@ -84,18 +99,109 @@
           [class.wellness-chip--active]="isWellnessCategorySelected(category.id)"
           [attr.aria-pressed]="isWellnessCategorySelected(category.id)"
           (click)="wellnessCategoryToggled.emit(category.id)">
-          {{ category.label }}
+          {{ 'settings.wellnessCategories.' + category.id | translate }}
         </button>
+      </div>
+
+      <div class="wellness-exercise-manager">
+        <p class="settings-helper">{{ 'settings.wellnessExercises.helper' | translate }}</p>
+
+        <div class="wellness-exercise-groups">
+          <div class="wellness-exercise-group" *ngFor="let category of wellnessCategoryOptions">
+            <div class="wellness-exercise-group__heading">
+              <strong>{{ 'settings.wellnessCategories.' + category.id | translate }}</strong>
+              <span>
+                {{ 'settings.wellnessExercises.count' | translate: {
+                  count: exercisesForCategory(category.id).length,
+                  limit: wellnessExerciseLimit
+                } }}
+              </span>
+            </div>
+
+            <div class="wellness-exercise-list">
+              <div class="wellness-exercise-item" *ngFor="let exercise of exercisesForCategory(category.id)">
+                <span>
+                  {{
+                    exercise.custom
+                      ? exercise.name
+                      : ('wellness.exercises.presets.' + exercise.id | translate)
+                  }}
+                  · {{ 'wellness.exercises.durationSeconds' | translate: { duration: exercise.duration } }}
+                </span>
+                <div class="wellness-exercise-item__actions">
+                  <button type="button" (click)="startExerciseEdit(exercise)">
+                    {{ 'common.edit' | translate }}
+                  </button>
+                  <button type="button" (click)="deleteExercise(exercise.id)">
+                    {{ 'common.delete' | translate }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="wellness-exercise-form" role="group" [attr.aria-label]="'settings.wellnessExercises.formLabel' | translate">
+          <label class="settings-field">
+            <span>{{ 'settings.wellnessExercises.name' | translate }}</span>
+            <input
+              type="text"
+              name="exerciseName"
+              [placeholder]="'settings.wellnessExercises.namePlaceholder' | translate"
+              [(ngModel)]="exerciseDraft.name" />
+          </label>
+
+          <label class="settings-field">
+            <span>{{ 'settings.wellnessExercises.category' | translate }}</span>
+            <select name="exerciseCategory" [(ngModel)]="exerciseDraft.category">
+              <option *ngFor="let category of wellnessCategoryOptions" [value]="category.id">
+                {{ 'settings.wellnessCategories.' + category.id | translate }}
+              </option>
+            </select>
+          </label>
+
+          <label class="settings-field">
+            <span>{{ 'settings.wellnessExercises.duration' | translate }}</span>
+            <input
+              type="number"
+              name="exerciseDuration"
+              min="10"
+              max="600"
+              step="5"
+              [(ngModel)]="exerciseDraft.duration" />
+          </label>
+
+          <p class="settings-limit-note" *ngIf="!canAddExerciseToDraftCategory()">
+            {{ 'settings.wellnessExercises.limitReached' | translate: { limit: wellnessExerciseLimit } }}
+          </p>
+
+          <div class="wellness-exercise-form__actions">
+            <button type="button" class="settings-inline-action" [disabled]="!isExerciseDraftValid()" (click)="submitExercise()">
+              {{
+                editingExerciseId === null
+                  ? ('settings.wellnessExercises.add' | translate)
+                  : ('settings.wellnessExercises.update' | translate)
+              }}
+            </button>
+            <button
+              type="button"
+              class="settings-inline-action"
+              *ngIf="editingExerciseId !== null"
+              (click)="cancelExerciseEdit()">
+              {{ 'common.cancel' | translate }}
+            </button>
+          </div>
+        </div>
       </div>
     </section>
 
     <section class="settings-section" aria-labelledby="profile-settings-title">
-      <h3 id="profile-settings-title">Pomodoro Profile</h3>
+      <h3 id="profile-settings-title">{{ 'settings.profile.title' | translate }}</h3>
       <p class="settings-lock-note" id="profile-settings-lock" *ngIf="sessionSettingsLocked">
-        Finish or reset the current session to change mode.
+        {{ 'settings.sessionLocked' | translate }}
       </p>
       <label class="settings-field">
-        <span>Profile</span>
+        <span>{{ 'settings.profile.label' | translate }}</span>
         <select
           name="pomodoroProfile"
           [ngModel]="settingsDraft.profileId"
@@ -103,15 +209,16 @@
           [attr.aria-describedby]="sessionSettingsLocked ? 'profile-settings-lock' : null"
           (ngModelChange)="profileSelected.emit($event)">
           <option *ngFor="let profile of pomodoroProfiles" [value]="profile.id">
-            {{ profile.name }} - {{ profile.description }}
+            {{ 'settings.profile.options.' + profile.id + '.name' | translate }} -
+            {{ 'settings.profile.options.' + profile.id + '.description' | translate }}
           </option>
-          <option value="custom">Custom - Your durations</option>
+          <option value="custom">{{ 'settings.profile.custom' | translate }}</option>
         </select>
       </label>
 
       <div class="custom-profile" *ngIf="settingsDraft.profileId === 'custom'">
         <label class="settings-field">
-          <span>Focus</span>
+          <span>{{ 'settings.profile.focus' | translate }}</span>
           <input
             type="number"
             name="focusMinutes"
@@ -122,7 +229,7 @@
             [(ngModel)]="settingsDraft.focusMinutes" />
         </label>
         <label class="settings-field">
-          <span>Short Break</span>
+          <span>{{ 'settings.profile.shortBreak' | translate }}</span>
           <input
             type="number"
             name="shortBreakMinutes"
@@ -133,7 +240,7 @@
             [(ngModel)]="settingsDraft.shortBreakMinutes" />
         </label>
         <label class="settings-field">
-          <span>Long Break</span>
+          <span>{{ 'settings.profile.longBreak' | translate }}</span>
           <input
             type="number"
             name="longBreakMinutes"
@@ -144,7 +251,7 @@
             [(ngModel)]="settingsDraft.longBreakMinutes" />
         </label>
         <label class="settings-field">
-          <span>Cycles</span>
+          <span>{{ 'settings.profile.cycles' | translate }}</span>
           <input
             type="number"
             name="cyclesBeforeLongBreak"
@@ -159,24 +266,72 @@
     </section>
 
     <section class="settings-section" aria-labelledby="feedback-settings-title">
-      <h3 id="feedback-settings-title">Feedback</h3>
+      <h3 id="feedback-settings-title">{{ 'settings.feedback.title' | translate }}</h3>
       <label class="settings-toggle">
-        <input type="checkbox" name="settingsSound" [(ngModel)]="settingsDraft.soundEnabled" />
-        <span>Sound alerts</span>
+        <input
+          type="checkbox"
+          name="settingsSound"
+          [(ngModel)]="settingsDraft.soundEnabled"
+          (ngModelChange)="emitSoundSettingsChanged()" />
+        <span>{{ 'settings.feedback.soundAlerts' | translate }}</span>
       </label>
+
+      <div class="sound-settings">
+        <label class="settings-field">
+          <span>{{ 'settings.feedback.soundPreset' | translate }}</span>
+          <select
+            name="soundPreset"
+            [(ngModel)]="settingsDraft.soundPresetId"
+            [disabled]="!settingsDraft.soundEnabled"
+            (ngModelChange)="emitSoundSettingsChanged()">
+          <option *ngFor="let preset of soundPresetOptions" [value]="preset.id">
+              {{ 'settings.feedback.presets.' + preset.id + '.label' | translate }} -
+              {{ 'settings.feedback.presets.' + preset.id + '.description' | translate }}
+            </option>
+          </select>
+        </label>
+
+        <label class="settings-field settings-field--range">
+          <span>{{ 'settings.feedback.volume' | translate }}</span>
+          <input
+            type="range"
+            name="soundVolume"
+            min="0"
+            max="100"
+            step="1"
+            [(ngModel)]="settingsDraft.soundVolume"
+            [disabled]="!settingsDraft.soundEnabled"
+          [attr.aria-valuetext]="'settings.feedback.volumeValue' | translate: { volume: settingsDraft.soundVolume }"
+            (ngModelChange)="emitSoundSettingsChanged()" />
+          <strong>{{ settingsDraft.soundVolume }}%</strong>
+        </label>
+
+        <label class="settings-field">
+          <span>{{ 'settings.feedback.completionMode' | translate }}</span>
+          <select
+            name="completionSoundMode"
+            [(ngModel)]="settingsDraft.completionSoundMode"
+            [disabled]="!settingsDraft.soundEnabled"
+            (ngModelChange)="emitSoundSettingsChanged()">
+            <option *ngFor="let mode of completionSoundModeOptions" [value]="mode.id">
+              {{ 'settings.feedback.modes.' + mode.id | translate }}
+            </option>
+          </select>
+        </label>
+      </div>
     </section>
 
     <section class="settings-section" aria-labelledby="wellness-reminder-settings-title">
-      <h3 id="wellness-reminder-settings-title">Wellness Reminders</h3>
+      <h3 id="wellness-reminder-settings-title">{{ 'settings.wellnessReminders.title' | translate }}</h3>
       <label class="settings-toggle">
         <input
           type="checkbox"
           name="wellnessReminderEnabled"
           [ngModel]="wellnessReminderPreferences.enabled"
           (ngModelChange)="wellnessRemindersEnabledChanged.emit($event)" />
-        <span>Quiet wellness nudges</span>
+        <span>{{ 'settings.wellnessReminders.enabled' | translate }}</span>
       </label>
-      <div class="wellness-chip-list" aria-label="Reminder types">
+      <div class="wellness-chip-list" [attr.aria-label]="'settings.aria.reminderTypes' | translate">
         <button
           type="button"
           class="wellness-chip"
@@ -187,7 +342,7 @@
             type: 'hydration',
             enabled: !wellnessReminderPreferences.hydration
           })">
-          Hydration
+          {{ 'settings.wellnessReminders.hydration' | translate }}
         </button>
         <button
           type="button"
@@ -199,7 +354,7 @@
             type: 'posture',
             enabled: !wellnessReminderPreferences.posture
           })">
-          Posture
+          {{ 'settings.wellnessReminders.posture' | translate }}
         </button>
         <button
           type="button"
@@ -211,27 +366,27 @@
             type: 'sedentary',
             enabled: !wellnessReminderPreferences.sedentary
           })">
-          Movement
+          {{ 'settings.wellnessReminders.movement' | translate }}
         </button>
       </div>
     </section>
 
     <section class="settings-section" aria-labelledby="shortcut-settings-title">
       <div class="settings-section__heading">
-        <h3 id="shortcut-settings-title">Shortcuts</h3>
+        <h3 id="shortcut-settings-title">{{ 'settings.shortcuts.title' | translate }}</h3>
         <button class="settings-inline-action" type="button" (click)="resetShortcuts.emit()">
-          Reset defaults
+          {{ 'settings.shortcuts.resetDefaults' | translate }}
         </button>
       </div>
 
       <div class="shortcut-list">
         <div class="shortcut-row" *ngFor="let shortcut of shortcuts">
-          <span>{{ shortcut.label }}</span>
+          <span>{{ 'settings.shortcuts.actions.' + shortcut.action | translate }}</span>
           <button
             type="button"
             class="shortcut-key"
             [class.shortcut-key--recording]="editingShortcutAction === shortcut.action"
-            [attr.aria-label]="'Edit shortcut for ' + shortcut.label"
+            [attr.aria-label]="'settings.shortcuts.editShortcut' | translate"
             (click)="shortcutCaptureStarted.emit(shortcut.action)"
             (keydown)="editingShortcutAction === shortcut.action && shortcutCaptured.emit({
               event: $event,
@@ -239,7 +394,7 @@
             })">
             {{
               editingShortcutAction === shortcut.action
-                ? 'Press keys'
+                ? ('settings.shortcuts.pressKeys' | translate)
                 : formatShortcut(shortcut.combo)
             }}
           </button>
@@ -253,10 +408,10 @@
 
     <footer class="settings-panel__actions">
       <button class="settings-action settings-action--ghost" type="button" (click)="closeSettings.emit()">
-        Cancel
+        {{ 'common.cancel' | translate }}
       </button>
       <button class="settings-action settings-action--primary" type="submit">
-        Apply
+        {{ 'common.apply' | translate }}
       </button>
     </footer>
   </form>

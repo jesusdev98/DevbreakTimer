@@ -2,7 +2,7 @@
   min-width: 0;
   overflow: hidden;
   border: 1px solid var(--border-subtle);
-  border-radius: 18px;
+  border-radius: var(--radius-panel);
   background: var(--surface-subtle);
 }
 
@@ -16,6 +16,15 @@
   font-size: 0.82rem;
   font-weight: 800;
   cursor: pointer;
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease;
+}
+
+.kanban-archive summary:hover,
+.kanban-archive summary:focus-visible {
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+  color: var(--text-primary);
 }
 
 .kanban-archive summary::marker {
@@ -25,6 +34,7 @@
 .kanban-archive strong {
   display: inline-grid;
   min-width: 1.45rem;
+  min-height: 1.45rem;
   height: 1.45rem;
   place-items: center;
   border: 1px solid var(--border-subtle);

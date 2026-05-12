@@ -5,10 +5,11 @@
 }
 
 .kanban-board {
-  --kb-shell-padding: clamp(1rem, 2vw, 1.5rem);
+  --kb-shell-padding: clamp(1rem, 2vw, 1.4rem);
   --kb-toolbar-gap: 0.65rem;
   --kb-toolbar-margin: 0.75rem;
   --kb-column-gap: 0.9rem;
+  --kb-column-min: 13rem;
   --kb-control-padding-y: 0.58rem;
   --kb-control-padding-x: 0.65rem;
   --kb-control-font-size: 0.78rem;
@@ -18,7 +19,7 @@
   --kb-column-task-gap: 0.65rem;
   --kb-column-task-margin: 0.85rem;
   --kb-card-padding: 0.9rem;
-  --kb-card-radius: 14px;
+  --kb-card-radius: var(--radius-control);
   --kb-card-content-gap: 0.45rem;
   --kb-card-title-size: 0.94rem;
   --kb-card-description-size: 0.8rem;
@@ -35,6 +36,7 @@
   align-content: start;
   gap: 1rem;
   width: 100%;
+  max-width: 100%;
   min-width: 0;
   min-height: 0;
   color: var(--text-primary);
@@ -45,6 +47,7 @@
   --kb-toolbar-gap: 0.45rem;
   --kb-toolbar-margin: 0.55rem;
   --kb-column-gap: 0.55rem;
+  --kb-column-min: 11.75rem;
   --kb-control-padding-y: 0.46rem;
   --kb-control-padding-x: 0.58rem;
   --kb-control-font-size: 0.72rem;
@@ -73,6 +76,7 @@
   --kb-toolbar-gap: 0.8rem;
   --kb-toolbar-margin: 1rem;
   --kb-column-gap: 1.05rem;
+  --kb-column-min: 14rem;
   --kb-control-padding-y: 0.66rem;
   --kb-control-padding-x: 0.78rem;
   --kb-control-font-size: 0.82rem;
@@ -100,23 +104,27 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: min(76vh, 52rem);
+  height: clamp(34rem, calc(100dvh - 4rem), 52rem);
+  max-width: 100%;
   min-width: 0;
   min-height: 34rem;
   overflow: hidden;
   padding: var(--kb-shell-padding);
   border: 1px solid var(--border-subtle);
-  border-radius: 28px;
+  border-radius: var(--radius-card);
   background: var(--card-bg);
   box-shadow:
     var(--shadow-elevated),
     inset 0 1px 0 rgba(255, 255, 255, 0.04);
   color: var(--text-primary);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .kanban-board__header {
   flex: 0 0 auto;
-  margin-bottom: 0.85rem;
+  margin-bottom: 0.55rem;
 }
 
 .kanban-board__eyebrow {
@@ -128,22 +136,41 @@
   text-transform: uppercase;
 }
 
-.kanban-board h2 {
-  margin: 0;
-  color: var(--text-primary);
-  font-size: clamp(1.35rem, 3vw, 1.7rem);
-  font-weight: 700;
-}
-
 .kanban-board__columns {
   display: grid;
-  grid-template-columns: repeat(4, minmax(12.5rem, 1fr));
+  grid-template-columns: repeat(4, minmax(var(--kb-column-min), 1fr));
   grid-auto-rows: minmax(0, 1fr);
   align-items: stretch;
   gap: var(--kb-column-gap);
   min-height: 0;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  padding: 0 0 0.45rem;
   flex: 1 1 auto;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  touch-action: pan-x pan-y;
+}
+
+.kanban-board__columns::-webkit-scrollbar {
+  height: 10px;
+}
+
+.kanban-board__columns::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: var(--scrollbar-track);
+}
+
+.kanban-board__columns::-webkit-scrollbar-thumb {
+  border: 2px solid var(--scrollbar-track);
+  border-radius: 999px;
+  background: var(--scrollbar-thumb);
+}
+
+.kanban-board__columns::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
 }
 
 .kanban-board__active app-task-create {
@@ -166,15 +193,38 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-auto-rows: auto;
     overflow: visible;
+    padding-bottom: 0;
   }
 
   .kanban-board__columns > app-kanban-column {
     overflow: visible;
   }
+}
 
+@media (min-width: 981px) and (max-width: 1280px) {
+  .kanban-board {
+    --kb-shell-padding: clamp(0.85rem, 1.6vw, 1.1rem);
+    --kb-column-gap: 0.7rem;
+    --kb-column-min: 12rem;
+  }
+}
+
+@media (display-mode: standalone) and (min-width: 981px) {
+  .kanban-board__active {
+    height: clamp(33rem, calc(100dvh - 2rem), 50rem);
+  }
 }
 
 @media (max-width: 560px) {
+  .kanban-board {
+    --kb-shell-padding: 0.8rem;
+    gap: 0.75rem;
+  }
+
+  .kanban-board__active {
+    border-radius: 20px;
+  }
+
   .kanban-board__columns {
     grid-template-columns: 1fr;
   }

@@ -45,6 +45,10 @@ export class KanbanService {
   readonly activeTask$: Observable<Task | null> = this.activeTaskSubject.asObservable();
   readonly completedTasksToday$: Observable<number> = this.completedTasksTodaySubject.asObservable();
 
+  constructor() {
+    this.syncActiveTask();
+  }
+
   getTasks(): Task[] {
     return this.tasks;
   }
@@ -146,8 +150,10 @@ export class KanbanService {
           ? {
               ...task,
               status: 'done',
-              completedAt,
-              completedSessionsCount: (task.completedSessionsCount ?? 0) + completedSessionsCount,
+              completedAt: task.completedAt ?? completedAt,
+              completedSessionsCount: task.status === 'done'
+                ? task.completedSessionsCount ?? 0
+                : (task.completedSessionsCount ?? 0) + completedSessionsCount,
             }
           : task
       )
@@ -223,12 +229,28 @@ export class KanbanService {
   }
 
   private commit(tasks: Task[]): Task[] {
-    this.tasks = tasks;
+    this.tasks = this.normalizeTaskProgress(tasks);
     this.persistTasks();
     this.syncActiveTask();
     this.publishCompletedTasksToday();
 
     return this.tasks;
+  }
+
+  private normalizeTaskProgress(tasks: Task[]): Task[] {
+    const now = Date.now();
+    const previousTasks = new Map(this.tasks.map((task) => [task.id, task]));
+
+    return tasks.map((task) => {
+      const previousTask = previousTasks.get(task.id);
+      const completedAt = task.completedAt ?? (
+        task.status === 'done' && previousTask?.status !== 'done'
+          ? now
+          : undefined
+      );
+
+      return completedAt === undefined ? task : { ...task, completedAt };
+    });
   }
 
   private publishCompletedTasksToday(): void {
@@ -306,7 +328,7 @@ export class KanbanService {
       const storedValue = window.localStorage.getItem(DAILY_STATS_RESET_STORAGE_KEY);
       const parsedValue = Number(storedValue);
 
-      return Number.isFinite(parsedValue) ? parsedValue : 0;
+      return Number.isFinite(parsedValue) && parsedValue >= 0 ? parsedValue : 0;
     } catch {
       return 0;
     }
@@ -363,14 +385,21 @@ export class KanbanService {
 
     return (
       typeof candidate.id === 'string' &&
+      candidate.id.trim().length > 0 &&
       typeof candidate.title === 'string' &&
+      candidate.title.trim().length > 0 &&
       (candidate.description === undefined || typeof candidate.description === 'string') &&
       WORKFLOW.includes(candidate.status as TaskStatus) &&
       typeof candidate.createdAt === 'number' &&
-      (candidate.completedAt === undefined || typeof candidate.completedAt === 'number') &&
+      Number.isFinite(candidate.createdAt) &&
+      candidate.createdAt >= 0 &&
+      (candidate.completedAt === undefined ||
+        (typeof candidate.completedAt === 'number' && Number.isFinite(candidate.completedAt))) &&
       (
         candidate.completedSessionsCount === undefined ||
-        typeof candidate.completedSessionsCount === 'number'
+        (typeof candidate.completedSessionsCount === 'number' &&
+          Number.isFinite(candidate.completedSessionsCount) &&
+          candidate.completedSessionsCount >= 0)
       ) &&
       typeof candidate.archived === 'boolean'
     );

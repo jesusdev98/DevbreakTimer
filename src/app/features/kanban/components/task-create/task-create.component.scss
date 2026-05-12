@@ -11,7 +11,7 @@
   margin-bottom: var(--kb-toolbar-margin, 1rem);
   padding: var(--kb-column-padding, 0.85rem);
   border: 1px solid var(--border-subtle);
-  border-radius: 18px;
+  border-radius: var(--radius-panel);
   background: var(--surface-subtle);
 }
 
@@ -38,7 +38,7 @@
   width: 100%;
   min-width: 0;
   border: 1px solid var(--border-subtle);
-  border-radius: 12px;
+  border-radius: var(--radius-control);
   background: var(--surface-control);
   color: var(--text-primary);
   font: inherit;
@@ -53,6 +53,7 @@
 }
 
 .task-create input {
+  min-height: 2.5rem;
   padding: var(--kb-control-padding-y, 0.66rem) var(--kb-control-padding-x, 0.7rem);
 }
 
@@ -83,6 +84,7 @@
 
 .task-create button {
   min-width: 6.7rem;
+  min-height: 2.5rem;
   padding: var(--kb-control-padding-y, 0.7rem) calc(var(--kb-control-padding-x, 0.82rem) + 0.12rem);
   border: 1px solid color-mix(in srgb, var(--accent) 58%, transparent);
   border-radius: 999px;
@@ -92,6 +94,16 @@
   font-size: var(--kb-control-font-size, 0.78rem);
   font-weight: 800;
   cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    background-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.task-create button:hover:not(:disabled),
+.task-create button:focus-visible:not(:disabled) {
+  transform: translateY(-1px);
 }
 
 .task-create button:disabled {
@@ -105,5 +117,11 @@
   .task-create,
   .task-create__fields {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .task-create button {
+    width: 100%;
   }
 }

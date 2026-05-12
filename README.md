@@ -1,131 +1,29 @@
-<div align="center">
+# FocusFlow
 
-# DevBreak
+FocusFlow is an installable Angular productivity workspace for focused work, lightweight task planning, and healthier recovery habits.
 
-**A calm Angular productivity workspace for focused work, operational task flow, and sustainable recovery habits.**
-
-![Angular](https://img.shields.io/badge/Angular-21-DD0031?style=for-the-badge&logo=angular&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![RxJS](https://img.shields.io/badge/RxJS-7.8-B7178C?style=for-the-badge&logo=reactivex&logoColor=white)
-![SCSS](https://img.shields.io/badge/SCSS-Responsive%20UX-CC6699?style=for-the-badge&logo=sass&logoColor=white)
-![Cypress](https://img.shields.io/badge/Cypress-E2E-17202C?style=for-the-badge&logo=cypress&logoColor=white)
-
-</div>
-
----
+It combines a focus timer, Pomodoro workflows, a Kanban board, and wellness-aware break suggestions in a frontend-only PWA that works well on desktop, tablet, and mobile.
 
 ## Overview
 
-DevBreak is a portfolio-grade productivity workspace built with Angular. It combines an operational Kanban board, focus sessions, keyboard-first workflows, wellness-aware reminders, local persistence, accessibility support, and responsive dashboard ergonomics.
+FocusFlow is built around a simple idea: productivity tools should support attention without ignoring recovery. The app helps users plan tasks, run focused sessions, track meaningful daily progress, and take small movement or wellness breaks without adding noise to the workflow.
 
-The product is intentionally calm: it helps users move work forward without turning productivity into a noisy scoring system.
+The application is fully client-side and offline-first. User preferences, sessions, tasks, wellness exercises, language settings, and productivity state are persisted locally with safe restoration and fallback behavior.
 
----
+## Features
 
-## Highlights
-
-- Operational Kanban board with create, edit, archive, restore, drag/drop-ready workflows
-- Quick-add per column for low-friction task capture
-- Advanced filters, sorting, density modes, and search
-- Focus ownership mode with active-task workflow
-- Timer and Pomodoro sessions with resilient timestamp-based persistence
-- Adaptive wellness reminders for hydration, posture, and movement recovery
-- Contextual recovery suggestions and lightweight wellness consistency tracking
-- Keyboard shortcut personalization with conflict prevention
-- Workspace and daily productivity reset actions
-- Dark/light themes, reduced-motion support, and responsive layouts
-- Cypress E2E coverage for core workflows, persistence, keyboard, and accessibility behavior
-
----
-
-## Product Philosophy
-
-DevBreak is not a Pomodoro clone and not a fitness tracker. It is a focused workspace that treats productivity and recovery as part of the same workflow.
-
-Wellness guidance is intentionally subtle:
-
-- no blocking modals
-- no gamification pressure
-- no productivity guilt
-- no invasive notifications
-- supportive summaries only after meaningful activity exists
-
----
-
-## Architecture
-
-The app uses a modular feature structure with service-owned state and presentational component boundaries.
-
-```text
-src/app/
-  features/
-    kanban/
-      components/
-      models/
-      services/
-    timer/
-      components/
-      models/
-      services/
-  models/
-  services/
-```
-
-Key architectural choices:
-
-- RxJS streams for timer, workspace mode, focus, wellness, and derived UI state
-- LocalStorage persistence with validation and safe fallbacks
-- Angular CDK DragDrop for board interactions
-- Focused presentational component boundaries for settings, timer actions, wellness cards, and insights
-- CSS variables for density, theme, and responsive ergonomics
-- Minimal global state, no backend assumptions, no heavyweight store layer
-
----
-
-## Accessibility
-
-DevBreak includes an accessibility pass across semantics, keyboard behavior, screen-reader feedback, and motion preferences.
-
-- Landmark and heading structure
-- Accessible form labels and icon/control labels
-- Visible focus states
-- ESC handling and focus restoration
-- Keyboard activation parity for primary workflows
-- ARIA live regions for meaningful state changes
-- `prefers-reduced-motion` support
-- Cypress coverage for keyboard and accessibility-critical flows
-
----
-
-## Testing & Reliability
-
-```bash
-npm test
-npm run build
-npm run e2e
-```
-
-Current validation status:
-
-- 56 automated tests passing
-- Production build passing
-- Cypress workflow coverage stable
-
-Coverage includes:
-
-- Unit tests for timer persistence, wellness heuristics, shortcuts, filters, density, and component behavior
-- Cypress E2E tests for Kanban, focus sessions, persistence restore, keyboard workflows, and reduced-motion smoke coverage
-- Production build validation through Angular budgets
-
-Note for local Windows shells: if Cypress inherits `ELECTRON_RUN_AS_NODE`, clear it before running E2E.
-
-```powershell
-Remove-Item Env:ELECTRON_RUN_AS_NODE -ErrorAction SilentlyContinue
-$env:CYPRESS_SKIP_VERIFY='true'
-npm run e2e
-```
-
----
+- Focus timer with completion tracking and daily productivity stats
+- Pomodoro mode with configurable focus, short break, and long break durations
+- Wellness mode for movement-friendly work sessions
+- Hybrid mode that blends focus sessions with active recovery prompts
+- Kanban workspace with task creation, editing, completion, archiving, restore, filtering, sorting, and drag/drop-ready workflows
+- Custom wellness exercises by category, including stretching, mobility, cardio, strength, and Pilates
+- Sound personalization with volume, preset, and repeat alert settings
+- Runtime internationalization for English, Spanish, and French
+- Installable PWA support with manifest, service worker, offline asset caching, and app-like standalone behavior
+- LocalStorage-backed offline persistence with defensive normalization for legacy or malformed data
+- Responsive layouts for desktop, installed PWA windows, tablets, and mobile screens
+- Accessibility-minded interaction design with keyboard navigation, focus handling, labels, and live announcements
 
 ## Tech Stack
 
@@ -134,83 +32,131 @@ npm run e2e
 - RxJS
 - SCSS
 - Angular CDK
-- Vitest / Angular unit testing
+- Angular service worker / PWA support
+- ngx-translate
+- Vitest / Angular test runner
 - Cypress
-- GitHub Actions
 
----
+## Architecture
 
-## Getting Started
+FocusFlow uses a frontend-only Angular architecture with feature modules for the timer and Kanban workspace. State is owned by focused Angular services and exposed through RxJS streams so UI components can stay mostly presentational.
 
-Use the Node version in `.nvmrc`.
+The app does not require a backend. Persistence is handled through localStorage with validation and normalization on restore. Productivity metrics are derived from canonical session and task history instead of separate drifting counters.
+
+Core architectural choices:
+
+- Client-side only, deployable as static assets
+- Offline-first PWA behavior after the first visit
+- Service-owned state for timer, session history, tasks, wellness preferences, shortcuts, language, and workspace mode
+- Derived productivity stats for completed sessions, skipped sessions, focus minutes, streaks, completed tasks, and recovery rhythm
+- Lightweight persistence with safe fallbacks instead of sync infrastructure
+
+## Installation
+
+Install dependencies:
 
 ```bash
 npm install
+```
+
+Run the development server:
+
+```bash
 npm start
 ```
 
-Open:
+Open the app:
 
 ```text
 http://localhost:4200/
 ```
 
-Production build:
+Create a production build:
 
 ```bash
 npm run build
 ```
 
----
+Run the unit test suite:
 
-## Deployment
-
-The app is static-build ready.
-
-### GitHub Pages
-
-The included workflow builds the Angular app with a repository-based `base-href`, uploads `dist/devbreak-timer/browser`, and adds a `404.html` fallback for SPA-compatible refresh behavior.
-
-Required repository setting:
-
-```text
-Settings -> Pages -> Source -> GitHub Actions
+```bash
+npm test -- --watch=false
 ```
 
-### Vercel
+Run Cypress E2E tests:
 
-Recommended settings:
-
-```text
-Framework Preset: Angular
-Build Command: npm run build
-Output Directory: dist/devbreak-timer/browser
-Install Command: npm ci
+```bash
+npm run e2e
 ```
 
-For SPA fallback routing, add a Vercel rewrite if routes are introduced later.
+## PWA Support
 
----
+FocusFlow includes Angular service worker support and a configured web app manifest.
 
-## GitHub Actions
+The production build supports:
 
-Workflows are intentionally lightweight:
+- Desktop installation in Chromium-based browsers such as Chrome and Edge
+- Android installation through supported mobile browsers
+- Standalone app display mode
+- Offline reload after the first successful visit
+- Cached application shell and static assets
+- Local persistence for tasks, settings, wellness exercises, language, theme, and productivity history
 
-- CI: install, unit tests, production build
-- Pages deploy: install, unit tests, production build, upload static artifact
+Because the app is frontend-only, offline support is intentionally local-first. There is no account system or cloud sync layer.
 
-Cypress remains available for local and future CI expansion without making the default pipeline heavy.
+## Accessibility
 
----
+Accessibility is treated as part of the product surface, not as a separate mode.
 
-## Portfolio Notes
+The app includes:
 
-DevBreak demonstrates production-minded frontend work:
+- Keyboard-accessible primary flows
+- Visible focus states
+- Focus restoration for settings and dialog-like interactions
+- Escape handling where appropriate
+- Form labels and accessible control names
+- ARIA live announcements for important timer and task state changes
+- Responsive layouts that preserve readable controls on small screens
+- Reduced-motion considerations in the UI layer
 
-- product-oriented UX decisions
-- accessible keyboard-first interaction design
-- resilient local persistence
-- maintainable Angular boundaries
-- responsive operational UI
-- calm wellness-aware behavior
-- meaningful automated reliability coverage
+## Screenshots
+
+Screenshots are intentionally left as placeholders so they can reflect the final deployed build.
+
+### Desktop
+
+Add a desktop screenshot here.
+
+### Mobile
+
+Add a mobile screenshot here.
+
+### Wellness Mode
+
+Add a wellness mode screenshot here.
+
+### Kanban Workspace
+
+Add a Kanban workspace screenshot here.
+
+## Future Improvements
+
+FocusFlow is intentionally complete as a local-first PWA, but a few realistic extensions would fit the product:
+
+- Optional cloud sync for users who want multi-device continuity
+- Richer productivity and recovery analytics
+- More built-in wellness exercise presets
+- Optional import/export for local data portability
+- Additional language packs
+
+## Release Notes
+
+FocusFlow is designed as a polished portfolio project that demonstrates production-minded Angular development:
+
+- Modular frontend architecture
+- Offline-first PWA integration
+- Responsive operational UI
+- Local persistence and defensive state restoration
+- Runtime i18n
+- Accessibility-aware interaction design
+- Behavior-focused tests around session tracking, tasks, wellness logic, and productivity stats

@@ -15,7 +15,7 @@
   border-radius: var(--kb-card-radius, 14px);
   background: var(--surface-control);
   color: var(--text-primary);
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.12);
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease,
@@ -26,6 +26,7 @@
 .task-card:hover,
 .task-card:focus-within {
   border-color: color-mix(in srgb, var(--accent) 28%, var(--border-subtle));
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.16);
 }
 
 .task-card:hover {
@@ -75,6 +76,7 @@
   font-size: 0.62rem;
   font-weight: 800;
   text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .task-card h4,
@@ -125,7 +127,7 @@
   width: 100%;
   min-width: 0;
   border: 1px solid var(--border-subtle);
-  border-radius: 12px;
+  border-radius: var(--radius-control);
   background: var(--surface-subtle);
   color: var(--text-primary);
   font: inherit;
@@ -140,6 +142,7 @@
 }
 
 .task-card__edit input {
+  min-height: 2.45rem;
   padding: 0.62rem 0.68rem;
 }
 
@@ -174,6 +177,7 @@
 .task-card__actions button {
   min-width: 0;
   max-width: 100%;
+  min-height: 2.15rem;
   padding: var(--kb-card-action-padding-y, 0.44rem) var(--kb-card-action-padding-x, 0.58rem);
   border: 1px solid var(--border-subtle);
   border-radius: 999px;
@@ -184,12 +188,19 @@
   font-weight: 800;
   overflow-wrap: anywhere;
   cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    background-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease;
 }
 
 .task-card__actions button:hover:not(:disabled),
 .task-card__actions button:focus-visible:not(:disabled) {
   border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface-subtle));
   color: var(--accent);
+  transform: translateY(-1px);
 }
 
 .task-card__actions button:disabled {
@@ -204,5 +215,11 @@
   .task-card,
   .task-card:hover {
     transform: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .task-card__actions button {
+    flex: 1 1 7rem;
   }
 }

@@ -1,0 +1,509 @@
+{
+  "common": {
+    "add": "Agregar",
+    "apply": "Aplicar",
+    "cancel": "Cancelar",
+    "clear": "Limpiar",
+    "close": "Cerrar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "locked": "Bloqueado",
+    "next": "Siguiente",
+    "save": "Guardar",
+    "skip": "Omitir"
+  },
+  "timer": {
+    "eyebrow": "FocusFlow",
+    "modeSuffix": "Modo",
+    "cycleMeta": "Ciclo {{ cycle }} / {{ total }} - {{ completed }} enfoques completados",
+    "sessions": {
+      "focus": "Sesión de enfoque",
+      "short-break": "Descanso corto",
+      "long-break": "Descanso largo"
+    },
+    "status": {
+      "idle": "Listo",
+      "running": "En marcha",
+      "paused": "Pausado",
+      "completed": "Hecho"
+    },
+    "aria": {
+      "openSettings": "Abrir ajustes",
+      "dismissRepeatingAlarm": "Descartar alarma repetida",
+      "focusCompleted": "Sesión de enfoque completada",
+      "progress": "Progreso de la sesión"
+    },
+    "toggles": {
+      "pomodoro": "Pomodoro",
+      "pomodoroHint": "Ejecuta ciclos de enfoque y descanso automáticamente.",
+      "sound": "Sonido",
+      "soundHint": "Te avisa cuando termina la sesión."
+    },
+    "modeLocked": "El modo está bloqueado durante una sesión activa.",
+    "focusPanel": {
+      "label": "Enfoque actual"
+    },
+    "focusOwnershipNote": "El enfoque de tareas está disponible en modo Enfoque.",
+    "sessionPanel": {
+      "current": "Actual",
+      "next": "Siguiente",
+      "focusLeft": "Enfoques restantes"
+    },
+    "hints": {
+      "idle": "Elige una duración y empieza.",
+      "pomodoroIdle": "Inicia el Pomodoro actual. La siguiente sesión empezará sola."
+    },
+    "duration": {
+      "label": "Duración (min)",
+      "placeholder": "p. ej. 25",
+      "lockedRunning": "Pausa o reinicia para cambiar la duración.",
+      "lockedPomodoro": "Pomodoro usa duraciones fijas de enfoque y descanso, por eso los controles personalizados están bloqueados."
+    },
+    "actions": {
+      "start": "Iniciar",
+      "pause": "Pausar",
+      "reset": "Reiniciar",
+      "restart": "Reiniciar"
+    },
+    "completion": {
+      "once": "{{ session }} completada. Buen trabajo.",
+      "nextStarted": "{{ session }} completada. {{ nextSession }} empezó automáticamente."
+    },
+    "dismissAlarm": "Descartar alarma",
+    "focusCompletion": {
+      "label": "Enfoque completado",
+      "minutes": "+{{ minutes }} minutos productivos",
+      "task": "Tarea: {{ task }}",
+      "continueTask": "Continuar tarea",
+      "markDone": "Marcar hecha",
+      "startBreak": "Empezar descanso"
+    },
+    "taskCompletedMessage": "Tarea completada. Gran avance.",
+    "notifications": {
+      "titles": {
+        "focus": "Enfoque completado",
+        "pomodoro": "Pomodoro completado",
+        "wellness": "Recuperación completada",
+        "hybrid": "Sesión FocusFlow completada"
+      },
+      "bodies": {
+        "focus": {
+          "reset": "El trabajo profundo terminó. Tómate una pausa tranquila.",
+          "next": "{{ nextSession }} está lista cuando quieras."
+        },
+        "pomodoro": {
+          "reset": "Buen Pomodoro. Tómate un descanso breve.",
+          "next": "{{ nextSession }} empezó automáticamente."
+        },
+        "wellness": {
+          "reset": "Buen trabajo de recuperación. Entra con calma al siguiente bloque.",
+          "next": "{{ nextSession }} empezó automáticamente."
+        },
+        "hybrid": {
+          "reset": "Enfoque y recuperación se mantuvieron en equilibrio.",
+          "next": "{{ nextSession }} empezó automáticamente."
+        }
+      },
+      "suggestedRecovery": "Recuperación sugerida: {{ suggestion }}."
+    },
+    "announcements": {
+      "alarmDismissed": "Alarma de finalización descartada",
+      "breakStarted": "Descanso iniciado",
+      "focusCompleted": "Sesión de enfoque completada",
+      "focusSummaryDismissed": "Resumen de enfoque descartado",
+      "focusTaskCleared": "Tarea de enfoque limpiada",
+      "paused": "Temporizador pausado",
+      "reset": "Temporizador reiniciado",
+      "resumed": "Temporizador reanudado",
+      "started": "{{ session }} iniciada",
+      "taskCompleted": "Tarea completada"
+    }
+  },
+  "kanban": {
+    "eyebrow": "Tablero de tareas",
+    "title": "Kanban",
+    "aria": {
+      "quickTools": "Herramientas del tablero",
+      "filters": "Filtros de tareas",
+      "density": "Densidad del tablero",
+      "columns": "Columnas de tareas"
+    },
+    "dragInstructions": "Mueve tareas entre columnas con arrastrar y soltar.",
+    "columnTaskCount": "{{ count }} tareas en {{ column }}",
+    "columnTasksLabel": "Tareas de {{ column }}",
+    "columns": {
+      "ideas": "Ideas",
+      "todo": "Por hacer",
+      "in-progress": "En progreso",
+      "done": "Hecho"
+    },
+    "search": {
+      "label": "Buscar",
+      "placeholder": "Filtrar tareas"
+    },
+    "filters": {
+      "active": "Activas",
+      "focused": "Enfocadas",
+      "completed": "Completadas",
+      "archived": "Archivadas"
+    },
+    "sort": {
+      "label": "Ordenar",
+      "recent": "Más recientes",
+      "oldest": "Más antiguas",
+      "alphabetical": "Alfabético",
+      "focusedTime": "Tiempo de enfoque"
+    },
+    "density": {
+      "compact": "Compacta",
+      "comfortable": "Cómoda",
+      "focus": "Enfoque"
+    },
+    "archive": {
+      "title": "Archivadas"
+    },
+    "create": {
+      "titleLabel": "Nueva tarea",
+      "titlePlaceholder": "Nombre de la tarea",
+      "descriptionLabel": "Descripción",
+      "descriptionPlaceholder": "Nota opcional"
+    },
+    "task": {
+      "singular": "tarea",
+      "plural": "tareas",
+      "activeFocus": "Enfoque activo",
+      "title": "Título",
+      "description": "Descripción"
+    },
+    "quickAdd": {
+      "formLabel": "Agregar tarea rápida a {{ column }}",
+      "inputLabel": "Título de tarea para {{ column }}",
+      "trigger": "+ Tarea",
+      "triggerLabel": "Agregar tarea a {{ column }}"
+    },
+    "actions": {
+      "addTask": "Agregar tarea",
+      "archive": "Archivar",
+      "clearFocus": "Limpiar enfoque",
+      "deleteTask": "Eliminar tarea {{ task }}",
+      "focus": "Enfocar",
+      "resetWorkspace": "Reiniciar espacio",
+      "restore": "Restaurar"
+    },
+    "empty": {
+      "adjustSearch": "Ajusta la búsqueda o cambia filtros.",
+      "archivedHint": "Las tareas archivadas aparecerán aquí.",
+      "clear": "Columna despejada",
+      "clearHint": "Agrega una tarea cuando esta columna necesite atención.",
+      "completedHint": "El trabajo completado aparece aquí.",
+      "focusedHint": "Define una tarea de enfoque activa para acotar el tablero.",
+      "noArchived": "No hay tareas archivadas",
+      "noCompleted": "No hay tareas completadas",
+      "noFocused": "No hay tareas enfocadas",
+      "noMatches": "No hay tareas coincidentes"
+    },
+    "announcements": {
+      "archived": "{{ task }} archivada",
+      "boardState": "{{ prefix }}. {{ count }} {{ taskLabel }} visibles",
+      "created": "{{ task }} agregada a {{ column }}",
+      "deleted": "{{ task }} eliminada",
+      "filterApplied": "Filtro {{ filter }} aplicado",
+      "focusCleared": "Tarea de enfoque limpiada",
+      "focusSet": "{{ task }} es ahora la tarea de enfoque",
+      "moved": "{{ task }} movida",
+      "movedTo": "{{ task }} movida a {{ column }}",
+      "restored": "{{ task }} restaurada",
+      "searchCleared": "Búsqueda limpiada",
+      "searchUpdated": "Búsqueda actualizada",
+      "sortedBy": "Ordenado por {{ sort }}",
+      "updated": "{{ task }} actualizada",
+      "workspaceReset": "Espacio reiniciado"
+    }
+  },
+  "settings": {
+    "eyebrow": "Espacio",
+    "title": "Ajustes",
+    "sessionLocked": "Finaliza o reinicia la sesión actual para cambiar de modo.",
+    "theme": {
+      "title": "Tema",
+      "dark": "Oscuro",
+      "light": "Claro"
+    },
+    "language": {
+      "title": "Idioma",
+      "label": "Idioma de la app"
+    },
+    "mode": {
+      "title": "Modo de trabajo",
+      "options": {
+        "focus": {
+          "label": "Enfoque",
+          "description": "Trabajo profundo con menos interrupciones.",
+          "timerCue": "Trabajo profundo con interrupciones mínimas."
+        },
+        "pomodoro": {
+          "label": "Pomodoro",
+          "description": "Ciclos clásicos de trabajo y descanso.",
+          "timerCue": "Ritmo estructurado de trabajo y descanso."
+        },
+        "wellness": {
+          "label": "Bienestar",
+          "description": "Sesiones con movimiento para trabajar mejor en el escritorio.",
+          "timerCue": "El movimiento y la recuperación permanecen visibles."
+        },
+        "hybrid": {
+          "label": "Híbrido",
+          "description": "Enfoque con descansos activos de bienestar.",
+          "timerCue": "Enfoque con descansos activos, el ritmo de FocusFlow."
+        }
+      }
+    },
+    "wellnessExercises": {
+      "title": "Bienestar",
+      "helper": "Mantén hasta 5 ejercicios ligeros por categoría.",
+      "count": "{{ count }}/{{ limit }}",
+      "formLabel": "Formulario de ejercicio de bienestar",
+      "name": "Ejercicio",
+      "namePlaceholder": "Pausa personalizada",
+      "category": "Categoría",
+      "duration": "Segundos",
+      "add": "Agregar ejercicio",
+      "update": "Actualizar ejercicio",
+      "limitReached": "Esta categoría ya tiene {{ limit }} ejercicios."
+    },
+    "profile": {
+      "title": "Perfil Pomodoro",
+      "label": "Perfil",
+      "custom": "Duraciones personalizadas",
+      "focus": "Enfoque",
+      "shortBreak": "Descanso corto",
+      "longBreak": "Descanso largo",
+      "cycles": "Ciclos",
+      "options": {
+        "classic": {
+          "name": "Clásico",
+          "description": "25 / 5 / 15"
+        },
+        "deep-work": {
+          "name": "Trabajo profundo",
+          "description": "50 / 10 / 30"
+        },
+        "study": {
+          "name": "Estudio",
+          "description": "45 / 15 / 20"
+        }
+      }
+    },
+    "feedback": {
+      "title": "Alertas",
+      "soundAlerts": "Alertas sonoras",
+      "soundPreset": "Sonido",
+      "volume": "Volumen",
+      "volumeValue": "{{ volume }} por ciento",
+      "completionMode": "Modo de cierre",
+      "presets": {
+        "soft-bell": {
+          "label": "Campana suave",
+          "description": "Cálida y amable"
+        },
+        "digital": {
+          "label": "Digital",
+          "description": "Aviso limpio de temporizador"
+        },
+        "minimal": {
+          "label": "Mínimo",
+          "description": "Tono único y sutil"
+        },
+        "retro": {
+          "label": "Retro",
+          "description": "Pulso clásico de arcade"
+        },
+        "alarm": {
+          "label": "Alarma",
+          "description": "La más notoria"
+        }
+      },
+      "modes": {
+        "once": "Reproducir una vez",
+        "repeat": "Repetir hasta descartar"
+      }
+    },
+    "wellnessReminders": {
+      "title": "Recordatorios de bienestar",
+      "enabled": "Avisos suaves de bienestar",
+      "hydration": "Hidratación",
+      "posture": "Postura",
+      "movement": "Movimiento"
+    },
+    "wellnessCategories": {
+      "stretching": "Estiramiento",
+      "mobility": "Movilidad",
+      "cardio": "Cardio",
+      "strength": "Fuerza",
+      "pilates": "Pilates"
+    },
+    "shortcuts": {
+      "title": "Atajos",
+      "pressKeys": "Pulsa teclas",
+      "resetDefaults": "Restablecer",
+      "editShortcut": "Editar atajo",
+      "actions": {
+        "createTask": "Nueva tarea",
+        "search": "Buscar",
+        "save": "Guardar",
+        "escapeModal": "Cerrar ventana"
+      }
+    },
+    "aria": {
+      "close": "Cerrar ajustes",
+      "wellnessCategories": "Categorías de bienestar",
+      "reminderTypes": "Tipos de recordatorio"
+    }
+  },
+  "stats": {
+    "today": "Hoy",
+    "resetToday": "Reiniciar hoy",
+    "focus": "Enfoque",
+    "sessions": "Sesiones",
+    "sessionsCount": "{{ count }} sesiones",
+    "skipped": "Omitidas",
+    "streak": "Racha",
+    "tasks": "Tareas"
+  },
+  "wellness": {
+    "announcements": {
+      "actionCompleted": "Acción de bienestar completada",
+      "movementCompleted": "Descanso de movimiento completado",
+      "reminderDismissed": "Recordatorio de bienestar descartado",
+      "suggestionUpdated": "Sugerencia de bienestar actualizada"
+    },
+    "breakSuggestion": {
+      "aria": "Sugerencia de descanso",
+      "label": "Sugerencia de descanso",
+      "description": "Haz un reinicio breve de movimiento antes del siguiente bloque de enfoque."
+    },
+    "exercises": {
+      "durationSeconds": "{{ duration }} s",
+      "presets": {
+        "neck-stretch": "Estiramiento de cuello",
+        "shoulder-stretch": "Estiramiento de hombros",
+        "back-stretch": "Estiramiento de espalda",
+        "leg-stretch": "Estiramiento de piernas",
+        "wrist-stretch": "Estiramiento de muñecas",
+        "neck-rotations": "Rotaciones de cuello",
+        "shoulder-rotations": "Rotaciones de hombros",
+        "hip-mobility": "Movilidad de cadera",
+        "ankle-rotations": "Rotaciones de tobillos",
+        "spinal-flexion-extension": "Flexión y extensión de columna",
+        "jumping-jacks": "Jumping jacks",
+        "high-knees": "Rodillas arriba",
+        "jump-squats": "Sentadillas con salto",
+        "mountain-climbers": "Mountain climbers",
+        "burpees": "Burpees",
+        "push-ups": "Flexiones",
+        "squats": "Sentadillas",
+        "lunges": "Zancadas",
+        "plank": "Plancha",
+        "tricep-dips": "Fondos de tríceps",
+        "glute-bridge": "Puente de glúteos",
+        "roll-up": "Roll-up",
+        "modified-hundred": "Hundred modificado",
+        "cat-camel": "Gato-camello",
+        "leg-raises": "Elevaciones de piernas"
+      }
+    },
+    "breaks": {
+      "break-reminder": {
+        "title": "Toma un descanso",
+        "description": "Aléjate de la tarea, respira y deja que tu atención se reinicie.",
+        "duration": ""
+      },
+      "neck-stretch": {
+        "title": "Estiramiento de cuello",
+        "description": "Inclina lentamente la cabeza de lado a lado y relaja los hombros.",
+        "duration": "45 segundos"
+      },
+      "shoulder-rolls": {
+        "title": "Rotaciones de hombros",
+        "description": "Rota los hombros hacia adelante y hacia atrás para soltar tensión.",
+        "duration": "10 por lado"
+      },
+      "stand-walk": {
+        "title": "Levántate y camina",
+        "description": "Deja la silla, camina un poco y reinicia tu postura.",
+        "duration": "2 minutos"
+      },
+      "wrist-mobility": {
+        "title": "Movilidad de muñecas",
+        "description": "Gira ambas muñecas y estira suavemente los dedos tras usar el teclado.",
+        "duration": "60 segundos"
+      },
+      "deep-breathing": {
+        "title": "Respiración profunda",
+        "description": "Inhala despacio, exhala por completo y relaja mandíbula y hombros.",
+        "duration": "5 respiraciones"
+      },
+      "eye-rest": {
+        "title": "Descanso visual",
+        "description": "Aparta la vista de la pantalla y enfoca algo lejano.",
+        "duration": "20 segundos"
+      },
+      "posture-reset": {
+        "title": "Reinicio postural",
+        "description": "Ponte erguido, abre el pecho y alinea hombros sobre caderas.",
+        "duration": "45 segundos"
+      },
+      "desk-squats": {
+        "title": "Sentadillas de escritorio",
+        "description": "Haz sentadillas controladas con peso corporal para activar las piernas.",
+        "duration": "8 repeticiones"
+      }
+    },
+    "reminder": {
+      "aria": "Recordatorio de bienestar",
+      "label": "Señal de recuperación"
+    },
+    "reminders": {
+      "hydration": {
+        "title": "Revisión de hidratación",
+        "message": "Toma un sorbo tranquilo de agua antes del siguiente cambio de tarea.",
+        "action": "Hecho"
+      },
+      "posture": {
+        "title": "Reinicio de postura",
+        "message": "Baja los hombros, relaja la mandíbula y siéntate erguido por una respiración.",
+        "action": "Reiniciar"
+      },
+      "sedentary": {
+        "title": "Aviso de movimiento",
+        "message": "Llevas un rato trabajando. Levántate para un reinicio breve.",
+        "action": "Reiniciar temporizador"
+      }
+    },
+    "suggestions": {
+      "water-sip": { "label": "Pausa para beber agua", "duration": "20 s" },
+      "eye-reset": { "label": "Descanso visual", "duration": "20 s" },
+      "deep-breath": { "label": "Respiración profunda", "duration": "30 s" },
+      "neck-stretch": { "label": "Estiramiento de cuello", "duration": "30 s" },
+      "shoulder-roll": { "label": "Rotación de hombros", "duration": "20 s" },
+      "chest-open": { "label": "Apertura de pecho", "duration": "30 s" },
+      "wrist-reset": { "label": "Reinicio de muñecas", "duration": "30 s" },
+      "stand-up": { "label": "Ponte de pie", "duration": "1 min" },
+      "walk-briefly": { "label": "Camina brevemente", "duration": "2 min" },
+      "calf-raise": { "label": "Elevaciones de talones", "duration": "30 s" },
+      "desk-squat": { "label": "Sentadillas de escritorio", "duration": "45 s" }
+    },
+    "insights": {
+      "aria": "Ritmo de bienestar",
+      "label": "Ritmo de recuperación",
+      "followedThrough": "{{ percent }}% completado",
+      "noDays": "La recuperación puede empezar con el próximo reinicio tranquilo.",
+      "oneDay": "La recuperación apareció 1 día esta semana.",
+      "manyDays": "La recuperación apareció {{ count }} días esta semana.",
+      "summaryAria": "Resumen de recuperación",
+      "steadyDays": "días constantes",
+      "completed": "completadas",
+      "skipped": "omitidas"
+    }
+  }
+}

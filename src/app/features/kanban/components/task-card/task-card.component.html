@@ -5,7 +5,7 @@
   [class.task-card--editing]="isEditing"
   [class.task-card--active]="isActive">
   <div class="task-card__content" *ngIf="!isEditing; else editTask">
-    <span class="task-card__focus-badge" *ngIf="isActive">Active Focus</span>
+    <span class="task-card__focus-badge" *ngIf="isActive">{{ 'kanban.task.activeFocus' | translate }}</span>
     <h4 [id]="'task-title-' + task.id">{{ task.title }}</h4>
     <p *ngIf="task.description">{{ task.description }}</p>
   </div>
@@ -17,7 +17,7 @@
       (keydown)="handleEditKeydown($event)"
       [attr.aria-label]="'Edit task ' + task.title">
       <label>
-        <span>Title</span>
+        <span>{{ 'kanban.task.title' | translate }}</span>
         <input
           #editTitleInput
           type="text"
@@ -29,27 +29,32 @@
       </label>
 
       <label>
-        <span>Description</span>
+        <span>{{ 'kanban.task.description' | translate }}</span>
         <textarea name="draftDescription" [(ngModel)]="draftDescription" rows="3"></textarea>
       </label>
 
       <div class="task-card__actions task-card__actions--edit" role="group" aria-label="Edit actions">
-        <button type="submit" [disabled]="!canSave">Save</button>
-        <button type="button" (click)="cancelEdit()">Cancel</button>
+        <button type="submit" [disabled]="!canSave">{{ 'common.save' | translate }}</button>
+        <button type="button" (click)="cancelEdit()">{{ 'common.cancel' | translate }}</button>
       </div>
     </form>
   </ng-template>
 
   <div class="task-card__actions" *ngIf="!isEditing" role="group" [attr.aria-label]="'Actions for ' + task.title">
     <button type="button" *ngIf="showFocusAction && !isActive" (click)="emitAction('focus')">
-      Focus
+      {{ 'kanban.actions.focus' | translate }}
     </button>
     <button type="button" *ngIf="showFocusAction && isActive" (click)="emitAction('clearFocus')">
-      Clear Focus
+      {{ 'kanban.actions.clearFocus' | translate }}
     </button>
-    <button #editButton type="button" *ngIf="showEditAction" (click)="startEdit()">Edit</button>
-    <button type="button" *ngIf="showRestoreAction" (click)="emitAction('restore')">Restore</button>
-    <button type="button" *ngIf="showArchiveAction" (click)="emitAction('archive')">Archive</button>
-    <button type="button" (click)="emitAction('delete')">Delete</button>
+    <button #editButton type="button" *ngIf="showEditAction" (click)="startEdit()">{{ 'common.edit' | translate }}</button>
+    <button type="button" *ngIf="showRestoreAction" (click)="emitAction('restore')">{{ 'kanban.actions.restore' | translate }}</button>
+    <button type="button" *ngIf="showArchiveAction" (click)="emitAction('archive')">{{ 'kanban.actions.archive' | translate }}</button>
+    <button
+      type="button"
+      [attr.aria-label]="'kanban.actions.deleteTask' | translate: { task: task.title }"
+      (click)="emitAction('delete')">
+      {{ 'common.delete' | translate }}
+    </button>
   </div>
 </article>

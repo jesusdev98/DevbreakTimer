@@ -13,6 +13,7 @@ import { TaskCreateComponent } from '../task-create/task-create.component';
 import { ShortcutService } from '../../../../services/shortcut.service';
 import { WorkspaceModeService } from '../../../../services/workspace-mode.service';
 import { WellnessReminderEngineService } from '../../../timer/services/wellness-reminder-engine.service';
+import { LanguageService } from '../../../../services/language.service';
 
 interface TaskActionEvent {
   task: Task;
@@ -58,22 +59,22 @@ const DEFAULT_DENSITY_MODE: DensityMode = 'comfortable';
 })
 export class KanbanBoardComponent implements OnDestroy {
   protected readonly columns: KanbanColumn[];
-  protected readonly filterOptions: { id: TaskFilter; label: string }[] = [
-    { id: 'active', label: 'Active' },
-    { id: 'focused', label: 'Focused' },
-    { id: 'completed', label: 'Completed' },
-    { id: 'archived', label: 'Archived' },
+  protected readonly filterOptions: { id: TaskFilter; labelKey: string }[] = [
+    { id: 'active', labelKey: 'kanban.filters.active' },
+    { id: 'focused', labelKey: 'kanban.filters.focused' },
+    { id: 'completed', labelKey: 'kanban.filters.completed' },
+    { id: 'archived', labelKey: 'kanban.filters.archived' },
   ];
-  protected readonly sortOptions: { id: TaskSort; label: string }[] = [
-    { id: 'recent', label: 'Recent first' },
-    { id: 'oldest', label: 'Oldest first' },
-    { id: 'alphabetical', label: 'Alphabetical' },
-    { id: 'focusedTime', label: 'Most focused time' },
+  protected readonly sortOptions: { id: TaskSort; labelKey: string }[] = [
+    { id: 'recent', labelKey: 'kanban.sort.recent' },
+    { id: 'oldest', labelKey: 'kanban.sort.oldest' },
+    { id: 'alphabetical', labelKey: 'kanban.sort.alphabetical' },
+    { id: 'focusedTime', labelKey: 'kanban.sort.focusedTime' },
   ];
-  protected readonly densityOptions: { id: DensityMode; label: string }[] = [
-    { id: 'compact', label: 'Compact' },
-    { id: 'comfortable', label: 'Comfortable' },
-    { id: 'focus', label: 'Focus' },
+  protected readonly densityOptions: { id: DensityMode; labelKey: string }[] = [
+    { id: 'compact', labelKey: 'kanban.density.compact' },
+    { id: 'comfortable', labelKey: 'kanban.density.comfortable' },
+    { id: 'focus', labelKey: 'kanban.density.focus' },
   ];
   protected tasks: Task[];
   protected taskSearch = '';
@@ -91,6 +92,7 @@ export class KanbanBoardComponent implements OnDestroy {
     private readonly shortcutService: ShortcutService,
     private readonly workspaceModeService: WorkspaceModeService,
     private readonly wellnessReminderEngine: WellnessReminderEngineService,
+    private readonly languageService: LanguageService,
   ) {
     this.columns = this.kanbanService.columns;
     this.tasks = this.kanbanService.getTasks();
@@ -148,7 +150,9 @@ export class KanbanBoardComponent implements OnDestroy {
     };
     this.activeQuickAddStatus = null;
     this.persistFilterState();
-    this.announceBoardState(`${this.labelForFilter(filter)} filter applied`);
+    this.announceBoardState(this.translate('kanban.announcements.filterApplied', {
+      filter: this.labelForFilter(filter),
+    }));
   }
 
   protected setSort(sort: TaskSort): void {
@@ -157,47 +161,49 @@ export class KanbanBoardComponent implements OnDestroy {
       sort,
     };
     this.persistFilterState();
-    this.announceBoardState(`Sorted by ${this.labelForSort(sort)}`);
+    this.announceBoardState(this.translate('kanban.announcements.sortedBy', {
+      sort: this.labelForSort(sort),
+    }));
   }
 
   protected emptyStateLabel(): string {
     if (this.taskSearch.trim()) {
-      return 'No matching tasks';
+      return this.translate('kanban.empty.noMatches');
     }
 
     if (this.filterState.filter === 'archived') {
-      return 'No archived tasks';
+      return this.translate('kanban.empty.noArchived');
     }
 
     if (this.filterState.filter === 'completed') {
-      return 'No completed tasks';
+      return this.translate('kanban.empty.noCompleted');
     }
 
     if (this.filterState.filter === 'focused') {
-      return 'No focused tasks';
+      return this.translate('kanban.empty.noFocused');
     }
 
-    return 'Column is clear';
+    return this.translate('kanban.empty.clear');
   }
 
   protected emptyStateHint(): string {
     if (this.taskSearch.trim()) {
-      return 'Adjust search or switch filters.';
+      return this.translate('kanban.empty.adjustSearch');
     }
 
     if (this.filterState.filter === 'archived') {
-      return 'Archived tasks will appear here.';
+      return this.translate('kanban.empty.archivedHint');
     }
 
     if (this.filterState.filter === 'completed') {
-      return 'Completed work lands here.';
+      return this.translate('kanban.empty.completedHint');
     }
 
     if (this.filterState.filter === 'focused') {
-      return 'Set an active focus task to narrow the board.';
+      return this.translate('kanban.empty.focusedHint');
     }
 
-    return 'Add a task when this lane needs attention.';
+    return this.translate('kanban.empty.clearHint');
   }
 
   protected setDensityMode(mode: DensityMode): void {
@@ -208,7 +214,7 @@ export class KanbanBoardComponent implements OnDestroy {
   protected resetWorkspace(): void {
     this.activeQuickAddStatus = null;
     this.tasks = this.kanbanService.resetWorkspace();
-    this.announce('Workspace reset');
+    this.announce(this.translate('kanban.announcements.workspaceReset'));
   }
 
   protected handleTaskAction({ task, action }: TaskActionEvent): void {
@@ -218,7 +224,7 @@ export class KanbanBoardComponent implements OnDestroy {
       }
 
       this.tasks = this.kanbanService.setActiveTask(task);
-      this.announce(`${task.title} is now the focus task`);
+      this.announce(this.translate('kanban.announcements.focusSet', { task: task.title }));
       return;
     }
 
@@ -228,36 +234,39 @@ export class KanbanBoardComponent implements OnDestroy {
       }
 
       this.tasks = this.kanbanService.clearActiveTask();
-      this.announce('Focus task cleared');
+      this.announce(this.translate('kanban.announcements.focusCleared'));
       return;
     }
 
     if (action === 'delete') {
       this.tasks = this.kanbanService.deleteTask(task);
-      this.announce(`${task.title} deleted`);
+      this.announce(this.translate('kanban.announcements.deleted', { task: task.title }));
       return;
     }
 
     if (action === 'restore') {
       this.tasks = this.kanbanService.restoreTask(task);
-      this.announce(`${task.title} restored`);
+      this.announce(this.translate('kanban.announcements.restored', { task: task.title }));
       return;
     }
 
     if (action === 'archive') {
       this.tasks = this.kanbanService.archiveTask(task);
-      this.announce(`${task.title} archived`);
+      this.announce(this.translate('kanban.announcements.archived', { task: task.title }));
       return;
     }
 
     this.tasks = this.kanbanService.moveTask(task, action);
-    this.announce(`${task.title} moved`);
+    this.announce(this.translate('kanban.announcements.moved', { task: task.title }));
   }
 
   protected createTask(request: TaskCreateRequest): void {
     this.tasks = this.kanbanService.createTask(request);
     this.wellnessReminderEngine.recordTaskCreated();
-    this.announce(`${request.title} added to ${this.labelForStatus(request.status ?? 'ideas')}`);
+    this.announce(this.translate('kanban.announcements.created', {
+      task: request.title,
+      column: this.labelForStatus(request.status ?? 'ideas'),
+    }));
   }
 
   protected openQuickAdd(status: TaskStatus): void {
@@ -272,7 +281,7 @@ export class KanbanBoardComponent implements OnDestroy {
 
   protected updateTask({ task, changes }: TaskEditEvent): void {
     this.tasks = this.kanbanService.updateTask(task, changes);
-    this.announce(`${changes.title} updated`);
+    this.announce(this.translate('kanban.announcements.updated', { task: changes.title }));
   }
 
   protected handleTaskDrop(event: KanbanDropEvent): void {
@@ -281,12 +290,15 @@ export class KanbanBoardComponent implements OnDestroy {
     }
 
     this.tasks = this.kanbanService.handleDrop(event.event, event.status);
-    this.announce(`${event.event.item.data.title} moved to ${this.labelForStatus(event.status)}`);
+    this.announce(this.translate('kanban.announcements.movedTo', {
+      task: event.event.item.data.title,
+      column: this.labelForStatus(event.status),
+    }));
   }
 
   protected clearSearch(): void {
     this.taskSearch = '';
-    this.announceBoardState('Search cleared');
+    this.announceBoardState(this.translate('kanban.announcements.searchCleared'));
   }
 
   protected setTaskSearch(query: string): void {
@@ -297,7 +309,9 @@ export class KanbanBoardComponent implements OnDestroy {
     }
 
     this.searchAnnouncementTimeout = setTimeout(() => {
-      this.announceBoardState(this.taskSearch.trim() ? 'Search updated' : 'Search cleared');
+      this.announceBoardState(this.translate(this.taskSearch.trim()
+        ? 'kanban.announcements.searchUpdated'
+        : 'kanban.announcements.searchCleared'));
       this.searchAnnouncementTimeout = null;
     }, 350);
   }
@@ -347,7 +361,11 @@ export class KanbanBoardComponent implements OnDestroy {
 
   private announceBoardState(prefix: string): void {
     const count = this.visibleTaskCount();
-    this.announce(`${prefix}. ${count} ${count === 1 ? 'task' : 'tasks'} shown`);
+    this.announce(this.translate('kanban.announcements.boardState', {
+      prefix,
+      count,
+      taskLabel: this.translate(count === 1 ? 'kanban.task.singular' : 'kanban.task.plural'),
+    }));
   }
 
   private visibleTaskCount(): number {
@@ -355,15 +373,21 @@ export class KanbanBoardComponent implements OnDestroy {
   }
 
   private labelForFilter(filter: TaskFilter): string {
-    return this.filterOptions.find((option) => option.id === filter)?.label ?? filter;
+    const option = this.filterOptions.find((candidate) => candidate.id === filter);
+    return option ? this.translate(option.labelKey) : filter;
   }
 
   private labelForSort(sort: TaskSort): string {
-    return this.sortOptions.find((option) => option.id === sort)?.label ?? sort;
+    const option = this.sortOptions.find((candidate) => candidate.id === sort);
+    return option ? this.translate(option.labelKey) : sort;
   }
 
   private labelForStatus(status: TaskStatus): string {
-    return this.columns.find((column) => column.status === status)?.title ?? status;
+    return this.translate(`kanban.columns.${status}`);
+  }
+
+  protected translate(key: string, params?: Record<string, unknown>): string {
+    return this.languageService.instant(key, params);
   }
 
   private matchesArchiveScope(task: Task): boolean {

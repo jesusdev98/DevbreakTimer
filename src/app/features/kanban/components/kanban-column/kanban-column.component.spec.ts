@@ -2,6 +2,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TranslateModule } from '@ngx-translate/core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ShortcutService } from '../../../../services/shortcut.service';
@@ -16,7 +17,7 @@ describe('KanbanColumnComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [KanbanColumnComponent, TaskCardComponent],
-      imports: [CommonModule, DragDropModule, FormsModule],
+      imports: [CommonModule, DragDropModule, FormsModule, TranslateModule.forRoot()],
       providers: [ShortcutService],
     }).compileComponents();
 

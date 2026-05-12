@@ -1,0 +1,509 @@
+{
+  "common": {
+    "add": "Add",
+    "apply": "Apply",
+    "cancel": "Cancel",
+    "clear": "Clear",
+    "close": "Close",
+    "delete": "Delete",
+    "edit": "Edit",
+    "locked": "Locked",
+    "next": "Next",
+    "save": "Save",
+    "skip": "Skip"
+  },
+  "timer": {
+    "eyebrow": "FocusFlow",
+    "modeSuffix": "Mode",
+    "cycleMeta": "Cycle {{ cycle }} / {{ total }} - {{ completed }} focus completed",
+    "sessions": {
+      "focus": "Focus Session",
+      "short-break": "Short Break",
+      "long-break": "Long Break"
+    },
+    "status": {
+      "idle": "Ready",
+      "running": "Running",
+      "paused": "Paused",
+      "completed": "Done"
+    },
+    "aria": {
+      "openSettings": "Open settings",
+      "dismissRepeatingAlarm": "Dismiss repeating alarm",
+      "focusCompleted": "Focus session completed",
+      "progress": "Session progress"
+    },
+    "toggles": {
+      "pomodoro": "Pomodoro",
+      "pomodoroHint": "Runs focus and break cycles automatically.",
+      "sound": "Sound",
+      "soundHint": "Alerts you when a session ends."
+    },
+    "modeLocked": "Mode is locked during an active session.",
+    "focusPanel": {
+      "label": "Focus task"
+    },
+    "focusOwnershipNote": "Task focus is available in Focus mode.",
+    "sessionPanel": {
+      "current": "Current",
+      "next": "Next",
+      "focusLeft": "Focus left"
+    },
+    "hints": {
+      "idle": "Choose a duration, then start.",
+      "pomodoroIdle": "Start the current Pomodoro. The next session begins automatically."
+    },
+    "duration": {
+      "label": "Duration (min)",
+      "placeholder": "e.g. 25",
+      "lockedRunning": "Pause or reset to change the duration.",
+      "lockedPomodoro": "Pomodoro uses fixed focus and break lengths, so custom duration controls are locked."
+    },
+    "actions": {
+      "start": "Start",
+      "pause": "Pause",
+      "reset": "Reset",
+      "restart": "Restart"
+    },
+    "completion": {
+      "once": "{{ session }} complete. Nice work.",
+      "nextStarted": "{{ session }} complete. {{ nextSession }} started automatically."
+    },
+    "dismissAlarm": "Dismiss alarm",
+    "focusCompletion": {
+      "label": "Focus complete",
+      "minutes": "+{{ minutes }} productive minutes",
+      "task": "Task: {{ task }}",
+      "continueTask": "Continue task",
+      "markDone": "Mark done",
+      "startBreak": "Start break"
+    },
+    "taskCompletedMessage": "Task completed. Great progress.",
+    "notifications": {
+      "titles": {
+        "focus": "Focus complete",
+        "pomodoro": "Pomodoro complete",
+        "wellness": "Recovery session complete",
+        "hybrid": "FocusFlow session complete"
+      },
+      "bodies": {
+        "focus": {
+          "reset": "Deep work wrapped. Take a quiet reset.",
+          "next": "{{ nextSession }} is ready when you are."
+        },
+        "pomodoro": {
+          "reset": "Nice Pomodoro. Take a short break.",
+          "next": "{{ nextSession }} started automatically."
+        },
+        "wellness": {
+          "reset": "Good recovery work. Ease into the next block.",
+          "next": "{{ nextSession }} started automatically."
+        },
+        "hybrid": {
+          "reset": "Focus and recovery stayed balanced.",
+          "next": "{{ nextSession }} started automatically."
+        }
+      },
+      "suggestedRecovery": "Suggested recovery: {{ suggestion }}."
+    },
+    "announcements": {
+      "alarmDismissed": "Completion alarm dismissed",
+      "breakStarted": "Break started",
+      "focusCompleted": "Focus session completed",
+      "focusSummaryDismissed": "Focus summary dismissed",
+      "focusTaskCleared": "Focus task cleared",
+      "paused": "Timer paused",
+      "reset": "Timer reset",
+      "resumed": "Timer resumed",
+      "started": "{{ session }} started",
+      "taskCompleted": "Task completed"
+    }
+  },
+  "kanban": {
+    "eyebrow": "Task board",
+    "title": "Kanban",
+    "aria": {
+      "quickTools": "Board tools",
+      "filters": "Task filters",
+      "density": "Board density",
+      "columns": "Task columns"
+    },
+    "dragInstructions": "Move tasks between columns with drag and drop.",
+    "columnTaskCount": "{{ count }} tasks in {{ column }}",
+    "columnTasksLabel": "{{ column }} tasks",
+    "columns": {
+      "ideas": "Ideas",
+      "todo": "To Do",
+      "in-progress": "In Progress",
+      "done": "Done"
+    },
+    "search": {
+      "label": "Search",
+      "placeholder": "Filter tasks"
+    },
+    "filters": {
+      "active": "Active",
+      "focused": "Focused",
+      "completed": "Completed",
+      "archived": "Archived"
+    },
+    "sort": {
+      "label": "Sort",
+      "recent": "Recent first",
+      "oldest": "Oldest first",
+      "alphabetical": "Alphabetical",
+      "focusedTime": "Focus time"
+    },
+    "density": {
+      "compact": "Compact",
+      "comfortable": "Comfortable",
+      "focus": "Focus"
+    },
+    "archive": {
+      "title": "Archived"
+    },
+    "create": {
+      "titleLabel": "New task",
+      "titlePlaceholder": "Task name",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Optional note"
+    },
+    "task": {
+      "singular": "task",
+      "plural": "tasks",
+      "activeFocus": "Active Focus",
+      "title": "Title",
+      "description": "Description"
+    },
+    "quickAdd": {
+      "formLabel": "Quick add task to {{ column }}",
+      "inputLabel": "Task title for {{ column }}",
+      "trigger": "+ Task",
+      "triggerLabel": "Add task to {{ column }}"
+    },
+    "actions": {
+      "addTask": "Add task",
+      "archive": "Archive",
+      "clearFocus": "Clear focus",
+      "deleteTask": "Delete task {{ task }}",
+      "focus": "Focus",
+      "resetWorkspace": "Reset workspace",
+      "restore": "Restore"
+    },
+    "empty": {
+      "adjustSearch": "Adjust search or switch filters.",
+      "archivedHint": "Archived tasks will appear here.",
+      "clear": "Column is clear",
+      "clearHint": "Add a task when this column needs attention.",
+      "completedHint": "Completed work appears here.",
+      "focusedHint": "Set an active focus task to narrow the board.",
+      "noArchived": "No archived tasks",
+      "noCompleted": "No completed tasks",
+      "noFocused": "No focused tasks",
+      "noMatches": "No matching tasks"
+    },
+    "announcements": {
+      "archived": "{{ task }} archived",
+      "boardState": "{{ prefix }}. {{ count }} {{ taskLabel }} shown",
+      "created": "{{ task }} added to {{ column }}",
+      "deleted": "{{ task }} deleted",
+      "filterApplied": "{{ filter }} filter applied",
+      "focusCleared": "Focus task cleared",
+      "focusSet": "{{ task }} is now the focus task",
+      "moved": "{{ task }} moved",
+      "movedTo": "{{ task }} moved to {{ column }}",
+      "restored": "{{ task }} restored",
+      "searchCleared": "Search cleared",
+      "searchUpdated": "Search updated",
+      "sortedBy": "Sorted by {{ sort }}",
+      "updated": "{{ task }} updated",
+      "workspaceReset": "Workspace reset"
+    }
+  },
+  "settings": {
+    "eyebrow": "Workspace",
+    "title": "Settings",
+    "sessionLocked": "Finish or reset the current session to change modes.",
+    "theme": {
+      "title": "Theme",
+      "dark": "Dark",
+      "light": "Light"
+    },
+    "language": {
+      "title": "Language",
+      "label": "App language"
+    },
+    "mode": {
+      "title": "Workspace mode",
+      "options": {
+        "focus": {
+          "label": "Focus",
+          "description": "Deep work with fewer interruptions.",
+          "timerCue": "Deep work with minimal interruptions."
+        },
+        "pomodoro": {
+          "label": "Pomodoro",
+          "description": "Classic work and break cycles.",
+          "timerCue": "Structured work/break rhythm."
+        },
+        "wellness": {
+          "label": "Wellness",
+          "description": "Movement-friendly sessions for healthier desk work.",
+          "timerCue": "Movement and recovery stay visible."
+        },
+        "hybrid": {
+          "label": "Hybrid",
+          "description": "Focus sessions with active wellness breaks.",
+          "timerCue": "Focus plus active breaks, the FocusFlow rhythm."
+        }
+      }
+    },
+    "wellnessExercises": {
+      "title": "Wellness",
+      "helper": "Keep up to 5 light reset exercises in each category.",
+      "count": "{{ count }}/{{ limit }}",
+      "formLabel": "Wellness exercise form",
+      "name": "Exercise",
+      "namePlaceholder": "Custom reset",
+      "category": "Category",
+      "duration": "Seconds",
+      "add": "Add exercise",
+      "update": "Update exercise",
+      "limitReached": "This category already has {{ limit }} exercises."
+    },
+    "profile": {
+      "title": "Pomodoro profile",
+      "label": "Profile",
+      "custom": "Custom durations",
+      "focus": "Focus",
+      "shortBreak": "Short Break",
+      "longBreak": "Long Break",
+      "cycles": "Cycles",
+      "options": {
+        "classic": {
+          "name": "Classic",
+          "description": "25 / 5 / 15"
+        },
+        "deep-work": {
+          "name": "Deep Work",
+          "description": "50 / 10 / 30"
+        },
+        "study": {
+          "name": "Study",
+          "description": "45 / 15 / 20"
+        }
+      }
+    },
+    "feedback": {
+      "title": "Alerts",
+      "soundAlerts": "Sound alerts",
+      "soundPreset": "Sound",
+      "volume": "Volume",
+      "volumeValue": "{{ volume }} percent",
+      "completionMode": "Completion mode",
+      "presets": {
+        "soft-bell": {
+          "label": "Soft Bell",
+          "description": "Warm and gentle"
+        },
+        "digital": {
+          "label": "Digital",
+          "description": "Clean timer chirp"
+        },
+        "minimal": {
+          "label": "Minimal",
+          "description": "Subtle single tone"
+        },
+        "retro": {
+          "label": "Retro",
+          "description": "Classic arcade pulse"
+        },
+        "alarm": {
+          "label": "Alarm",
+          "description": "Most noticeable"
+        }
+      },
+      "modes": {
+        "once": "Play Once",
+        "repeat": "Repeat Until Dismissed"
+      }
+    },
+    "wellnessReminders": {
+      "title": "Wellness reminders",
+      "enabled": "Quiet wellness nudges",
+      "hydration": "Hydration",
+      "posture": "Posture",
+      "movement": "Movement"
+    },
+    "wellnessCategories": {
+      "stretching": "Stretching",
+      "mobility": "Mobility",
+      "cardio": "Cardio",
+      "strength": "Strength",
+      "pilates": "Pilates"
+    },
+    "shortcuts": {
+      "title": "Shortcuts",
+      "pressKeys": "Press keys",
+      "resetDefaults": "Reset",
+      "editShortcut": "Edit shortcut",
+      "actions": {
+        "createTask": "New task",
+        "search": "Search",
+        "save": "Save",
+        "escapeModal": "Close dialog"
+      }
+    },
+    "aria": {
+      "close": "Close settings",
+      "wellnessCategories": "Wellness categories",
+      "reminderTypes": "Reminder types"
+    }
+  },
+  "stats": {
+    "today": "Today",
+    "resetToday": "Reset today",
+    "focus": "Focus",
+    "sessions": "Sessions",
+    "sessionsCount": "{{ count }} sessions",
+    "skipped": "Skipped",
+    "streak": "Streak",
+    "tasks": "Tasks"
+  },
+  "wellness": {
+    "announcements": {
+      "actionCompleted": "Wellness action completed",
+      "movementCompleted": "Movement break completed",
+      "reminderDismissed": "Wellness reminder dismissed",
+      "suggestionUpdated": "Wellness suggestion updated"
+    },
+    "breakSuggestion": {
+      "aria": "Break suggestion",
+      "label": "Break suggestion",
+      "description": "Take a short movement reset before the next focus block."
+    },
+    "exercises": {
+      "durationSeconds": "{{ duration }}s",
+      "presets": {
+        "neck-stretch": "Neck stretch",
+        "shoulder-stretch": "Shoulder stretch",
+        "back-stretch": "Back stretch",
+        "leg-stretch": "Leg stretch",
+        "wrist-stretch": "Wrist stretch",
+        "neck-rotations": "Neck rotations",
+        "shoulder-rotations": "Shoulder rotations",
+        "hip-mobility": "Hip mobility",
+        "ankle-rotations": "Ankle rotations",
+        "spinal-flexion-extension": "Spinal flexion & extension",
+        "jumping-jacks": "Jumping jacks",
+        "high-knees": "High knees",
+        "jump-squats": "Jump squats",
+        "mountain-climbers": "Mountain climbers",
+        "burpees": "Burpees",
+        "push-ups": "Push-ups",
+        "squats": "Squats",
+        "lunges": "Lunges",
+        "plank": "Plank",
+        "tricep-dips": "Tricep dips",
+        "glute-bridge": "Glute bridge",
+        "roll-up": "Roll-up",
+        "modified-hundred": "Modified hundred",
+        "cat-camel": "Cat-camel",
+        "leg-raises": "Leg raises"
+      }
+    },
+    "breaks": {
+      "break-reminder": {
+        "title": "Take a break",
+        "description": "Step away from the task, breathe, and let your attention reset.",
+        "duration": ""
+      },
+      "neck-stretch": {
+        "title": "Neck Stretch",
+        "description": "Slowly tilt your head side to side and let your shoulders relax.",
+        "duration": "45 seconds"
+      },
+      "shoulder-rolls": {
+        "title": "Shoulder Rolls",
+        "description": "Roll your shoulders forward and backward to release desk tension.",
+        "duration": "10 each way"
+      },
+      "stand-walk": {
+        "title": "Stand Up and Walk",
+        "description": "Leave the chair, walk around, and reset your posture.",
+        "duration": "2 minutes"
+      },
+      "wrist-mobility": {
+        "title": "Wrist Mobility",
+        "description": "Circle both wrists and gently stretch fingers after keyboard work.",
+        "duration": "60 seconds"
+      },
+      "deep-breathing": {
+        "title": "Deep Breathing",
+        "description": "Inhale slowly, exhale fully, and soften your jaw and shoulders.",
+        "duration": "5 breaths"
+      },
+      "eye-rest": {
+        "title": "Eye rest",
+        "description": "Look away from the screen and focus on something distant.",
+        "duration": "20 seconds"
+      },
+      "posture-reset": {
+        "title": "Posture Reset",
+        "description": "Stand tall, open your chest, and stack shoulders over hips.",
+        "duration": "45 seconds"
+      },
+      "desk-squats": {
+        "title": "Desk Squats",
+        "description": "Do controlled bodyweight squats to wake up your legs.",
+        "duration": "8 reps"
+      }
+    },
+    "reminder": {
+      "aria": "Wellness reminder",
+      "label": "Recovery cue"
+    },
+    "reminders": {
+      "hydration": {
+        "title": "Hydration check",
+        "message": "Take a quiet sip of water before the next task switch.",
+        "action": "Done"
+      },
+      "posture": {
+        "title": "Posture reset",
+        "message": "Drop your shoulders, soften your jaw, and sit tall for a breath.",
+        "action": "Reset"
+      },
+      "sedentary": {
+        "title": "Movement nudge",
+        "message": "You have been working for a while. Stand up for a short reset.",
+        "action": "Reset timer"
+      }
+    },
+    "suggestions": {
+      "water-sip": { "label": "Small water break", "duration": "20 sec" },
+      "eye-reset": { "label": "Eye reset", "duration": "20 sec" },
+      "deep-breath": { "label": "Deep breath", "duration": "30 sec" },
+      "neck-stretch": { "label": "Neck stretch", "duration": "30 sec" },
+      "shoulder-roll": { "label": "Shoulder roll", "duration": "20 sec" },
+      "chest-open": { "label": "Chest opener", "duration": "30 sec" },
+      "wrist-reset": { "label": "Wrist reset", "duration": "30 sec" },
+      "stand-up": { "label": "Stand up", "duration": "1 min" },
+      "walk-briefly": { "label": "Walk briefly", "duration": "2 min" },
+      "calf-raise": { "label": "Calf raises", "duration": "30 sec" },
+      "desk-squat": { "label": "Desk squats", "duration": "45 sec" }
+    },
+    "insights": {
+      "aria": "Wellness rhythm",
+      "label": "Recovery rhythm",
+      "followedThrough": "{{ percent }}% followed through",
+      "noDays": "Recovery can start with the next quiet reset.",
+      "oneDay": "Recovery showed up on 1 day this week.",
+      "manyDays": "Recovery showed up on {{ count }} days this week.",
+      "summaryAria": "Recovery summary",
+      "steadyDays": "steady days",
+      "completed": "completed",
+      "skipped": "skipped"
+    }
+  }
+}

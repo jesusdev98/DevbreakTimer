@@ -49,7 +49,7 @@ const WORKSPACE_MODES: readonly WorkspaceMode[] = [
     wellnessIntensity: 'medium',
     interruptionFrequency: 'balanced',
     breakPromptBehavior: 'exercise',
-    timerCue: 'Focus plus active breaks, the DevBreak rhythm.',
+    timerCue: 'Focus plus active breaks, the FocusFlow rhythm.',
   },
 ];
 

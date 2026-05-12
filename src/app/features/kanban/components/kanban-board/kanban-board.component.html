@@ -3,31 +3,30 @@
   [class.kanban-board--density-compact]="densityMode === 'compact'"
   [class.kanban-board--density-comfortable]="densityMode === 'comfortable'"
   [class.kanban-board--density-focus]="densityMode === 'focus'"
-  aria-labelledby="kanban-title">
+  [attr.aria-label]="'kanban.eyebrow' | translate">
   <div class="kanban-board__active">
     <header class="kanban-board__header">
-      <p class="kanban-board__eyebrow">Productivity board</p>
-      <h2 id="kanban-title">Kanban</h2>
+      <p class="kanban-board__eyebrow">{{ 'kanban.eyebrow' | translate }}</p>
     </header>
 
     <p class="sr-only" aria-live="polite" aria-atomic="true">{{ boardAnnouncement }}</p>
 
-    <div class="kanban-board__toolbar" role="group" aria-label="Kanban quick tools">
+    <div class="kanban-board__toolbar" role="group" [attr.aria-label]="'kanban.aria.quickTools' | translate">
       <label class="kanban-search">
-        <span>Search Tasks</span>
+        <span>{{ 'kanban.search.label' | translate }}</span>
         <input
           #taskSearchInput
           type="search"
           name="taskSearch"
           [ngModel]="taskSearch"
           (ngModelChange)="setTaskSearch($event)"
-          placeholder="Filter by title"
+          [placeholder]="'kanban.search.placeholder' | translate"
           autocomplete="off"
           [attr.aria-keyshortcuts]="shortcutLabel('search') + ' ' + shortcutLabel('escapeModal')"
           (keydown.escape)="clearSearch()" />
       </label>
 
-      <div class="kanban-filters" role="group" aria-label="Task filters">
+      <div class="kanban-filters" role="group" [attr.aria-label]="'kanban.aria.filters' | translate">
         <button
           *ngFor="let filter of filterOptions"
           type="button"
@@ -35,24 +34,24 @@
           [class.kanban-filter-chip--active]="filterState.filter === filter.id"
           [attr.aria-pressed]="filterState.filter === filter.id"
           (click)="setFilter(filter.id)">
-          <span>{{ filter.label }}</span>
+          <span>{{ filter.labelKey | translate }}</span>
           <strong>{{ filterCount(filter.id) }}</strong>
         </button>
       </div>
 
       <label class="kanban-sort">
-        <span>Sort</span>
+        <span>{{ 'kanban.sort.label' | translate }}</span>
         <select
           name="taskSort"
           [ngModel]="filterState.sort"
           (ngModelChange)="setSort($event)">
           <option *ngFor="let sort of sortOptions" [value]="sort.id">
-            {{ sort.label }}
+            {{ sort.labelKey | translate }}
           </option>
         </select>
       </label>
 
-      <div class="kanban-density" role="group" aria-label="Density mode">
+      <div class="kanban-density" role="group" [attr.aria-label]="'kanban.aria.density' | translate">
         <button
           *ngFor="let density of densityOptions"
           type="button"
@@ -60,7 +59,7 @@
           [class.kanban-density__button--active]="densityMode === density.id"
           [attr.aria-pressed]="densityMode === density.id"
           (click)="setDensityMode(density.id)">
-          {{ density.label }}
+          {{ density.labelKey | translate }}
         </button>
       </div>
 
@@ -68,23 +67,23 @@
         type="button"
         class="kanban-toolbar-action"
         (click)="resetWorkspace()">
-        Reset workspace
+        {{ 'kanban.actions.resetWorkspace' | translate }}
       </button>
     </div>
 
     <app-task-create (createTask)="createTask($event)"></app-task-create>
 
     <p id="kanban-drag-instructions" class="sr-only">
-      Tasks can be moved between columns with drag and drop.
+      {{ 'kanban.dragInstructions' | translate }}
     </p>
 
     <div
       class="kanban-board__columns"
-      aria-label="Kanban columns"
+      [attr.aria-label]="'kanban.aria.columns' | translate"
       aria-describedby="kanban-drag-instructions">
       <app-kanban-column
         *ngFor="let column of columns"
-        [title]="column.title"
+        [title]="translate('kanban.columns.' + column.status)"
         [status]="column.status"
         [tasks]="tasksFor(column.status)"
         [dropListId]="dropListId(column.status)"
@@ -112,7 +111,7 @@
   <ng-container *ngIf="archivedTasks() as archivedTaskList">
     <details class="kanban-archive" *ngIf="!isArchivedFilter() && archivedTaskList.length">
       <summary>
-        <span>Archived Tasks</span>
+        <span>{{ 'kanban.archive.title' | translate }}</span>
         <strong>{{ archivedTaskList.length }}</strong>
       </summary>
 

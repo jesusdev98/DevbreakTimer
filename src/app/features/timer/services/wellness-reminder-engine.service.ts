@@ -44,7 +44,7 @@ interface WellnessAdaptiveState {
 }
 
 interface WellnessTrackingEvent {
-  action: 'completed' | 'dismissed';
+  action: 'completed' | 'dismissed' | 'skipped-session';
   type: WellnessReminderType;
   at: number;
 }
@@ -300,7 +300,7 @@ export class WellnessReminderEngineService {
     }
   }
 
-  markReset(): void {
+  completeMovementReset(): void {
     const now = Date.now();
 
     this.updatePreferences({
@@ -319,6 +319,34 @@ export class WellnessReminderEngineService {
         activeReminderShownAt: null,
       },
       tracking: this.recordTrackingEvent('completed', 'sedentary', now),
+    });
+    this.activeReminderSubject.next(null);
+  }
+
+  recordSkippedFocusSession(at = Date.now()): void {
+    this.updatePreferences({
+      tracking: this.recordTrackingEvent('skipped-session', 'sedentary', at),
+    });
+  }
+
+  markReset(): void {
+    const now = Date.now();
+
+    this.updatePreferences({
+      dismissedAt: {
+        ...this.preferences.dismissedAt,
+        sedentary: now,
+        posture: this.preferences.dismissedAt.posture ?? now,
+      },
+      adaptive: {
+        ...this.preferences.adaptive,
+        dismissStreak: 0,
+        snoozedUntil: now + 20 * MINUTE,
+        lastWellnessActionAt: now,
+        longFocusStartedAt: null,
+        continuousWorkStartedAt: now,
+        activeReminderShownAt: null,
+      },
     });
     this.activeReminderSubject.next(null);
   }
@@ -437,7 +465,7 @@ export class WellnessReminderEngineService {
     const cutoff = now - 7 * DAY;
     const weeklyEvents = this.preferences.tracking.events.filter((event) => event.at >= cutoff);
     const completedActions = weeklyEvents.filter((event) => event.action === 'completed').length;
-    const dismissedReminders = weeklyEvents.filter((event) => event.action === 'dismissed').length;
+    const dismissedReminders = weeklyEvents.filter((event) => event.action !== 'completed').length;
     const totalInteractions = completedActions + dismissedReminders;
     const completedDayKeys = new Set(
       weeklyEvents
@@ -762,9 +790,14 @@ export class WellnessReminderEngineService {
     const candidate = value as Partial<WellnessTrackingEvent>;
 
     return (
-      (candidate.action === 'completed' || candidate.action === 'dismissed') &&
+      (
+        candidate.action === 'completed' ||
+        candidate.action === 'dismissed' ||
+        candidate.action === 'skipped-session'
+      ) &&
       this.isReminderType(candidate.type) &&
-      typeof candidate.at === 'number'
+      typeof candidate.at === 'number' &&
+      Number.isFinite(candidate.at)
     );
   }
 

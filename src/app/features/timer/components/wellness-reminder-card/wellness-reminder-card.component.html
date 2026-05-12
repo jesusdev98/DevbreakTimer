@@ -1,25 +1,25 @@
 <section
   class="wellness-reminder"
   [class.wellness-reminder--wellness]="wellnessMode"
-  aria-label="Wellness reminder">
+  [attr.aria-label]="'wellness.reminder.aria' | translate">
   <div class="wellness-reminder__content">
-    <span class="wellness-reminder__label">Recovery cue</span>
-    <strong>{{ reminder.title }}</strong>
-    <p>{{ reminder.message }}</p>
+    <span class="wellness-reminder__label">{{ 'wellness.reminder.label' | translate }}</span>
+    <strong>{{ 'wellness.reminders.' + reminder.type + '.title' | translate }}</strong>
+    <p>{{ 'wellness.reminders.' + reminder.type + '.message' | translate }}</p>
     <div class="wellness-reminder__suggestion">
-      <span>{{ reminder.suggestion.label }}</span>
-      <small>{{ reminder.suggestion.durationLabel }}</small>
+      <span>{{ 'wellness.suggestions.' + reminder.suggestion.id + '.label' | translate }}</span>
+      <small>{{ 'wellness.suggestions.' + reminder.suggestion.id + '.duration' | translate }}</small>
     </div>
   </div>
   <div class="wellness-reminder__actions">
     <button type="button" (click)="completeReminder.emit(reminder)">
-      {{ reminder.actionLabel }}
+      {{ 'wellness.reminders.' + reminder.type + '.action' | translate }}
     </button>
     <button type="button" (click)="nextSuggestion.emit(reminder)">
-      Next
+      {{ 'common.next' | translate }}
     </button>
     <button type="button" class="wellness-reminder__dismiss" (click)="dismissReminder.emit(reminder)">
-      Skip
+      {{ 'common.skip' | translate }}
     </button>
   </div>
 </section>

@@ -5,6 +5,7 @@
   gap: var(--kb-toolbar-gap);
   flex: 0 0 auto;
   margin-bottom: var(--kb-toolbar-margin);
+  min-width: 0;
 }
 
 .kanban-search {
@@ -25,6 +26,7 @@
 .kanban-search input {
   width: 100%;
   min-width: 0;
+  min-height: 2.5rem;
   padding: var(--kb-control-padding-y) var(--kb-control-padding-x);
   border: 1px solid var(--border-subtle);
   border-radius: 999px;
@@ -56,6 +58,7 @@
   align-items: center;
   gap: 0.4rem;
   min-width: 0;
+  max-width: 100%;
 }
 
 .kanban-filter-chip {
@@ -64,6 +67,8 @@
   flex: 0 0 auto;
   gap: 0.38rem;
   min-width: 0;
+  max-width: 100%;
+  min-height: 2.35rem;
   padding: var(--kb-chip-padding-y) var(--kb-chip-padding-x);
   border: 1px solid var(--border-subtle);
   border-radius: 999px;
@@ -73,12 +78,23 @@
   font-size: calc(var(--kb-control-font-size) - 0.06rem);
   font-weight: 800;
   cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    background-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.kanban-filter-chip span {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .kanban-filter-chip:hover,
 .kanban-filter-chip:focus-visible {
   border-color: color-mix(in srgb, var(--accent) 42%, transparent);
   color: var(--text-secondary);
+  transform: translateY(-1px);
 }
 
 .kanban-filter-chip strong {
@@ -111,6 +127,7 @@
 
 .kanban-sort select {
   min-width: 0;
+  min-height: 2.5rem;
   padding: var(--kb-control-padding-y) var(--kb-control-padding-x);
   border: 1px solid var(--border-subtle);
   border-radius: 999px;
@@ -129,6 +146,7 @@
   align-items: center;
   gap: 0.2rem;
   min-width: 0;
+  max-width: 100%;
   padding: 0.2rem;
   border: 1px solid var(--border-subtle);
   border-radius: 999px;
@@ -137,6 +155,7 @@
 
 .kanban-density__button {
   min-width: 0;
+  min-height: 2rem;
   padding: calc(var(--kb-control-padding-y) - 0.18rem) 0.52rem;
   border: 0;
   border-radius: 999px;
@@ -167,6 +186,7 @@
 .kanban-toolbar-action {
   flex: 0 0 auto;
   min-width: 0;
+  min-height: 2.35rem;
   padding: var(--kb-chip-padding-y) var(--kb-chip-padding-x);
   border: 1px solid var(--border-subtle);
   border-radius: 999px;
@@ -203,5 +223,43 @@
 
   .kanban-density {
     justify-content: flex-start;
+  }
+}
+
+@media (min-width: 981px) and (max-width: 1280px) {
+  .kanban-search {
+    flex-basis: 14rem;
+    max-width: 18rem;
+  }
+
+  .kanban-filters {
+    flex: 1 1 18rem;
+  }
+
+  .kanban-sort {
+    flex-basis: 10.5rem;
+    min-width: 9rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .kanban-board__toolbar,
+  .kanban-filters {
+    gap: 0.5rem;
+  }
+
+  .kanban-filter-chip,
+  .kanban-toolbar-action {
+    flex: 1 1 calc(50% - 0.5rem);
+    justify-content: center;
+  }
+
+  .kanban-density {
+    width: 100%;
+    border-radius: var(--radius-control);
+  }
+
+  .kanban-density__button {
+    flex: 1 1 0;
   }
 }

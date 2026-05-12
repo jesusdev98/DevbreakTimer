@@ -7,13 +7,16 @@ export interface FocusSession {
   workspaceMode: WorkspaceModeId;
   startedAt: number;
   completedAt: number | null;
+  skippedAt?: number | null;
   durationMinutes: number;
   completed: boolean;
+  skipped?: boolean;
 }
 
 export interface DailyFocusMetrics {
   totalFocusMinutesToday: number;
   completedSessionsToday: number;
+  skippedSessionsToday: number;
 }
 
 export interface FocusSessionCompletion {

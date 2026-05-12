@@ -35,6 +35,9 @@ describe('TimerService', () => {
     durations: defaultDurations,
     cyclesBeforeLongBreak: 4,
     soundEnabled: true,
+    soundPresetId: 'soft-bell',
+    soundVolume: 70,
+    completionSoundMode: 'once',
     theme: 'dark',
     pomodoroProfileId: 'classic',
     customPomodoroProfile: {
@@ -119,6 +122,21 @@ describe('TimerService', () => {
     expect(readLatest(service.status$)).toBe('idle');
     expect(readLatest(service.remainingTime$)).toBe(45);
     expect(readStoredState().targetEndTimestamp).toBeNull();
+  });
+
+  it('persists custom completion sound settings', () => {
+    service = TestBed.inject(TimerService);
+
+    service.setSoundPreset('retro');
+    service.setSoundVolume(42);
+    service.setCompletionSoundMode('repeat');
+    service.setSoundEnabled(false);
+
+    const settings = readStoredState().settings;
+    expect(settings.soundPresetId).toBe('retro');
+    expect(settings.soundVolume).toBe(42);
+    expect(settings.completionSoundMode).toBe('repeat');
+    expect(settings.soundEnabled).toBe(false);
   });
 
   it('resynchronizes from Date.now on visibility changes without waiting for missed ticks', () => {

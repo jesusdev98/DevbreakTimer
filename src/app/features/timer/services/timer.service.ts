@@ -5,6 +5,8 @@ export type TimerStatus = 'idle' | 'running' | 'paused' | 'completed';
 export type SessionType = 'focus' | 'short-break' | 'long-break';
 export type ThemeMode = 'dark' | 'light';
 export type PomodoroProfileId = 'classic' | 'deep-work' | 'study' | 'custom';
+export type SoundPresetId = 'soft-bell' | 'digital' | 'minimal' | 'retro' | 'alarm';
+export type CompletionSoundMode = 'once' | 'repeat';
 
 export type SessionDurations = Record<SessionType, number>;
 
@@ -28,6 +30,9 @@ export interface AppSettings {
   durations: SessionDurations;
   cyclesBeforeLongBreak: number;
   soundEnabled: boolean;
+  soundPresetId: SoundPresetId;
+  soundVolume: number;
+  completionSoundMode: CompletionSoundMode;
   theme: ThemeMode;
   pomodoroProfileId: PomodoroProfileId;
   customPomodoroProfile: PomodoroProfile;
@@ -217,6 +222,43 @@ export class TimerService implements OnDestroy {
     this.settings = {
       ...this.settings,
       soundEnabled: enabled,
+    };
+    this.publishSettings();
+    this.saveState();
+  }
+
+  public setSoundPreset(soundPresetId: SoundPresetId): void {
+    if (!this.isValidSoundPreset(soundPresetId)) {
+      return;
+    }
+
+    this.settings = {
+      ...this.settings,
+      soundPresetId,
+    };
+    this.publishSettings();
+    this.saveState();
+  }
+
+  public setSoundVolume(volume: number): void {
+    const safeVolume = Math.max(0, Math.min(100, Math.round(volume)));
+
+    this.settings = {
+      ...this.settings,
+      soundVolume: safeVolume,
+    };
+    this.publishSettings();
+    this.saveState();
+  }
+
+  public setCompletionSoundMode(completionSoundMode: CompletionSoundMode): void {
+    if (!this.isValidCompletionSoundMode(completionSoundMode)) {
+      return;
+    }
+
+    this.settings = {
+      ...this.settings,
+      completionSoundMode,
     };
     this.publishSettings();
     this.saveState();
@@ -683,6 +725,15 @@ export class TimerService implements OnDestroy {
       soundEnabled: typeof settings.soundEnabled === 'boolean'
         ? settings.soundEnabled
         : defaultSettings.soundEnabled,
+      soundPresetId: this.isValidSoundPreset(settings.soundPresetId)
+        ? settings.soundPresetId
+        : defaultSettings.soundPresetId,
+      soundVolume: this.isValidSoundVolume(settings.soundVolume)
+        ? settings.soundVolume
+        : defaultSettings.soundVolume,
+      completionSoundMode: this.isValidCompletionSoundMode(settings.completionSoundMode)
+        ? settings.completionSoundMode
+        : defaultSettings.completionSoundMode,
       theme: this.isValidTheme(settings.theme) ? settings.theme : defaultSettings.theme,
       pomodoroProfileId: profile.id,
       customPomodoroProfile,
@@ -704,6 +755,9 @@ export class TimerService implements OnDestroy {
       durations: { ...classicProfile.durations },
       cyclesBeforeLongBreak: classicProfile.cyclesBeforeLongBreak,
       soundEnabled: true,
+      soundPresetId: 'soft-bell',
+      soundVolume: 70,
+      completionSoundMode: 'once',
       theme: 'dark',
       pomodoroProfileId: classicProfile.id,
       customPomodoroProfile: {
@@ -833,6 +887,10 @@ export class TimerService implements OnDestroy {
       candidate.selectedDuration > 0 &&
       this.isValidDurations(candidate.durations) &&
       typeof candidate.soundEnabled === 'boolean' &&
+      (candidate.soundPresetId === undefined || this.isValidSoundPreset(candidate.soundPresetId)) &&
+      (candidate.soundVolume === undefined || this.isValidSoundVolume(candidate.soundVolume)) &&
+      (candidate.completionSoundMode === undefined ||
+        this.isValidCompletionSoundMode(candidate.completionSoundMode)) &&
       (candidate.cyclesBeforeLongBreak === undefined ||
         this.isValidCycleCountValue(candidate.cyclesBeforeLongBreak)) &&
       (candidate.theme === undefined || this.isValidTheme(candidate.theme)) &&
@@ -866,6 +924,24 @@ export class TimerService implements OnDestroy {
 
   private isValidTheme(value: unknown): value is ThemeMode {
     return value === 'dark' || value === 'light';
+  }
+
+  private isValidSoundPreset(value: unknown): value is SoundPresetId {
+    return (
+      value === 'soft-bell' ||
+      value === 'digital' ||
+      value === 'minimal' ||
+      value === 'retro' ||
+      value === 'alarm'
+    );
+  }
+
+  private isValidSoundVolume(value: unknown): value is number {
+    return typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= 100;
+  }
+
+  private isValidCompletionSoundMode(value: unknown): value is CompletionSoundMode {
+    return value === 'once' || value === 'repeat';
   }
 
   private isValidProfileId(value: unknown): value is PomodoroProfileId {

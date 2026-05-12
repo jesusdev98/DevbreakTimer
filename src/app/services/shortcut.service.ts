@@ -5,8 +5,7 @@ export type ShortcutActionId =
   | 'createTask'
   | 'search'
   | 'save'
-  | 'escapeModal'
-  | 'toggleFocusPanel';
+  | 'escapeModal';
 
 export interface ShortcutDefinition {
   action: ShortcutActionId;
@@ -22,11 +21,10 @@ export interface ShortcutValidationResult {
 const STORAGE_KEY = 'devbreak-shortcuts';
 const MODIFIER_KEYS = ['Control', 'Shift', 'Alt', 'Meta'];
 const DEFAULT_SHORTCUTS: readonly ShortcutDefinition[] = [
-  { action: 'createTask', label: 'Create task', combo: 'N' },
+  { action: 'createTask', label: 'New task', combo: 'N' },
   { action: 'search', label: 'Search', combo: '/' },
   { action: 'save', label: 'Save', combo: 'Control+Enter' },
-  { action: 'escapeModal', label: 'Escape modal', combo: 'Escape' },
-  { action: 'toggleFocusPanel', label: 'Toggle focus panel', combo: 'F' },
+  { action: 'escapeModal', label: 'Close dialog', combo: 'Escape' },
 ];
 
 @Injectable({
@@ -122,7 +120,7 @@ export class ShortcutService {
     }
 
     if (action === 'escapeModal' && combo !== 'Escape' && !this.hasModifier(combo)) {
-      return { valid: false, message: 'Escape modal needs Esc or a modifier combo.' };
+      return { valid: false, message: 'Close dialog needs Esc or a modifier combo.' };
     }
 
     return { valid: true, message: null };
@@ -215,8 +213,7 @@ export class ShortcutService {
       value === 'createTask' ||
       value === 'search' ||
       value === 'save' ||
-      value === 'escapeModal' ||
-      value === 'toggleFocusPanel'
+      value === 'escapeModal'
     );
   }
 }

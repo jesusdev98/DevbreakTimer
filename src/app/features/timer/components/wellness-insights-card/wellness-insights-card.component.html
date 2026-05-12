@@ -1,22 +1,22 @@
-<section class="wellness-insights" aria-label="Wellness rhythm">
+<section class="wellness-insights" [attr.aria-label]="'wellness.insights.aria' | translate">
   <div class="wellness-insights__content">
-    <span class="wellness-insights__label">Recovery rhythm</span>
-    <strong>{{ metrics.recoveryCompletionPercentage }}% followed through</strong>
+    <span class="wellness-insights__label">{{ 'wellness.insights.label' | translate }}</span>
+    <strong>{{ 'wellness.insights.followedThrough' | translate: { percent: metrics.recoveryCompletionPercentage } }}</strong>
     <p>{{ consistencyLabel() }}</p>
   </div>
 
-  <div class="wellness-insights__metrics" aria-label="Recovery summary">
+  <div class="wellness-insights__metrics" [attr.aria-label]="'wellness.insights.summaryAria' | translate">
     <span>
       <strong>{{ metrics.recoveryStreakDays }}</strong>
-      steady days
+      {{ 'wellness.insights.steadyDays' | translate }}
     </span>
     <span>
       <strong>{{ metrics.completedActions }}</strong>
-      completed
+      {{ 'wellness.insights.completed' | translate }}
     </span>
     <span>
       <strong>{{ metrics.dismissedReminders }}</strong>
-      skipped
+      {{ 'wellness.insights.skipped' | translate }}
     </span>
   </div>
 </section>

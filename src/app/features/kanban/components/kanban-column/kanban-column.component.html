@@ -4,7 +4,9 @@
   [attr.aria-labelledby]="'kanban-column-title-' + status">
   <header class="kanban-column__header">
     <h3 [id]="'kanban-column-title-' + status">{{ title }}</h3>
-    <span class="kanban-column__count" [attr.aria-label]="tasks.length + ' tasks in ' + title">
+    <span
+      class="kanban-column__count"
+      [attr.aria-label]="'kanban.columnTaskCount' | translate: { count: tasks.length, column: title }">
       {{ tasks.length }}
     </span>
   </header>
@@ -14,7 +16,7 @@
     cdkDropList
     [id]="dropListId"
     role="list"
-    [attr.aria-label]="title + ' tasks'"
+    [attr.aria-label]="'kanban.columnTasksLabel' | translate: { column: title }"
     [cdkDropListData]="tasks"
     [cdkDropListConnectedTo]="connectedDropLists"
     (cdkDropListDropped)="handleTaskDrop($event)">
@@ -51,16 +53,16 @@
     class="kanban-quick-add"
     (ngSubmit)="submitQuickTask()"
     (keydown.escape)="handleQuickAddEscape($event)"
-    [attr.aria-label]="'Quick add task to ' + title">
+    [attr.aria-label]="'kanban.quickAdd.formLabel' | translate: { column: title }">
     <input
       #quickAddInput
       type="text"
       name="quickAddTitle"
       [(ngModel)]="quickAddTitle"
-      placeholder="Task title"
+      [placeholder]="'kanban.create.titlePlaceholder' | translate"
       autocomplete="off"
-      [attr.aria-label]="'Task title for ' + title" />
-    <button type="submit" [disabled]="!quickAddTitle.trim()">Add</button>
+      [attr.aria-label]="'kanban.quickAdd.inputLabel' | translate: { column: title }" />
+    <button type="submit" [disabled]="!quickAddTitle.trim()">{{ 'common.add' | translate }}</button>
   </form>
 
   <button
@@ -68,8 +70,8 @@
     *ngIf="showQuickAdd && !quickAddOpen"
     type="button"
     class="kanban-column__quick-add-trigger"
-    [attr.aria-label]="'Add task to ' + title"
+    [attr.aria-label]="'kanban.quickAdd.triggerLabel' | translate: { column: title }"
     (click)="requestQuickAdd()">
-    + Add task
+    {{ 'kanban.quickAdd.trigger' | translate }}
   </button>
 </section>

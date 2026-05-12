@@ -15,8 +15,8 @@
   max-width: 460px;
   min-width: 0;
   margin: 0 auto;
-  padding: clamp(1.25rem, 4vw, 2.25rem);
-  border-radius: 28px;
+  padding: clamp(1.2rem, 3vw, 2rem);
+  border-radius: var(--radius-card);
   border: 1px solid var(--border-subtle);
   background: var(--card-bg);
   box-shadow:
@@ -53,7 +53,7 @@
 }
 
 .timer-card__header {
-  margin-bottom: clamp(1rem, 3vw, 1.5rem);
+  margin-bottom: clamp(0.85rem, 2.4vw, 1.2rem);
   text-align: center;
 }
 
@@ -66,16 +66,8 @@
   text-transform: uppercase;
 }
 
-.timer-card__title {
-  margin: 0;
-  color: var(--text-primary);
-  font-size: clamp(1.5rem, 5vw, 1.85rem);
-  font-weight: 700;
-  letter-spacing: -0.04em;
-}
-
 .timer-card__meta {
-  margin: 0.45rem 0 0;
+  margin: 0.35rem 0 0;
   color: var(--text-muted);
   font-size: 0.9rem;
   font-weight: 600;
@@ -94,15 +86,26 @@
   min-width: 0;
   gap: 0.65rem;
   height: 100%;
-  padding: 0.7rem 0.78rem;
+  min-height: 4.7rem;
+  padding: 0.72rem 0.78rem;
   border: 1px solid var(--border-subtle);
-  border-radius: 15px;
+  border-radius: var(--radius-control);
   background: var(--surface-subtle);
   color: var(--text-secondary);
   font-size: 0.88rem;
   font-weight: 700;
   cursor: pointer;
-  transition: opacity 0.24s ease;
+  transition:
+    border-color 0.18s ease,
+    background-color 0.18s ease,
+    opacity 0.18s ease,
+    transform 0.18s ease;
+}
+
+.timer-toggle:hover:not(.timer-toggle--disabled),
+.timer-toggle:focus-within:not(.timer-toggle--disabled) {
+  border-color: color-mix(in srgb, var(--accent) 38%, var(--border-subtle));
+  background: color-mix(in srgb, var(--accent) 7%, var(--surface-subtle));
 }
 
 .timer-toggle--disabled {
@@ -197,7 +200,7 @@
   min-width: 0;
   padding: 0.65rem 0.55rem;
   border: 1px solid var(--border-subtle);
-  border-radius: 14px;
+  border-radius: var(--radius-control);
   background: var(--surface-subtle);
   text-align: center;
 }
@@ -229,7 +232,7 @@
   gap: 0.85rem;
   margin-bottom: clamp(1.25rem, 4vw, 2rem);
   padding: clamp(1.1rem, 4vw, 1.75rem) clamp(0.75rem, 3vw, 1rem);
-  border-radius: 22px;
+  border-radius: var(--radius-panel);
   background: var(--surface-glass);
 }
 
@@ -240,11 +243,11 @@
   margin: 0;
   color: var(--text-primary);
   font-family: 'JetBrains Mono', monospace;
-  font-size: clamp(2rem, 12vw, 5.4rem);
+  font-size: 4.8rem;
   font-variant-numeric: tabular-nums;
   font-weight: 800;
   line-height: 0.95;
-  letter-spacing: -0.08em;
+  letter-spacing: 0;
   text-align: center;
   text-shadow: var(--timer-shadow);
   transition: color 0.28s ease, transform 0.28s ease;
@@ -312,17 +315,43 @@
 }
 
 .completion-message {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
   margin-top: 0.75rem;
   padding: 0.85rem 1rem;
-  border: 1px solid rgba(96, 165, 250, 0.26);
-  border-radius: 14px;
-  background: rgba(59, 130, 246, 0.14);
-  color: #dbeafe;
+  border: 1px solid color-mix(in srgb, var(--info) 42%, var(--border-subtle));
+  border-radius: var(--radius-panel);
+  background: color-mix(in srgb, var(--info) 15%, transparent);
+  color: var(--info-text);
   font-size: 0.9rem;
   font-weight: 700;
   overflow-wrap: anywhere;
-  text-align: center;
   animation: fade-in-up 0.4s ease;
+}
+
+.completion-message span {
+  min-width: 0;
+}
+
+.completion-message button {
+  flex: 0 0 auto;
+  min-height: 2.2rem;
+  padding: 0.42rem 0.68rem;
+  border: 1px solid color-mix(in srgb, var(--info) 46%, var(--border-subtle));
+  border-radius: 999px;
+  background: var(--surface-subtle);
+  color: var(--info-text);
+  font-size: .72rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.completion-message button:hover,
+.completion-message button:focus-visible {
+  border-color: color-mix(in srgb, var(--info) 64%, transparent);
+  background: color-mix(in srgb, var(--info) 12%, var(--surface-subtle));
 }
 
 .progress {
@@ -359,13 +388,39 @@
     gap: 1rem;
     padding: 1.5rem 1rem;
   }
+}
 
+@media (min-width: 901px) and (max-width: 1180px) {
+  .timer-card {
+    max-width: 720px;
+  }
 }
 
 @media (max-width: 520px) {
+  .timer-card {
+    padding: 1rem;
+  }
+
   .timer-card__mode,
   .session-panel {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .timer-card__time {
+    font-size: 3.3rem;
+  }
+
+  .timer-card__meta,
+  .timer-hint {
+    font-size: 0.84rem;
+  }
+
+  .completion-message {
+    display: grid;
+  }
+
+  .completion-message button {
+    width: 100%;
   }
 }
 
@@ -375,7 +430,7 @@
   }
 
   .timer-card__time {
-    font-size: clamp(3.6rem, 11vw, 5.8rem);
+    font-size: 5.35rem;
   }
 }
 

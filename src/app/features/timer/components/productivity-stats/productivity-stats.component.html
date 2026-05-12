@@ -1,24 +1,28 @@
 <section class="productivity-stats" *ngIf="stats$ | async as stats" aria-labelledby="productivity-stats-title">
   <div class="productivity-stats__header">
-    <span id="productivity-stats-title">Today</span>
-    <button type="button" (click)="resetToday()">Reset today</button>
+    <span id="productivity-stats-title">{{ 'stats.today' | translate }}</span>
+    <button type="button" (click)="resetToday()">{{ 'stats.resetToday' | translate }}</button>
   </div>
 
   <div class="productivity-stats__items">
     <div class="productivity-stat">
-      <span>Focus</span>
+      <span>{{ 'stats.focus' | translate }}</span>
       <strong>{{ formatMinutes(stats.totalFocusMinutesToday) }}</strong>
     </div>
     <div class="productivity-stat">
-      <span>Sessions</span>
+      <span>{{ 'stats.sessions' | translate }}</span>
       <strong>{{ stats.completedSessionsToday }}</strong>
     </div>
     <div class="productivity-stat">
-      <span>Streak</span>
+      <span>{{ 'stats.skipped' | translate }}</span>
+      <strong>{{ stats.skippedSessionsToday }}</strong>
+    </div>
+    <div class="productivity-stat">
+      <span>{{ 'stats.streak' | translate }}</span>
       <strong>{{ stats.currentStreakDays }}</strong>
     </div>
     <div class="productivity-stat">
-      <span>Tasks</span>
+      <span>{{ 'stats.tasks' | translate }}</span>
       <strong>{{ stats.tasksCompletedToday }}</strong>
     </div>
   </div>

@@ -5,28 +5,28 @@
   aria-label="Create new task">
   <div class="task-create__fields">
     <label>
-      <span>New Task</span>
+      <span>{{ 'kanban.create.titleLabel' | translate }}</span>
       <input
         #titleInput
         type="text"
         name="title"
         [(ngModel)]="title"
-        placeholder="Task title"
+        [placeholder]="'kanban.create.titlePlaceholder' | translate"
         autocomplete="off"
         aria-keyshortcuts="N Enter Escape"
         required />
     </label>
 
     <label>
-      <span>Description</span>
+      <span>{{ 'kanban.create.descriptionLabel' | translate }}</span>
       <textarea
         name="description"
         [(ngModel)]="description"
-        placeholder="Optional note"
+        [placeholder]="'kanban.create.descriptionPlaceholder' | translate"
         rows="2">
       </textarea>
     </label>
   </div>
 
-  <button type="submit" [disabled]="!canCreate">Add Task</button>
+  <button type="submit" [disabled]="!canCreate">{{ 'kanban.actions.addTask' | translate }}</button>
 </form>
