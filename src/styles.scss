@@ -315,6 +315,32 @@ summary:focus-visible,
   outline: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+.settings-panel :where(
+  button,
+  input:not([type='checkbox']):not([type='radio']):not([type='range']),
+  select
+) {
+  appearance: none;
+  -webkit-appearance: none;
+  min-width: 0;
+  border-style: solid;
+  color: inherit;
+  font: inherit;
+  letter-spacing: 0;
+}
+
+.settings-panel :where(button, select) {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.settings-panel :where(input[type='checkbox'], input[type='radio']) {
+  flex: 0 0 auto;
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
 .settings-panel__header,
 .settings-panel__actions {
   display: flex;
@@ -405,6 +431,7 @@ summary:focus-visible,
   line-height: 1.2;
   overflow-wrap: anywhere;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .settings-segmented__option:hover,
@@ -1041,20 +1068,84 @@ summary:focus-visible,
 
 .settings-field input,
 .settings-field select {
+  width: 100%;
   min-width: 0;
+  min-height: var(--control-min-height);
   padding: var(--control-padding-y) var(--control-padding-x);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-control);
-  background: var(--surface-control);
+  background-color: var(--surface-control);
   color: var(--text-primary);
   font: inherit;
+  line-height: 1.2;
+}
+
+.settings-field select {
+  padding-right: 2.35rem;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--text-muted) 50%),
+    linear-gradient(135deg, var(--text-muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 1rem) 50%,
+    calc(100% - 0.72rem) 50%;
+  background-repeat: no-repeat;
+  background-size: 0.3rem 0.3rem;
+}
+
+.settings-field select::-ms-expand {
+  display: none;
+}
+
+.settings-field select option {
+  background-color: var(--surface-control);
+  color: var(--text-primary);
 }
 
 .settings-field input[type='range'] {
-  min-height: 1.9rem;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  min-height: 2rem;
   padding: 0;
+  border: 0;
+  background: transparent;
   accent-color: var(--accent);
   cursor: pointer;
+}
+
+.settings-field input[type='range']::-webkit-slider-runnable-track {
+  height: 0.42rem;
+  border-radius: 999px;
+  background: var(--surface-control);
+  border: 1px solid var(--border-subtle);
+}
+
+.settings-field input[type='range']::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 1.05rem;
+  height: 1.05rem;
+  margin-top: -0.36rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 58%, transparent);
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.26);
+}
+
+.settings-field input[type='range']::-moz-range-track {
+  height: 0.42rem;
+  border-radius: 999px;
+  background: var(--surface-control);
+  border: 1px solid var(--border-subtle);
+}
+
+.settings-field input[type='range']::-moz-range-thumb {
+  width: 1.05rem;
+  height: 1.05rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 58%, transparent);
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.26);
 }
 
 .settings-field input::placeholder {
@@ -1097,6 +1188,7 @@ summary:focus-visible,
 
 .settings-inline-action {
   flex: 0 0 auto;
+  min-height: 2.2rem;
   padding: 0.42rem 0.58rem;
   border-radius: 999px;
   font-size: 0.68rem;
@@ -1130,6 +1222,7 @@ summary:focus-visible,
 .shortcut-key {
   flex: 0 0 auto;
   min-width: 6.25rem;
+  min-height: 2.2rem;
   padding: 0.38rem 0.55rem;
   border-radius: 9px;
   color: var(--text-primary);
@@ -1166,6 +1259,7 @@ summary:focus-visible,
 .settings-panel__close {
   min-height: 2.35rem;
   padding: 0.55rem 0.78rem;
+  border: 1px solid transparent;
   background: var(--surface-subtle);
   color: var(--text-secondary);
 }
@@ -1174,6 +1268,7 @@ summary:focus-visible,
   min-width: 0;
   min-height: 2.55rem;
   padding: 0.78rem 1rem;
+  border: 1px solid transparent;
 }
 
 .settings-action--ghost {
@@ -1193,7 +1288,9 @@ select:disabled {
   opacity: 0.82;
 }
 
-button:disabled {
+button:disabled,
+.settings-panel select:disabled,
+.settings-panel input:disabled {
   cursor: not-allowed;
   transform: none;
 }
@@ -1220,6 +1317,19 @@ button:disabled {
     max-height: calc(100dvh - 1rem);
     padding: 0.9rem;
     border-radius: 20px;
+  }
+
+  .settings-panel :where(button, select, input) {
+    font-size: 16px;
+  }
+
+  .settings-panel :where(.settings-inline-action, .shortcut-key, .wellness-chip, .settings-panel__close, .settings-action) {
+    font-size: 0.78rem;
+  }
+
+  .wellness-exercise-item__actions button {
+    min-height: 2.35rem;
+    font-size: 0.72rem;
   }
 
   .settings-panel__header,
