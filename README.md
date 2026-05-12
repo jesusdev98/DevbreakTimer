@@ -241,7 +241,7 @@ FocusFlow running from the public production deployment.
 
 Installed Android PWA experience.
 
-![FocusFlow Mobile PWA](./screenshots/focusflow-mobile-pwa.jpg)
+![FocusFlow Mobile PWA](./screenshots/focusflow-mobile-pwa.png)
 
 ---
 
@@ -251,5 +251,5 @@ Installed Android PWA experience.
 screenshots/
   focusflow-desktop.png
   focusflow-web.png
-  focusflow-mobile-pwa.jpg
+  focusflow-mobile-pwa.png
 ```
