@@ -399,6 +399,7 @@
 @media (max-width: 520px) {
   .timer-card {
     padding: 1rem;
+    padding-top: 3.35rem;
   }
 
   .timer-card__mode,
@@ -407,7 +408,13 @@
   }
 
   .timer-card__time {
-    font-size: 3.3rem;
+    font-size: clamp(2.85rem, 16vw, 3.3rem);
+  }
+
+  .timer-toggle__text {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
   }
 
   .timer-card__meta,

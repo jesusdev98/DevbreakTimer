@@ -8,10 +8,13 @@
 
 html,
 body {
+  width: 100%;
   min-width: 0;
   min-height: 100%;
   margin: 0;
   overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
@@ -247,6 +250,7 @@ summary:focus-visible,
   position: absolute;
   top: 1rem;
   right: 1rem;
+  max-width: calc(100% - 2rem);
   min-height: 2.2rem;
   padding: 0.45rem 0.75rem;
   border: 1px solid var(--border-subtle);
@@ -255,6 +259,9 @@ summary:focus-visible,
   color: var(--text-secondary);
   font-size: 0.76rem;
   font-weight: 800;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+  text-align: center;
   cursor: pointer;
   box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.16);
 }
@@ -271,7 +278,11 @@ summary:focus-visible,
   z-index: 20;
   display: grid;
   place-items: center;
-  padding: 1rem;
+  padding:
+    max(1rem, env(safe-area-inset-top))
+    max(1rem, env(safe-area-inset-right))
+    max(1rem, env(safe-area-inset-bottom))
+    max(1rem, env(safe-area-inset-left));
 }
 
 .settings-modal__backdrop {
@@ -287,8 +298,11 @@ summary:focus-visible,
   position: relative;
   z-index: 1;
   width: min(100%, 520px);
+  max-width: calc(100vw - 2rem);
   max-height: min(720px, calc(100dvh - 2rem));
+  min-width: 0;
   overflow: auto;
+  overscroll-behavior: contain;
   padding: clamp(1rem, 2vw, 1.35rem);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-card);
@@ -296,6 +310,7 @@ summary:focus-visible,
   box-shadow: var(--shadow-elevated);
   color: var(--text-primary);
   backdrop-filter: blur(18px);
+  -webkit-overflow-scrolling: touch;
   animation: settings-panel-in 0.24s ease;
   outline: 1px solid rgba(255, 255, 255, 0.08);
 }
@@ -303,9 +318,15 @@ summary:focus-visible,
 .settings-panel__header,
 .settings-panel__actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  min-width: 0;
+}
+
+.settings-panel__header > div {
+  min-width: 0;
 }
 
 .settings-panel__eyebrow {
@@ -340,6 +361,7 @@ summary:focus-visible,
 
 .settings-section__heading {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
@@ -380,6 +402,8 @@ summary:focus-visible,
   border-radius: var(--radius-control);
   background: var(--surface-subtle);
   color: var(--text-secondary);
+  line-height: 1.2;
+  overflow-wrap: anywhere;
   cursor: pointer;
 }
 
@@ -402,6 +426,7 @@ summary:focus-visible,
 .workspace-mode-option span {
   display: grid;
   gap: 0.12rem;
+  min-width: 0;
 }
 
 .workspace-mode-option small {
@@ -453,6 +478,8 @@ summary:focus-visible,
 }
 
 .wellness-chip {
+  max-width: 100%;
+  min-width: 0;
   min-height: 2.35rem;
   padding: 0.52rem 0.74rem;
   border: 1px solid var(--border-subtle);
@@ -462,6 +489,8 @@ summary:focus-visible,
   font: inherit;
   font-size: 0.74rem;
   font-weight: 800;
+  line-height: 1.12;
+  overflow-wrap: anywhere;
   cursor: pointer;
 }
 
@@ -496,6 +525,7 @@ summary:focus-visible,
 .wellness-exercise-item__actions,
 .wellness-exercise-form__actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
 }
@@ -538,6 +568,7 @@ summary:focus-visible,
 
 .wellness-exercise-item__actions {
   flex: 0 0 auto;
+  justify-content: flex-end;
 }
 
 .wellness-exercise-item__actions button {
@@ -820,6 +851,8 @@ summary:focus-visible,
   font: inherit;
   font-size: 0.68rem;
   font-weight: 800;
+  line-height: 1.12;
+  overflow-wrap: anywhere;
   cursor: pointer;
 }
 
@@ -1057,6 +1090,8 @@ summary:focus-visible,
   color: var(--text-secondary);
   font: inherit;
   font-weight: 800;
+  line-height: 1.12;
+  overflow-wrap: anywhere;
   cursor: pointer;
 }
 
@@ -1123,6 +1158,8 @@ summary:focus-visible,
   border: 0;
   border-radius: var(--radius-control);
   font-weight: 800;
+  line-height: 1.12;
+  overflow-wrap: anywhere;
   cursor: pointer;
 }
 
@@ -1162,9 +1199,26 @@ button:disabled {
 }
 
 @media (max-width: 520px) {
+  .settings-entry {
+    top: 0.75rem;
+    right: 0.75rem;
+    max-width: min(8.5rem, calc(100% - 1.5rem));
+  }
+
+  .settings-modal {
+    align-items: start;
+    padding:
+      max(0.5rem, env(safe-area-inset-top))
+      max(0.5rem, env(safe-area-inset-right))
+      max(0.5rem, env(safe-area-inset-bottom))
+      max(0.5rem, env(safe-area-inset-left));
+  }
+
   .settings-panel {
     width: 100%;
+    max-width: calc(100vw - 1rem);
     max-height: calc(100dvh - 1rem);
+    padding: 0.9rem;
     border-radius: 20px;
   }
 
@@ -1183,12 +1237,20 @@ button:disabled {
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .settings-panel__close {
+    margin-left: auto;
+  }
+
   .wellness-insights {
     display: grid;
   }
 
   .wellness-insights__metrics {
     justify-content: flex-start;
+  }
+
+  .wellness-insights__metrics span {
+    flex: 1 1 4.2rem;
   }
 
   .custom-profile,
@@ -1219,6 +1281,40 @@ button:disabled {
   .wellness-reminder__actions button,
   .focus-completion__actions button {
     flex: 1 1 9rem;
+  }
+
+  .settings-inline-action {
+    flex: 1 1 8rem;
+  }
+
+  .shortcut-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .shortcut-key {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 360px) {
+  .settings-entry {
+    top: 0.65rem;
+    right: 0.65rem;
+    max-width: min(7.25rem, calc(100% - 1.3rem));
+    padding: 0.4rem 0.58rem;
+    font-size: 0.7rem;
+  }
+
+  .settings-panel {
+    padding: 0.78rem;
+    border-radius: 18px;
+  }
+
+  .wellness-chip {
+    flex: 1 1 100%;
   }
 }
 

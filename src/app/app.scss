@@ -50,6 +50,24 @@
 
 @media (max-width: 560px) {
   :host {
-    padding: 0.65rem;
+    padding:
+      max(0.65rem, env(safe-area-inset-top))
+      max(0.65rem, env(safe-area-inset-right))
+      max(0.65rem, env(safe-area-inset-bottom))
+      max(0.65rem, env(safe-area-inset-left));
+  }
+
+  .app-shell {
+    gap: 0.8rem;
+  }
+}
+
+@media (max-width: 380px) {
+  :host {
+    padding:
+      max(0.5rem, env(safe-area-inset-top))
+      max(0.5rem, env(safe-area-inset-right))
+      max(0.5rem, env(safe-area-inset-bottom))
+      max(0.5rem, env(safe-area-inset-left));
   }
 }
