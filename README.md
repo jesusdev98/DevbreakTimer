@@ -173,18 +173,6 @@ FocusFlow includes accessibility support across the main interaction paths:
 - ARIA live regions for timer, task, and wellness announcements
 - Reduced interruption design for wellness prompts and completion states
 
-## Screenshots
-
-Screenshots should be captured from the deployed production build so they reflect the final PWA behavior.
-
-| View | Placeholder |
-| --- | --- |
-| Desktop workspace | Add desktop screenshot |
-| Mobile layout | Add mobile screenshot |
-| Wellness mode | Add wellness mode screenshot |
-| Kanban workspace | Add Kanban screenshot |
-| Installed PWA | Add installed PWA screenshot |
-
 ## Deployment Notes
 
 FocusFlow builds to static assets and can be hosted on platforms such as Vercel, GitHub Pages, Netlify, or any static hosting provider.
@@ -228,3 +216,40 @@ FocusFlow demonstrates production-minded frontend work:
 - Runtime i18n
 - Accessibility-aware interaction design
 - Behavior-focused testing around sessions, tasks, wellness logic, and productivity stats
+
+---
+
+## Screenshots
+
+### Desktop App
+
+FocusFlow running as an installed desktop PWA.
+
+![FocusFlow Desktop App](./screenshots/focusflow-desktop.png)
+
+---
+
+### Web Version
+
+FocusFlow running from the public production deployment.
+
+![FocusFlow Web Version](./screenshots/focusflow-web.png)
+
+---
+
+### Mobile PWA
+
+Installed Android PWA experience.
+
+![FocusFlow Mobile PWA](./screenshots/focusflow-mobile-pwa.jpg)
+
+---
+
+## Screenshot Folder Structure
+
+```text
+screenshots/
+  focusflow-desktop.png
+  focusflow-web.png
+  focusflow-mobile-pwa.jpg
+```
