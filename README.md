@@ -15,6 +15,19 @@ FocusFlow combines a focus timer, Pomodoro workflows, Kanban planning, and light
 ![Offline first](https://img.shields.io/badge/Offline--first-localStorage-0F766E?style=flat-square)
 ![Accessibility](https://img.shields.io/badge/Accessibility-keyboard%20ready-4B5563?style=flat-square)
 
+---
+
+### Live Demo
+
+🌐 Vercel:  
+https://focusflowpwa.vercel.app/
+
+🌐 GitHub Pages:  
+https://jesusdev98.github.io/FocusFlow/
+
+💻 Source Code:  
+https://github.com/jesusdev98/FocusFlow
+
 </div>
 
 ---
@@ -242,14 +255,3 @@ FocusFlow running from the public production deployment.
 Installed Android PWA experience.
 
 ![FocusFlow Mobile PWA](./screenshots/focusflow-mobile-pwa.png)
-
----
-
-## Screenshot Folder Structure
-
-```text
-screenshots/
-  focusflow-desktop.png
-  focusflow-web.png
-  focusflow-mobile-pwa.png
-```
