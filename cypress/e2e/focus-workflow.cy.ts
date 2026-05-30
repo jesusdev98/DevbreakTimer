@@ -25,24 +25,24 @@ describe('Focus workflow', () => {
 
     cy.getByTestId('start-button').click();
     cy.tick(1_000);
-    cy.getByTestId('timer-status').should('contain.text', 'running');
+    cy.getByTestId('timer-status').should('contain.text', 'Running');
     cy.getByTestId('timer-display').should('contain.text', '00:59');
 
     cy.getByTestId('pause-button').click();
-    cy.getByTestId('timer-status').should('contain.text', 'paused');
+    cy.getByTestId('timer-status').should('contain.text', 'Paused');
 
     cy.getByTestId('start-button').click();
-    cy.getByTestId('timer-status').should('contain.text', 'running');
+    cy.getByTestId('timer-status').should('contain.text', 'Running');
 
     cy.getByTestId('reset-button').click();
-    cy.getByTestId('timer-status').should('contain.text', 'idle');
+    cy.getByTestId('timer-status').should('contain.text', 'Ready');
     cy.getByTestId('timer-display').should('contain.text', '01:00');
 
     cy.getByTestId('start-button').click();
     cy.tick(60_000);
 
-    cy.getByTestId('timer-status').should('contain.text', 'completed');
-    cy.contains('.focus-completion', 'Focus Session Completed').should('be.visible');
+    cy.getByTestId('timer-status').should('contain.text', 'Done');
+    cy.contains('.focus-completion', 'Focus complete').should('be.visible');
     cy.contains('.focus-completion', 'Focus reliability pass').should('be.visible');
   });
 });

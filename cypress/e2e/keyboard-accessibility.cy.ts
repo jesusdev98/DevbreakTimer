@@ -22,8 +22,8 @@ describe('Keyboard and accessibility workflows', () => {
     cy.press(Cypress.Keyboard.Keys.TAB);
     cy.focused().should('contain.text', 'Active');
 
-    cy.contains('label', 'New Task').find('input').focus().type('Keyboard task');
-    cy.contains('button', 'Add Task').focus();
+    cy.contains('label', 'New task').find('input').focus().type('Keyboard task');
+    cy.contains('button', 'Add task').focus();
     cy.focused().type('{enter}');
     cy.getByTestId('kanban-column-ideas').should('contain.text', 'Keyboard task');
 
@@ -35,7 +35,7 @@ describe('Keyboard and accessibility workflows', () => {
 
     cy.getByTestId('start-button').focus();
     cy.focused().type('{enter}');
-    cy.getByTestId('timer-status').should('contain.text', 'running');
+    cy.getByTestId('timer-status').should('contain.text', 'Running');
   });
 
   it('restores focus after settings, quick-add, and task edit cancellation', () => {
@@ -50,10 +50,10 @@ describe('Keyboard and accessibility workflows', () => {
     cy.focused().should('have.attr', 'data-testid', 'settings-button');
 
     cy.getByTestId('kanban-column-todo').within(() => {
-      cy.contains('button', '+ Add task').click();
+      cy.contains('button', '+ Task').click();
       cy.get('input[name="quickAddTitle"]').should('be.focused').type('Canceled task');
       cy.focused().type('{esc}');
-      cy.focused().should('contain.text', '+ Add task');
+      cy.focused().should('contain.text', '+ Task');
     });
 
     cy.contains('[data-testid="task-card"]', 'Keyboard audit task').within(() => {
@@ -68,11 +68,11 @@ describe('Keyboard and accessibility workflows', () => {
     cy.visit('/');
 
     cy.getByTestId('settings-button').click();
-    cy.get('[aria-label="Edit shortcut for Search"]').click();
-    cy.get('[aria-label="Edit shortcut for Search"]').should('contain.text', 'Press keys');
+    shortcutButton('Search').click();
+    shortcutButton('Search').should('contain.text', 'Press keys');
 
     cy.focused().type('{esc}');
-    cy.get('[aria-label="Edit shortcut for Search"]').should('not.contain.text', 'Press keys');
+    shortcutButton('Search').should('not.contain.text', 'Press keys');
     cy.get('.settings-panel').should('be.visible');
 
     cy.get('body').type('{esc}');
@@ -86,10 +86,10 @@ describe('Keyboard and accessibility workflows', () => {
     cy.getByTestId('settings-button').click();
     cy.focused().should('contain.text', 'Close');
 
-    cy.focused().type('{shift+tab}');
+    cy.focused().trigger('keydown', { key: 'Tab', shiftKey: true });
     cy.focused().should('contain.text', 'Apply');
 
-    cy.focused().type('{tab}');
+    cy.focused().trigger('keydown', { key: 'Tab' });
     cy.focused().should('contain.text', 'Close');
 
     cy.get('body').type('{esc}');
@@ -106,8 +106,8 @@ describe('Keyboard and accessibility workflows', () => {
       },
     });
 
-    cy.contains('label', 'New Task').find('input').type('Reduced motion task');
-    cy.contains('button', 'Add Task').click();
+    cy.contains('label', 'New task').find('input').type('Reduced motion task');
+    cy.contains('button', 'Add task').click();
     cy.getByTestId('kanban-column-ideas').should('contain.text', 'Reduced motion task');
 
     cy.get('.kanban-density').contains('button', 'Compact').click();
@@ -117,9 +117,13 @@ describe('Keyboard and accessibility workflows', () => {
 
     cy.getByTestId('start-button').click();
     cy.tick(1_000);
-    cy.getByTestId('timer-status').should('contain.text', 'running');
+    cy.getByTestId('timer-status').should('contain.text', 'Running');
   });
 });
+
+function shortcutButton(label: string): Cypress.Chainable<JQuery<HTMLButtonElement>> {
+  return cy.contains('.shortcut-row', label).find('button.shortcut-key');
+}
 
 function createTask() {
   return {
