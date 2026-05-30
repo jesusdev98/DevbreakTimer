@@ -1,0 +1,62 @@
+name: Cypress E2E
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  e2e:
+    name: Cypress E2E
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.5.0
+
+      - name: Get pnpm store path
+        run: echo "PNPM_STORE_PATH=$(pnpm store path --silent)" >> "$GITHUB_ENV"
+
+      - name: Restore pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.PNPM_STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build production app
+        run: pnpm run build
+
+      - name: Start Angular dev server
+        run: |
+          pnpm start --host 127.0.0.1 --port 4200 > angular-server.log 2>&1 &
+          echo $! > angular-server.pid
+
+      - name: Wait for Angular dev server
+        run: |
+          for i in {1..90}; do
+            if curl --silent --fail http://127.0.0.1:4200 > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat angular-server.log
+          exit 1
+
+      - name: Run Cypress E2E
+        run: pnpm run e2e
