@@ -9,6 +9,7 @@ FocusFlow combines a focus timer, Pomodoro workflows, Kanban planning, and light
 ![Angular](https://img.shields.io/badge/Angular-21-DD0031?style=flat-square&logo=angular&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=flat-square&logo=typescript&logoColor=white)
 ![RxJS](https://img.shields.io/badge/RxJS-7.8-B7178C?style=flat-square&logo=reactivex&logoColor=white)
+![pnpm](https://img.shields.io/badge/pnpm-11-F69220?style=flat-square&logo=pnpm&logoColor=white)
 ![PWA](https://img.shields.io/badge/PWA-Installable-5A0FC8?style=flat-square)
 ![Cypress](https://img.shields.io/badge/Cypress-E2E-17202C?style=flat-square&logo=cypress&logoColor=white)
 ![i18n](https://img.shields.io/badge/i18n-EN%20%7C%20ES%20%7C%20FR-2563EB?style=flat-square)
@@ -127,13 +128,13 @@ Architecture highlights:
 Install dependencies:
 
 ```bash
-npm install
+pnpm install
 ```
 
 Run the local development server:
 
 ```bash
-npm start
+pnpm start
 ```
 
 Open:
@@ -145,20 +146,22 @@ http://localhost:4200/
 Create a production build:
 
 ```bash
-npm run build
+pnpm run build
 ```
 
 Run unit tests:
 
 ```bash
-npm test -- --watch=false
+pnpm test --watch=false
 ```
 
 Run Cypress:
 
 ```bash
-npm run e2e
+pnpm run e2e
 ```
+
+> On local Windows shells, make sure `ELECTRON_RUN_AS_NODE` is not set before launching Cypress.
 
 ## PWA Support
 
@@ -201,12 +204,25 @@ Deployment profile:
 Recommended release checks:
 
 ```bash
-npm ci
-npm run build
-npm test -- --watch=false
+pnpm install --frozen-lockfile
+pnpm run build
+pnpm test --watch=false
+pnpm run e2e
 ```
 
 For PWA behavior, validate installability and offline reload from a production build over HTTPS or localhost.
+
+## CI/CD
+
+GitHub Actions uses Node 22 and pnpm 11. The main CI workflow installs dependencies with `pnpm install --frozen-lockfile`, runs unit tests with `pnpm test --watch=false`, and builds the production app with `pnpm run build`.
+
+The GitHub Pages deployment workflow also uses pnpm and builds with the repository base href:
+
+```bash
+pnpm run build --configuration production --base-href /FocusFlow/
+```
+
+The Cypress E2E workflow starts the Angular dev server with pnpm and runs the Cypress suite against `http://127.0.0.1:4200`.
 
 ## Future Improvements
 
@@ -255,3 +271,14 @@ FocusFlow running from the public production deployment.
 Installed Android PWA experience.
 
 ![FocusFlow Mobile PWA](./screenshots/focusflow-mobile-pwa.png)
+
+---
+
+## Screenshot Folder Structure
+
+```text
+screenshots/
+  focusflow-desktop.png
+  focusflow-web.png
+  focusflow-mobile-pwa.png
+```
