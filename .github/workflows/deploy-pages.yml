@@ -43,7 +43,7 @@ jobs:
         run: pnpm test --watch=false
 
       - name: Build Angular app
-        run: pnpm run build -- --configuration production --base-href /${{ github.event.repository.name }}/
+        run: pnpm run build --configuration production --base-href /${{ github.event.repository.name }}/
 
       - name: Add SPA fallback
         run: cp dist/devbreak-timer/browser/index.html dist/devbreak-timer/browser/404.html
