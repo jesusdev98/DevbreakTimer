@@ -13,8 +13,8 @@ describe('Persistence restore workflow', () => {
       },
     });
 
-    cy.contains('label', 'New Task').find('input').type('Persistent task');
-    cy.contains('button', 'Add Task').click();
+    cy.contains('label', 'New task').find('input').type('Persistent task');
+    cy.contains('button', 'Add task').click();
     cy.reload();
 
     cy.getByTestId('kanban-column-ideas').should('contain.text', 'Persistent task');
@@ -30,7 +30,7 @@ describe('Persistence restore workflow', () => {
     cy.reload();
     cy.tick(2_000);
 
-    cy.getByTestId('timer-status').should('contain.text', 'running');
+    cy.getByTestId('timer-status').should('contain.text', 'Running');
     cy.getByTestId('timer-display').should('contain.text', '04:58');
   });
 

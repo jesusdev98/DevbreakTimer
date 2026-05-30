@@ -12,7 +12,7 @@ describe('DevBreak Timer', () => {
     cy.getByTestId('start-button').click();
     cy.tick(1_000);
 
-    cy.getByTestId('timer-status').should('contain.text', 'running');
+    cy.getByTestId('timer-status').should('contain.text', 'Running');
     cy.getByTestId('timer-display').should('contain.text', '24:59');
   });
 
@@ -25,7 +25,7 @@ describe('DevBreak Timer', () => {
     cy.reload();
     cy.tick(2_000);
 
-    cy.getByTestId('timer-status').should('contain.text', 'running');
+    cy.getByTestId('timer-status').should('contain.text', 'Running');
     cy.getByTestId('timer-display').should('contain.text', '04:58');
   });
 
@@ -40,9 +40,11 @@ describe('DevBreak Timer', () => {
     cy.tick(1_000);
     cy.window().then((win) => win.dispatchEvent(new Event('focus')));
 
-    cy.getByTestId('session-title').should('contain.text', 'Short Break');
+    cy.getByTestId('pomodoro-session-panel')
+      .should('contain.text', 'Current')
+      .and('contain.text', 'Short Break');
     cy.getByTestId('session-meta').should('contain.text', 'Cycle 2 / 4');
-    cy.getByTestId('timer-status').should('contain.text', 'running');
+    cy.getByTestId('timer-status').should('contain.text', 'Running');
     cy.get('@notification').should('have.been.calledOnce');
   });
 
@@ -51,7 +53,9 @@ describe('DevBreak Timer', () => {
     cy.visit('/');
 
     cy.getByTestId('pomodoro-toggle').click({ force: true });
-    cy.getByTestId('session-title').should('contain.text', 'Focus Session');
+    cy.getByTestId('pomodoro-session-panel')
+      .should('contain.text', 'Current')
+      .and('contain.text', 'Focus Session');
     cy.document().its('documentElement.scrollWidth').should('be.lte', 320);
   });
 
@@ -66,7 +70,7 @@ describe('DevBreak Timer', () => {
     cy.tick(1_000);
     cy.window().then((win) => win.dispatchEvent(new Event('focus')));
 
-    cy.getByTestId('timer-status').should('contain.text', 'completed');
+    cy.getByTestId('timer-status').should('contain.text', 'Done');
     cy.get('@notification').should('not.have.been.called');
   });
 });

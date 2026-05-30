@@ -11,9 +11,9 @@ describe('Kanban core workflow', () => {
   });
 
   it('creates, edits, moves, archives, and restores a task', () => {
-    cy.contains('label', 'New Task').find('input').type('Draft release notes');
+    cy.contains('label', 'New task').find('input').type('Draft release notes');
     cy.contains('label', 'Description').find('textarea').type('Capture launch details');
-    cy.contains('button', 'Add Task').click();
+    cy.contains('button', 'Add task').click();
 
     taskCard('Draft release notes').within(() => {
       cy.contains('button', 'Edit').click();
@@ -29,7 +29,7 @@ describe('Kanban core workflow', () => {
       cy.contains('button', 'Archive').click();
     });
 
-    cy.contains('summary', 'Archived Tasks').click();
+    cy.contains('summary', 'Archived').click();
     cy.get('.kanban-archive').within(() => {
       cy.contains('Finalize release notes').should('be.visible');
       cy.contains('button', 'Restore').click();
